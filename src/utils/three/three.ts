@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { config, gameSize } from '../phaserLoad/config';
+import { gameSize } from '../phaserLoad/config';
+import MeshObject from './meshObject';
 
 export default class Three
 {
@@ -8,28 +9,20 @@ export default class Three
     public static scene: THREE.Scene;
     public static camera: THREE.PerspectiveCamera;
     public static renderer: THREE.WebGLRenderer;
-    public static mesh: THREE.Mesh;
+    
+    public static meshObjects: MeshObject[] = [];
 
     public static async init()
     {
         const camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 100 );
-        camera.position.z = 2;
         this.camera = camera;
+
+        camera.position.y = 2;
+        camera.position.z = 2;
+        camera.lookAt(0, 0, 0);
 
         const scene = new THREE.Scene();
         this.scene = scene;
-
-        const texture = new THREE.TextureLoader().load( 'crate.gif' );
-        texture.colorSpace = THREE.SRGBColorSpace;
-
-        const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-        const material = new THREE.MeshBasicMaterial( { map: texture } );
-        //const material = new THREE.MeshBasicMaterial();
-
-        const mesh = new THREE.Mesh( geometry, material );
-        this.mesh = mesh;
-        scene.add( mesh );
-
 
         const renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.renderer = renderer;
@@ -41,30 +34,19 @@ export default class Three
         console.log(renderer.getSize(new THREE.Vector2(0, 0)))
 
         //renderer.setClearColor( 0xffffff, 0);
-        
         //renderer.setAnimationLoop( animate );
         
-
         document.body.appendChild( renderer.domElement );
-
-        /*
-        setInterval(() => {
-            this.animate();
-        }, 10);
-        */
     }
 
     public static animate()
     {
         const renderer = this.renderer;
 
-        const mesh = this.mesh;
-
-        mesh.rotation.x += 0.01;
-        //mesh.rotation.y += 0.01;
-
-        mesh.position.x += 0.01;
-        mesh.position.z -= 0.01;
+        for(const meshObject of this.meshObjects)
+        {
+            meshObject.update();
+        }
 
         // fix stupid issue
         //renderer.domElement.width = gameSize.x;
@@ -107,5 +89,27 @@ export default class Three
     {
         const domElement = this.renderer.domElement;
         return new THREE.Vector2(domElement.width, domElement.height);
+    }
+
+    public static createBox(width: number, height: number, depth: number)
+    {
+        const texture = new THREE.TextureLoader().load( 'crate.gif' );
+        texture.colorSpace = THREE.SRGBColorSpace;
+
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshBasicMaterial( { map: texture } );
+        //const material = new THREE.MeshBasicMaterial();
+
+        const mesh = new THREE.Mesh( geometry, material );
+        this.scene.add( mesh );
+
+        return mesh;
+    }
+
+    public static addMeshObject(mesh: THREE.Mesh)
+    {
+        const meshObject = new MeshObject(mesh);
+        this.meshObjects.push(meshObject);
+        return meshObject;
     }
 }

@@ -37,4 +37,11 @@ export class Gameface extends BaseObject
         this.sceneManager.startScene(GameScene);
         this.sceneManager.startScene(Test1Scene);
     }
+
+    public getGameSize()
+    {
+        const scale = this.phaser.scale;
+        const gameSize = new Phaser.Math.Vector2(scale.width, scale.height);
+        return gameSize;
+    }
 }

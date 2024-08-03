@@ -1,5 +1,6 @@
 import { Debug } from "../utils/debug/debug";
 import { Gameface } from "./gameface/gameface";
+import { GameScene } from "./scenes/gameScene";
 
 const gameface = new Gameface();
 
@@ -15,5 +16,6 @@ main();
 const w: any = window;
 w["gameface"] = gameface;
 w["Debug"] = Debug;
+w["GameScene"] = GameScene;
 
 
