@@ -66,6 +66,10 @@ export default class Three
         mesh.position.x += 0.01;
         mesh.position.z -= 0.01;
 
+        // fix stupid issue
+        //renderer.domElement.width = gameSize.x;
+        //renderer.domElement.height = gameSize.y;
+
         // Render the scene from the perspective of the camera
         renderer.render(this.scene, this.camera);
     }
@@ -97,5 +101,11 @@ export default class Three
         const y = -(vector.y * heightHalf) + heightHalf;
     
         return { x, y };
+    }
+
+    public static getDomElementSize()
+    {
+        const domElement = this.renderer.domElement;
+        return new THREE.Vector2(domElement.width, domElement.height);
     }
 }
