@@ -16,10 +16,20 @@ export class Pads extends BaseObject
 
         const pad = new Pad(meshObject);
         this._pads.push(pad);
+
+        return pad;
     }
 
     public getPad(index: number)
     {
         return this._pads[index];
+    }
+
+    public update()
+    {
+        for(const pad of this._pads)
+        {
+            pad.update();
+        }
     }
 }

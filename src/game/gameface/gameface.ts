@@ -1,7 +1,10 @@
+import { AssetLoad } from "../../utils/assetLoad/assetLoad";
 import { BaseObject } from "../../utils/baseObject";
+import { Input } from "../../utils/input/input";
 import { PhaserLoad } from "../../utils/phaserLoad/phaserLoad";
 import Three from "../../utils/three/three";
 import { GameScene } from "../scenes/gameScene";
+import { MainScene } from "../scenes/mainScene";
 import { Test1Scene } from "../scenes/test1Scene";
 import { SceneManager } from "./sceneManager";
 
@@ -11,9 +14,11 @@ export class Gameface extends BaseObject
 
     public get phaser() { return this._phaser!; }
     public get sceneManager() { return this._sceneManager; }
+    public get input() { return this._input; }
 
     private _phaser?: Phaser.Game;
     private _sceneManager: SceneManager;
+    private _input: Input;
     
     constructor()
     {
@@ -22,6 +27,7 @@ export class Gameface extends BaseObject
         Gameface.Instance = this;
 
         this._sceneManager = new SceneManager(this);
+        this._input = new Input();
     }
 
     public async start()
@@ -33,9 +39,23 @@ export class Gameface extends BaseObject
         this.log(this.phaser);
 
         await Three.init();
+        Three.animate();
+
+        this.sceneManager.startScene(MainScene);
+
+        this.input.init(MainScene.Instance);
+
+        AssetLoad.addAssets();
+        await AssetLoad.load();
 
         this.sceneManager.startScene(GameScene);
         this.sceneManager.startScene(Test1Scene);
+
+    }
+
+    public update()
+    {
+        this.log("update");
     }
 
     public getGameSize()

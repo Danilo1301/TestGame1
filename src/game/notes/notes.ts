@@ -2,10 +2,13 @@ import { BaseObject } from "../../utils/baseObject";
 import MeshObject from "../../utils/three/meshObject";
 import Three from "../../utils/three/three";
 import { GameScene } from "../scenes/gameScene";
+import { Note } from "./note";
 
 export class Notes extends BaseObject
 {
-    private _noteMeshObjects: MeshObject[] = [];
+    public get notes() { return this._notes; };
+
+    private _notes: Note[] = [];
 
     public spawnNoteForPad(padIndex: number)
     {
@@ -18,36 +21,37 @@ export class Notes extends BaseObject
     public spawnNote(x: number, y: number, z: number)
     {
         const mesh = Three.createBox(0.1, 0.1, 0.1);
-        const meshObject = Three.addMeshObject(mesh);
-        meshObject.name = "Note";
-        
         mesh.position.set(x, y, z);
 
-        this._noteMeshObjects.push(meshObject);
+        const meshObject = Three.addMeshObject(mesh);
+        meshObject.name = "Note";
+
+        const note = new Note(meshObject);
+    
+        this._notes.push(note);
+
+        return note;
     }
 
     public update()
     {
-        const meshObjectsToDestroy: MeshObject[] = [];
+        const notesToDestroy: Note[] = [];
 
-        for(const meshObject of this._noteMeshObjects)
+        for(const note of this._notes)
         {
-            const mesh = meshObject.mesh;
+            note.update();
 
-            mesh.position.z += 0.03;
-
-            if(mesh.position.z >= 2)
+            if(note.meshObject.mesh.position.z >= 2)
             {
-                meshObjectsToDestroy.push(meshObject);
-                continue;
+                notesToDestroy.push(note);
             }
         }
 
-        for(const meshObject of meshObjectsToDestroy)
+        for(const note of notesToDestroy)
         {
-            this._noteMeshObjects.splice(this._noteMeshObjects.indexOf(meshObject), 1);
+            this._notes.splice(this._notes.indexOf(note), 1);
 
-            meshObject.destroy();
+            note.destroy();
         }
     }
 }

@@ -33,7 +33,7 @@ export class SceneManager extends BaseObject
         const phaser = this.phaser;
         const key = scene.name;
 
-        console.log("removeScene", key, scene)
+        this.log("removeScene", key);
 
         if(this.hasSceneStarted(scene))
         {

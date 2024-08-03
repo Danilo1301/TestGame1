@@ -1,3 +1,4 @@
+import * as Phaser from "phaser"
 import { Debug } from "../utils/debug/debug";
 import { Gameface } from "./gameface/gameface";
 import { GameScene } from "./scenes/gameScene";

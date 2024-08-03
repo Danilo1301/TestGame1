@@ -18,6 +18,8 @@ export class GameScene extends Phaser.Scene
     public canvas?: Phaser.Textures.CanvasTexture;
     public plank?: Mesh;
 
+    public padKeys: string[] = ["A", "S", "D", "F", "G"];
+
     constructor()
     {
         super({});
@@ -30,22 +32,7 @@ export class GameScene extends Phaser.Scene
 
     public async create()
     {
-        Debug.log("create scene");
-
-        //
-
-        const textureManager = this.textures;
-        
-        const gameSize = Gameface.Instance.getGameSize();
-
-        const canvasKey = "test_canvas";
-        const canvas = textureManager.createCanvas(canvasKey, gameSize.x, gameSize.y);
-        this.canvas = canvas;
-
-        const image = this.add.image(0, 0, canvasKey);
-        image.setPosition(gameSize.x/2, gameSize.y/2);
-        //image.setOrigin(0, 0);
-        //image.setScale(0.5);
+        this.createThreeCanvas();
 
         //
 
@@ -60,7 +47,8 @@ export class GameScene extends Phaser.Scene
             const totalDistance = (numOfPads-1) * distance;
             const x = i * distance - totalDistance/2;
 
-            this.pads.addPad(x, 0, 1.5);
+            const pad = this.pads.addPad(x, 0, 1.5);
+            pad.setKey(this.padKeys[i]);
         }
 
         setInterval(() => {
@@ -71,7 +59,29 @@ export class GameScene extends Phaser.Scene
     public update(time: number, delta: number)
     {
         this.notes.update();
+        this.pads.update();
 
+        this.updateThreeCanvas();
+    }
+
+    private createThreeCanvas()
+    {
+        const textureManager = this.textures;
+        
+        const gameSize = Gameface.Instance.getGameSize();
+
+        const canvasKey = "test_canvas";
+        const canvas = textureManager.createCanvas(canvasKey, gameSize.x, gameSize.y);
+        this.canvas = canvas;
+
+        const image = this.add.image(0, 0, canvasKey);
+        image.setPosition(gameSize.x/2, gameSize.y/2);
+        //image.setOrigin(0, 0);
+        //image.setScale(0.5);
+    }
+
+    private updateThreeCanvas()
+    {
         Three.animate();
 
         const gameSize = Gameface.Instance.getGameSize();
