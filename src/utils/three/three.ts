@@ -29,7 +29,7 @@ export default class Three
 
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize(gameSize.x, gameSize.y);
-        renderer.setClearColor( 0xff0000, 1);
+        renderer.setClearColor( 0xff0000, 0.2);
 
         console.log(renderer.getSize(new THREE.Vector2(0, 0)))
 
@@ -83,6 +83,12 @@ export default class Three
         const y = -(vector.y * heightHalf) + heightHalf;
     
         return { x, y };
+    }
+
+    public static getDistanceFromCamera(position: THREE.Vector3)
+    {
+        const cameraPosition = this.camera.position;
+        return position.distanceTo(cameraPosition);
     }
 
     public static getDomElementSize()

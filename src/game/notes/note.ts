@@ -6,6 +6,7 @@ import { GameScene } from "../scenes/gameScene";
 
 export class Note extends BaseObject
 {
+    public movementSpeed: number = 0;
     public meshObject: MeshObject;
     public image?: Phaser.GameObjects.Image;
 
@@ -23,13 +24,19 @@ export class Note extends BaseObject
     public update()
     {
         const mesh = this.meshObject.mesh;
-        mesh.position.z += 0.03;
+        mesh.position.z += this.movementSpeed;
 
         if(this.image)
         {
             const screenPosition = Three.convert3DPositionTo2D(this.meshObject.mesh.position);
 
             this.image.setPosition(screenPosition.x, screenPosition.y);
+
+            const scale = Three.getDistanceFromCamera(mesh.position) * 0.1;
+
+            this.meshObject.debugText.setLine("scale", `x${scale.toFixed(2)}`);
+
+            //this.image.setScale(scale);
         }
     }
 

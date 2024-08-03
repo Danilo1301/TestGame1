@@ -9,6 +9,9 @@ export class MainScene extends Phaser.Scene
 {
     public static Instance: MainScene;
     
+    public layerNormal!: Phaser.GameObjects.Layer;
+    public layerHud!: Phaser.GameObjects.Layer;
+
     constructor()
     {
         super({});
@@ -18,7 +21,13 @@ export class MainScene extends Phaser.Scene
 
     public async create()
     {
-        
+        this.layerNormal = this.add.layer();
+        this.layerNormal.setDepth(0);
+
+        this.layerHud = this.add.layer();
+        this.layerHud.setDepth(10000);
+
+        this.add.text(200, 200, 'Click anywhere to start', { font: '16px Arial' });
     }
 
     public update(time: number, delta: number)

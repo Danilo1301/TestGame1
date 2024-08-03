@@ -3,6 +3,10 @@ interface AssetItem {
     path: string
 }
 
-export const assets: AssetItem[] = [
+export const imageAssets: AssetItem[] = [
     {key: "note", path: "note.png"}
+];
+
+export const audioAssets: AssetItem[] = [
+    {key: "sound1", path: "sound1.mp3"}
 ];

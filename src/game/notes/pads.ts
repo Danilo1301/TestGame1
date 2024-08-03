@@ -5,6 +5,8 @@ import { Pad } from "./pad";
 
 export class Pads extends BaseObject
 {
+    public get numOfPads() { return this._pads.length; };
+
     private _pads: Pad[] = [];
     
     public addPad(x: number, y: number, z: number)
@@ -22,7 +24,14 @@ export class Pads extends BaseObject
 
     public getPad(index: number)
     {
-        return this._pads[index];
+        const pad = this._pads[index];
+
+        if(pad == undefined)
+        {
+            console.error("Could not find pad " + index);
+        }
+
+        return pad;
     }
 
     public update()

@@ -66,6 +66,7 @@ export class LoadScene extends Phaser.Scene
                 loadAsset.asset.loadState = LoadState.LOADING;
 
                 if(loadAsset.asset.type == AssetType.IMAGE) load.image(key, path);
+                if(loadAsset.asset.type == AssetType.AUDIO) load.audio(key, path);
             }
 
             load.once('complete', async () => {

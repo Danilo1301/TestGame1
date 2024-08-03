@@ -1,9 +1,9 @@
 import * as Phaser from "phaser"
-import { assets } from "../../game/constants/assets";
 import { MainScene } from "../../game/scenes/mainScene";
 import { Gameface } from "../../game/gameface/gameface";
 import { LoadScene } from "../../game/scenes/loadScene";
 import { Debug } from "../debug/debug";
+import { audioAssets, imageAssets } from "../../game/constants/assets";
 
 export enum LoadState {
     NOT_LOADED,
@@ -42,12 +42,31 @@ export class AssetLoad
 
         this._assets.set(key, asset);
     }
+    
+    public static addAudio(key: string, path: string)
+    {
+        console.log(`Add asset to load: ${key} (${path})`);
+
+        const asset: Asset = {
+            key: key,
+            path: path,
+            loadState: LoadState.NOT_LOADED,
+            type: AssetType.AUDIO
+        }
+
+        this._assets.set(key, asset);
+    }
 
     public static addAssets()
     {
-        for(const asset of assets)
+        for(const asset of imageAssets)
         {
             this.addImage(asset.key, asset.path);
+        }
+
+        for(const asset of audioAssets)
+        {
+            this.addAudio(asset.key, asset.path);
         }
     }
 

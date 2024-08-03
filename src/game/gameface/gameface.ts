@@ -48,9 +48,29 @@ export class Gameface extends BaseObject
         AssetLoad.addAssets();
         await AssetLoad.load();
 
+        await this.fuckingWaitForFirstClick();
+
         this.sceneManager.startScene(GameScene);
         this.sceneManager.startScene(Test1Scene);
 
+        MainScene.Instance.scene.bringToTop();
+    }
+
+    public async fuckingWaitForFirstClick()
+    {
+        const scene = MainScene.Instance;
+        let started = false;
+
+        return new Promise<void>((resolve) => {
+            scene.input.on('pointerdown', () => {
+                if(!started)
+                {
+                    started = true;
+                    console.log("pointer down");
+                    resolve();
+                }
+            });
+        });
     }
 
     public update()

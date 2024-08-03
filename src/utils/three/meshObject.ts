@@ -1,34 +1,26 @@
 import * as THREE from 'three';
 import { GameScene } from '../../game/scenes/gameScene';
 import Three from './three';
+import { MainScene } from '../../game/scenes/mainScene';
+import { DebugText } from '../debug/debugText';
 
 export default class MeshObject
 {
     public mesh: THREE.Mesh;
-    public text: Phaser.GameObjects.Text | undefined;
+    public debugText: DebugText;
     public name: string = "Object";
 
     constructor(mesh: THREE.Mesh)
     {
         this.mesh = mesh;
-
-        const scene = GameScene.Instance;
-
-        this.text = scene.add.text(0, 0, '', { font: '16px Arial' });
+        this.debugText = new DebugText("Object");
     }
 
     public update()
     {
-        const screenPosition = Three.convert3DPositionTo2D(this.mesh.position);
-
-        const text = this.text;
-
-        if(text)
-        {
-            //text.setText(`${this.name} (${screenPosition.x}, ${screenPosition.y})`);
-            text.setText(`${this.name}`);
-            text.setPosition(screenPosition.x, screenPosition.y);
-        }
+        this.debugText.setLine("title", this.name);
+        this.debugText.set3DPosition(this.mesh.position);
+        this.debugText.update();
     }
 
     public destroy()
@@ -58,10 +50,6 @@ export default class MeshObject
         }
         */
 
-        if(this.text)
-        {
-            this.text.destroy();
-            this.text = undefined;
-        }
+        this.debugText.destroy();
     }
 }

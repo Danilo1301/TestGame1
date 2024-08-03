@@ -36,7 +36,7 @@ export class GameScene extends Phaser.Scene
 
         //
 
-        const mesh = Three.createBox(1, 0.01, 1);
+        const mesh = Three.createBox(1.75, 0.01, 4);
         this.plank = Three.addMeshObject(mesh);
 
         const distance = 0.3;
@@ -51,15 +51,26 @@ export class GameScene extends Phaser.Scene
             pad.setKey(this.padKeys[i]);
         }
 
-        setInterval(() => {
-            GameScene.Instance.notes.spawnNoteForPad(2)
-        }, 500);
+        setTimeout(() => {
+            this.sound.play("sound1", {volume: 0.1});
+        }, 1000);
+
+        this.notes.soundNotes.startSong();
+
+        //GameScene.Instance.notes.spawnRandomNoteForPad();
     }
 
     public update(time: number, delta: number)
     {
-        this.notes.update();
+        this.notes.update(delta);
         this.pads.update();
+
+        const plank = this.plank!;
+        plank.mesh.position.z += this.notes.getMovementSpeed();
+        if(plank.mesh.position.z >= 3)
+        {
+            plank.mesh.position.z = 0;
+        }
 
         this.updateThreeCanvas();
     }
