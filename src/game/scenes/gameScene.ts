@@ -1,9 +1,10 @@
 import { Debug } from "../../utils/debug/debug";
 import Mesh from "../../utils/three/meshObject";
 import Three from "../../utils/three/three";
+import { Song } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { Notes } from "../notes/notes";
-import { Pads } from "../notes/pads";
+import { Pads } from "../pads/pads";
 
 export class GameScene extends Phaser.Scene
 {
@@ -51,13 +52,20 @@ export class GameScene extends Phaser.Scene
             pad.setKey(this.padKeys[i]);
         }
 
-        setTimeout(() => {
-            this.sound.play("sound1", {volume: 0.1});
-        }, 1000);
-
-        this.notes.soundNotes.startSong();
+        
 
         //GameScene.Instance.notes.spawnRandomNoteForPad();
+    }
+
+    public startSong(song: Song)
+    {
+        setTimeout(() => {
+            setTimeout(() => {
+                this.sound.play(song.sound, {volume: 0.1});
+            }, 1000);
+    
+            this.notes.soundNotes.startSong(song);
+        }, 1000);
     }
 
     public update(time: number, delta: number)
@@ -66,7 +74,7 @@ export class GameScene extends Phaser.Scene
         this.pads.update();
 
         const plank = this.plank!;
-        plank.mesh.position.z += this.notes.getMovementSpeed();
+        //plank.mesh.position.z += this.notes.getMovementSpeed();
         if(plank.mesh.position.z >= 3)
         {
             plank.mesh.position.z = 0;

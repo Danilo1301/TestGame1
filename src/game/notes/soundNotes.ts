@@ -13,12 +13,11 @@ export class SoundNotes extends BaseObject
     constructor()
     {
         super();
-
-        this._song = songs[0];
     }
 
-    public startSong()
+    public startSong(song: Song)
     {
+        this._song = song;
         this._startedTime = performance.now();
         this._running = true;
     }

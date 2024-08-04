@@ -1,0 +1,39 @@
+import { Debug } from "../../utils/debug/debug";
+import { Button } from "../../utils/ui/button";
+import { Song, songs } from "../constants/songs";
+import { Gameface } from "../gameface/gameface";
+import { GameScene } from "./gameScene";
+
+export class SongSelectionScene extends Phaser.Scene
+{
+    constructor()
+    {
+        super({});
+    }
+
+    public async create()
+    {
+        let y = 50;
+
+        for(const song of songs)
+        {
+            const button = new Button(this, song.name, 200, y, 200, 50, "button");
+            button.onClick = () => this.selectSong(song);
+            y += 50;
+        }
+    }
+
+    public selectSong(song: Song)
+    {
+        Gameface.Instance.sceneManager.startScene(GameScene);
+
+        GameScene.Instance.startSong(song);
+
+        Gameface.Instance.sceneManager.removeScene(SongSelectionScene);
+    }
+
+    public update(time: number, delta: number)
+    {
+        
+    }
+}

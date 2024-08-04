@@ -32,7 +32,8 @@ export class Notes extends BaseObject
 
         const distance = this._spawnNoteDistance;
 
-        this.spawnNote(position.x, position.y, position.z - distance);
+        const note = this.spawnNote(position.x, position.y, position.z - distance);
+        note.padIndex = padIndex;
     }
 
     public spawnRandomNoteForPad()
@@ -95,5 +96,57 @@ export class Notes extends BaseObject
         const amount = distanceToMove / timeToAchieve * delta;
 
         return amount;
+    }
+
+    public getDistanceFromMs(ms: number)
+    {
+        const distanceToMove = this._spawnNoteDistance;
+        const timeToAchieve = 1000;
+
+        const mettersPerMs = distanceToMove/timeToAchieve;
+
+        //3m / 1000ms
+        //0.03 m/ms
+
+        return mettersPerMs * ms;
+    }
+
+    public isDistanceBetweenMsInterval(distance: number, ms: number)
+    {
+        const distanceFromMs = this.getDistanceFromMs(ms);
+
+        const goodDistance = distanceFromMs / 2;
+
+        console.log(`check if ${distance.toFixed(2)} <= ${goodDistance.toFixed(2)}`)
+
+        if(distance <= goodDistance) return true;
+
+        return false;
+    }
+
+    public getClosestNoteForPad(padIndex: number)
+    {
+        let closestDistance = Infinity;
+        let closestNote: Note | undefined = undefined;
+
+        const pad = GameScene.Instance.pads.getPad(padIndex);
+
+        for(const note of this._notes)
+        {
+            if(note.padIndex != padIndex) continue;
+            if(!note.canMove) continue;
+
+            const distance = note.getDistanceFromPad(pad);
+
+            if(distance > 0.3) continue;
+
+            if(distance < closestDistance)
+            {
+                closestNote = note;
+                closestDistance = distance;
+            }
+        }
+
+        return closestNote;
     }
 }

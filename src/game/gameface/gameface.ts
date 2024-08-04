@@ -5,7 +5,8 @@ import { PhaserLoad } from "../../utils/phaserLoad/phaserLoad";
 import Three from "../../utils/three/three";
 import { GameScene } from "../scenes/gameScene";
 import { MainScene } from "../scenes/mainScene";
-import { Test1Scene } from "../scenes/test1Scene";
+import { SongSelectionScene } from "../scenes/songSelectionScene";
+import { TestScene } from "../scenes/testScene";
 import { SceneManager } from "./sceneManager";
 
 export class Gameface extends BaseObject
@@ -50,8 +51,12 @@ export class Gameface extends BaseObject
 
         await this.fuckingWaitForFirstClick();
 
-        this.sceneManager.startScene(GameScene);
-        this.sceneManager.startScene(Test1Scene);
+        MainScene.Instance.firstClickText?.destroy();
+        MainScene.Instance.firstClickText = undefined;
+
+        //this.sceneManager.startScene(GameScene);
+        //this.sceneManager.startScene(TestScene);
+        this.sceneManager.startScene(SongSelectionScene);
 
         MainScene.Instance.scene.bringToTop();
     }
@@ -62,11 +67,10 @@ export class Gameface extends BaseObject
         let started = false;
 
         return new Promise<void>((resolve) => {
-            scene.input.on('pointerdown', () => {
+            scene.input.on('pointerup', () => {
                 if(!started)
                 {
                     started = true;
-                    console.log("pointer down");
                     resolve();
                 }
             });

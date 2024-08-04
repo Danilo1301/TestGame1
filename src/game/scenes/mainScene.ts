@@ -3,7 +3,7 @@ import Mesh from "../../utils/three/meshObject";
 import Three from "../../utils/three/three";
 import { Gameface } from "../gameface/gameface";
 import { Notes } from "../notes/notes";
-import { Pads } from "../notes/pads";
+import { Pads } from "../pads/pads";
 
 export class MainScene extends Phaser.Scene
 {
@@ -11,6 +11,8 @@ export class MainScene extends Phaser.Scene
     
     public layerNormal!: Phaser.GameObjects.Layer;
     public layerHud!: Phaser.GameObjects.Layer;
+
+    public firstClickText?: Phaser.GameObjects.Text;
 
     constructor()
     {
@@ -27,7 +29,7 @@ export class MainScene extends Phaser.Scene
         this.layerHud = this.add.layer();
         this.layerHud.setDepth(10000);
 
-        this.add.text(200, 200, 'Click anywhere to start', { font: '16px Arial' });
+        this.firstClickText = this.add.text(200, 200, 'Click anywhere to start', { font: '16px Arial' });
     }
 
     public update(time: number, delta: number)

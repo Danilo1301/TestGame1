@@ -2,6 +2,7 @@ import { BaseObject } from "../../utils/baseObject";
 import MeshObject from "../../utils/three/meshObject";
 import Three from "../../utils/three/three";
 import { Gameface } from "../gameface/gameface";
+import { Pad } from "../pads/pad";
 import { GameScene } from "../scenes/gameScene";
 
 export class Note extends BaseObject
@@ -9,6 +10,8 @@ export class Note extends BaseObject
     public movementSpeed: number = 0;
     public meshObject: MeshObject;
     public image?: Phaser.GameObjects.Image;
+    public canMove: boolean = true;
+    public padIndex: number = -1;
 
     constructor(meshObject: MeshObject)
     {
@@ -24,7 +27,11 @@ export class Note extends BaseObject
     public update()
     {
         const mesh = this.meshObject.mesh;
-        mesh.position.z += this.movementSpeed;
+
+        if(this.canMove)
+        {
+            mesh.position.z += this.movementSpeed;
+        }
 
         if(this.image)
         {
@@ -45,5 +52,14 @@ export class Note extends BaseObject
         this.meshObject.destroy();
         this.image?.destroy();
         this.image = undefined;
+    }
+
+    public getDistanceFromPad(pad: Pad)
+    {
+        const padPosition = pad.meshObject.mesh.position;
+        const position = this.meshObject.mesh.position;
+
+        const distance = padPosition.distanceTo(position);
+        return distance;
     }
 }
