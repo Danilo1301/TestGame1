@@ -16,11 +16,18 @@ export class Input extends BaseObject
     {
         this._scene = scene;
 
-        scene.input.keyboard.on('keydown', (event: KeyboardEvent) => {
+        const keyboard = scene.input.keyboard;
+        
+        if(!keyboard)
+        {
+            throw "Keyboard is null!";
+        }
+
+        keyboard.on('keydown', (event: KeyboardEvent) => {
             this.onKeyPress(event.key);
         });
 
-        scene.input.keyboard.on('keyup', (event: KeyboardEvent) => {
+        keyboard.on('keyup', (event: KeyboardEvent) => {
             this.onKeyUp(event.key);
         });
     }

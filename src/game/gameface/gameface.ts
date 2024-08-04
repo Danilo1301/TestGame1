@@ -2,16 +2,16 @@ import { AssetLoad } from "../../utils/assetLoad/assetLoad";
 import { BaseObject } from "../../utils/baseObject";
 import { Input } from "../../utils/input/input";
 import { PhaserLoad } from "../../utils/phaserLoad/phaserLoad";
-import Three from "../../utils/three/three";
 import { GameScene } from "../scenes/gameScene";
 import { MainScene } from "../scenes/mainScene";
 import { SongSelectionScene } from "../scenes/songSelectionScene";
-import { TestScene } from "../scenes/testScene";
+import { ThreeScene } from "../scenes/threeScene";
 import { SceneManager } from "./sceneManager";
 
 export class Gameface extends BaseObject
 {
     public static Instance: Gameface;
+    public static isLowPerformance: boolean = true;
 
     public get phaser() { return this._phaser!; }
     public get sceneManager() { return this._sceneManager; }
@@ -39,10 +39,12 @@ export class Gameface extends BaseObject
 
         this.log(this.phaser);
 
-        await Three.init();
-        Three.animate();
-
+        
         this.sceneManager.startScene(MainScene);
+        this.sceneManager.startScene(ThreeScene);
+
+        //await Three.init(this.phaser);
+        //Three.animate();
 
         this.input.init(MainScene.Instance);
 
@@ -54,11 +56,7 @@ export class Gameface extends BaseObject
         MainScene.Instance.firstClickText?.destroy();
         MainScene.Instance.firstClickText = undefined;
 
-        //this.sceneManager.startScene(GameScene);
-        //this.sceneManager.startScene(TestScene);
         this.sceneManager.startScene(SongSelectionScene);
-
-        
     }
 
     public updateScenesOrder()

@@ -4,6 +4,7 @@ import Three from "../../utils/three/three";
 import { Gameface } from "../gameface/gameface";
 import { Pad } from "../pads/pad";
 import { GameScene } from "../scenes/gameScene";
+import { MainScene } from "../scenes/mainScene";
 
 export class Note extends BaseObject
 {
@@ -22,6 +23,7 @@ export class Note extends BaseObject
         const scene = GameScene.Instance;
 
         this.image = scene.add.image(0, 0, "note");
+        MainScene.Instance.layerHud.add(this.image);
     }
 
     public update()

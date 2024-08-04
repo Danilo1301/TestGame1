@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { gameSize } from '../phaserLoad/config';
+import { gameSize } from '../../game/constants/config';
 import MeshObject from './meshObject';
 
 export default class Three
@@ -12,7 +12,7 @@ export default class Three
     
     public static meshObjects: MeshObject[] = [];
 
-    public static async init()
+    public static async init(phaser: Phaser.Game)
     {
         const camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 100 );
         this.camera = camera;
@@ -24,19 +24,30 @@ export default class Three
         const scene = new THREE.Scene();
         this.scene = scene;
 
-        const renderer = new THREE.WebGLRenderer( { antialias: true } );
+        const renderer = new THREE.WebGLRenderer({
+            canvas: phaser.canvas,
+            context: (phaser.context as WebGLRenderingContext),
+            antialias: true
+        });
         this.renderer = renderer;
 
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize(gameSize.x, gameSize.y);
         renderer.setClearColor( 0xff0000, 0.2);
 
+
+        //camera.fov = Math.atan(size.y / 2 / camera.position.z) * 2 * THREE.MathUtils.RAD2DEG;
+        //console.log(camera.fov);
+
+        camera.aspect = gameSize.x / gameSize.y;
+        camera.updateProjectionMatrix();
+
         console.log(renderer.getSize(new THREE.Vector2(0, 0)))
 
         //renderer.setClearColor( 0xffffff, 0);
         //renderer.setAnimationLoop( animate );
         
-        document.body.appendChild( renderer.domElement );
+        //document.body.appendChild( renderer.domElement );
     }
 
     public static animate()
@@ -44,26 +55,17 @@ export default class Three
         const renderer = this.renderer;
         const camera = this.camera;
 
+
+        // Render the scene from the perspective of the camera
+        renderer.render(this.scene, this.camera);
+    }
+
+    public static update()
+    {
         for(const meshObject of this.meshObjects)
         {
             meshObject.update();
         }
-
-        const size = gameSize;
-
-        renderer.setSize(size.x, size.y);
-        //camera.fov = Math.atan(size.y / 2 / camera.position.z) * 2 * THREE.MathUtils.RAD2DEG;
-        //console.log(camera.fov);
-
-        camera.aspect = size.x / size.y;
-        camera.updateProjectionMatrix();
-
-        // fix stupid issue
-        //renderer.domElement.width = gameSize.x;
-        //renderer.domElement.height = gameSize.y;
-
-        // Render the scene from the perspective of the camera
-        renderer.render(this.scene, this.camera);
     }
 
     public static getImageData()

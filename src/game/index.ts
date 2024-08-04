@@ -12,7 +12,7 @@ async function main()
     Debug.log("index", "game started");
 }
 
-main();
+window.addEventListener('load', () => main());
 
 const w: any = window;
 w["gameface"] = gameface;

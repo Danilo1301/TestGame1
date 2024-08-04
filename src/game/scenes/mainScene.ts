@@ -14,6 +14,8 @@ export class MainScene extends Phaser.Scene
 
     public firstClickText?: Phaser.GameObjects.Text;
 
+    public fpsText!: Phaser.GameObjects.Text;
+
     constructor()
     {
         super({});
@@ -29,11 +31,13 @@ export class MainScene extends Phaser.Scene
         this.layerHud = this.add.layer();
         this.layerHud.setDepth(10000);
 
+        this.fpsText = this.add.text(10, 10, "0 FPS", { font: '16px Arial' });
+
         this.firstClickText = this.add.text(200, 200, 'Click anywhere to start', { font: '16px Arial' });
     }
 
     public update(time: number, delta: number)
     {
-        
+        this.fpsText.setText(`${this.game.loop.actualFps} FPS`);
     }
 }

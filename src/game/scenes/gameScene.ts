@@ -5,6 +5,7 @@ import { Song } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { Notes } from "../notes/notes";
 import { Pads } from "../pads/pads";
+import { MainScene } from "./mainScene";
 
 export class GameScene extends Phaser.Scene
 {
@@ -33,6 +34,10 @@ export class GameScene extends Phaser.Scene
 
     public async create()
     {
+        this.add.image(50, 50, "pad");
+
+        return;
+
         this.createThreeCanvas();
 
         //
@@ -52,7 +57,14 @@ export class GameScene extends Phaser.Scene
             pad.setKey(this.padKeys[i]);
         }
 
-        
+        Three.animate();
+
+        if(Gameface.isLowPerformance)
+        {
+            setInterval(() => {
+                Three.animate();
+            }, 500);
+        }
 
         //GameScene.Instance.notes.spawnRandomNoteForPad();
     }
@@ -70,9 +82,12 @@ export class GameScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
+        return;
+
         this.notes.update(delta);
         this.pads.update();
 
+    
         const plank = this.plank!;
         //plank.mesh.position.z += this.notes.getMovementSpeed();
         if(plank.mesh.position.z >= 3)
@@ -85,6 +100,15 @@ export class GameScene extends Phaser.Scene
 
     private createThreeCanvas()
     {
+        const dom = this.add.dom(0, 0, Three.renderer.domElement);
+        dom.setOrigin(0);
+        MainScene.Instance.layerNormal.add(dom);
+
+        this.add.image(0, 0, "note");
+
+        /*
+        return;
+
         const textureManager = this.textures;
         
         const gameSize = Gameface.Instance.getGameSize();
@@ -97,20 +121,36 @@ export class GameScene extends Phaser.Scene
         image.setPosition(gameSize.x/2, gameSize.y/2);
         //image.setOrigin(0, 0);
         //image.setScale(0.5);
+        */
     }
 
     private updateThreeCanvas()
     {
-        Three.animate();
 
+        Three.renderer.domElement.style.position = "fixed";
+        Three.renderer.domElement.style.top = "0";
+
+        //gameface.phaser.renderer.canvas.style
+
+        Three.update();
+
+        //Three.animate();
+
+       
+       /*
         const gameSize = Gameface.Instance.getGameSize();
 
         const canvas = this.canvas!;
 
         canvas.clear();
-        //canvas.context.fillStyle = "green";
-        //canvas.context.fillRect(0, 0, Three.size.x, Three.size.y);
-        canvas.context.drawImage(Three.renderer.domElement, 0, 0, gameSize.x, gameSize.y);
+        canvas.context.fillStyle = "green";
+        //canvas.context.fillRect(0, 0, gameSize.x, gameSize.y);
+        
+        //lags the fuck out
+        //canvas.context.drawImage(Three.renderer.domElement, 0, 0, gameSize.x, gameSize.y);
+
         canvas.refresh();
+        */
+        
     }
 }

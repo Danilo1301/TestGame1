@@ -35,7 +35,11 @@ export class Pad extends BaseObject
 
     public setKey(key: string)
     {
-        const keyObject = Gameface.Instance.input.sceneInput.keyboard.addKey(key);
+        const keyBoard = Gameface.Instance.input.sceneInput.keyboard;
+
+        if(!keyBoard) throw "Keyboard is null";
+
+        const keyObject = keyBoard.addKey(key);
 
         const pad = this;
 

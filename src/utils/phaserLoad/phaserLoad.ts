@@ -1,6 +1,7 @@
 //import * as NineSlicePlugin from 'phaser3-nineslice'
 import { Debug } from "../debug/debug";
-import { config } from "./config";
+import { config } from "../../game/constants/config";
+import { enable3d } from "@enable3d/phaser-extension";
 
 enum PreloadState {
     NOT_LOADED,
@@ -40,16 +41,27 @@ export class PhaserLoad {
                 ]
             }
 
-            const phaser = this._phaser = new Phaser.Game(cfg);
-            phaser.events.once('ready', () => {
-                this.processLoad();
-            });
+            enable3d(() => {
+                const game = new Phaser.Game(config);
+
+                this._phaser = game;
+
+                game.events.once('ready', () => {
+                    this.processLoad();
+                });
+
+                return game;
+            }).withPhysics('/assets/ammo/kripken')
+            
             return;
         }
 
         this._loadState = PreloadState.COMPLETED;
 
-        this._callback?.(this._phaser!);
+        if(!this._phaser) throw "No phaser!";
+        if(!this._callback) throw "No callback!";
+
+        this._callback(this._phaser);
         this._callback = undefined;
     }
 }
