@@ -1,6 +1,5 @@
 import { BaseObject } from "../../utils/baseObject";
-import MeshObject from "../../utils/three/meshObject";
-import Three from "../../utils/three/three";
+import { ThreeScene } from "../../utils/three/threeScene";
 import { randomIntFromInterval } from "../../utils/utils";
 import { GameScene } from "../scenes/gameScene";
 import { Note } from "./note";
@@ -16,8 +15,6 @@ export class Notes extends BaseObject
     private _notes: Note[] = [];
     private _soundNotes: SoundNotes;
 
-    private _spawnNoteDistance = 3;
-
     constructor()
     {
         super();
@@ -25,12 +22,28 @@ export class Notes extends BaseObject
         this._soundNotes = new SoundNotes();
     }
 
+    public spawnNote(x: number, y: number, z: number)
+    {
+        const scene = ThreeScene.Instance;
+
+        const box = scene.third.add.box({width: 0.1, height: 0.1, depth: 0.1});
+        const object = ThreeScene.addPhaser3DObject(box);
+        object.name = "Note " + this._notes.length;
+        box.position.set(x, y, z);
+
+        const note = new Note(object);
+    
+        this._notes.push(note);
+
+        return note;
+    }
+
     public spawnNoteForPad(padIndex: number)
     {
         const pad = GameScene.Instance.pads.getPad(padIndex);
         const position = pad.getPosition();
 
-        const distance = this._spawnNoteDistance;
+        const distance = this.getSpawnNoteDistance();
 
         const note = this.spawnNote(position.x, position.y, position.z - distance);
         note.padIndex = padIndex;
@@ -41,21 +54,6 @@ export class Notes extends BaseObject
         const numOfPads = GameScene.Instance.pads.numOfPads;
         const padIndex = randomIntFromInterval(0, numOfPads-1);
         this.spawnNoteForPad(padIndex);
-    }
-
-    public spawnNote(x: number, y: number, z: number)
-    {
-        const mesh = Three.createBox(0.1, 0.1, 0.1);
-        mesh.position.set(x, y, z);
-
-        const meshObject = Three.addMeshObject(mesh);
-        meshObject.name = "Note";
-
-        const note = new Note(meshObject);
-    
-        this._notes.push(note);
-
-        return note;
     }
 
     public update(delta: number)
@@ -72,11 +70,6 @@ export class Notes extends BaseObject
         {
             note.movementSpeed = this.getMovementSpeed();
             note.update();
-
-            if(note.meshObject.mesh.position.z >= 2)
-            {
-                notesToDestroy.push(note);
-            }
         }
 
         for(const note of notesToDestroy)
@@ -87,11 +80,17 @@ export class Notes extends BaseObject
         }
     }
 
+    public getSpawnNoteDistance()
+    {
+        const z = GameScene.Instance.ground.plankSize;
+        return z;
+    }
+
     public getMovementSpeed()
     {
         const delta = this.delta;
-        const distanceToMove = this._spawnNoteDistance;
-        const timeToAchieve = 1000;
+        const distanceToMove = this.getSpawnNoteDistance();
+        const timeToAchieve = 3000;
 
         const amount = distanceToMove / timeToAchieve * delta;
 
@@ -100,7 +99,7 @@ export class Notes extends BaseObject
 
     public getDistanceFromMs(ms: number)
     {
-        const distanceToMove = this._spawnNoteDistance;
+        const distanceToMove = this.getSpawnNoteDistance();
         const timeToAchieve = 1000;
 
         const mettersPerMs = distanceToMove/timeToAchieve;

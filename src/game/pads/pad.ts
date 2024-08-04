@@ -1,30 +1,73 @@
 import { BaseObject } from "../../utils/baseObject";
-import MeshObject from "../../utils/three/meshObject";
-import Three from "../../utils/three/three";
+import { Input } from "../../utils/input/input";
+import { Phaser3DObject } from "../../utils/three/phaser3dObject";
+import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { GameScene } from "../scenes/gameScene";
 
 export class Pad extends BaseObject
 {
     public image?: Phaser.GameObjects.Image;
-    public meshObject: MeshObject;
+    public object: Phaser3DObject;
+    public position: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+
+    private _active: boolean = false;
 
     private _keyObject?: Phaser.Input.Keyboard.Key;
 
-    constructor(meshObject: MeshObject)
+    constructor(object: Phaser3DObject)
     {
         super();
 
-        this.meshObject = meshObject;
+        this.object = object;
 
         const scene = GameScene.Instance;
         
         this.image = scene.add.image(0, 0, "pad");
+
+        Input.events.on("pointerdown", (event: PointerEvent) => {
+            console.log("poniter down")
+
+            const mousePosition = Input.mousePosition;
+            const position = this.position;
+            const distance = position.distance(mousePosition);
+
+            console.log(mousePosition, distance)
+
+            if(distance < 30)
+            {
+                this.activatePad();
+            }
+        });
+
+        Input.events.on("pointerup", (event: PointerEvent) => {
+            this._active = false;
+        });
+    }
+
+    public activatePad()
+    {
+        this._active = true;
+
+        const note = GameScene.Instance.notes.getClosestNoteForPad(this.getIndex());
+
+        if(note)
+        {
+            const notes = GameScene.Instance.notes;
+
+            const distance = note.getDistanceFromPad(this);
+            const isGood = notes.isDistanceBetweenMsInterval(distance, 100);
+            
+            if(isGood)
+            {
+                note.canMove = false;
+            }
+        }
     }
 
     public getPosition()
     {
-        return this.meshObject.mesh.position;
+        return this.object.object.position;
     }
 
     public getIndex()
@@ -47,20 +90,12 @@ export class Pad extends BaseObject
         {
             console.log("pad down")
 
-            const note = GameScene.Instance.notes.getClosestNoteForPad(pad.getIndex());
+            pad.activatePad();
+        });
 
-            if(note)
-            {
-                const notes = GameScene.Instance.notes;
-
-                const distance = note.getDistanceFromPad(pad);
-                const isGood = notes.isDistanceBetweenMsInterval(distance, 100);
-                
-                if(isGood)
-                {
-                    note.canMove = false;
-                }
-            }
+        keyObject.on('up', function(event: KeyboardEvent) 
+        {
+            pad._active = false;
         });
         
         this._keyObject = keyObject;
@@ -68,15 +103,16 @@ export class Pad extends BaseObject
 
     public update()
     {
-        const keyObject = this._keyObject!;
+        const active = this._active;
+
+        const screenPosition = ThreeScene.projectToScreen(this.object.object.position);
+        this.position.set(screenPosition.x, screenPosition.y);
 
         if(this.image)
         {
-            const screenPosition = Three.convert3DPositionTo2D(this.meshObject.mesh.position);
+            this.image.setPosition(this.position.x, this.position.y);
 
-            this.image.setPosition(screenPosition.x, screenPosition.y);
-
-            this.image.tint = keyObject.isDown ? 0xffffff : 0x0;
+            this.image.tint = active ? 0xffffff : 0x0;
         }
     }
 }

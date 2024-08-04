@@ -1,6 +1,5 @@
 import { BaseObject } from "../../utils/baseObject";
-import MeshObject from "../../utils/three/meshObject";
-import Three from "../../utils/three/three";
+import { ThreeScene } from "../../utils/three/threeScene";
 import { Pad } from "./pad";
 
 export class Pads extends BaseObject
@@ -12,12 +11,14 @@ export class Pads extends BaseObject
     
     public addPad(x: number, y: number, z: number)
     {
-        const mesh = Three.createBox(0.1, 0.1, 0.1);
-        const meshObject = Three.addMeshObject(mesh);
-        meshObject.name = "Pad " + this._pads.length;
-        mesh.position.set(x, y, z);
+        const scene = ThreeScene.Instance;
 
-        const pad = new Pad(meshObject);
+        const box = scene.third.add.box({width: 0.1, height: 0.1, depth: 0.1});
+        const object = ThreeScene.addPhaser3DObject(box);
+        object.name = "Pad " + this._pads.length;
+        box.position.set(x, y, z);
+
+        const pad = new Pad(object);
         this._pads.push(pad);
 
         return pad;

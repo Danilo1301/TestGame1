@@ -1,9 +1,5 @@
-import { Debug } from "../../utils/debug/debug";
-import Mesh from "../../utils/three/meshObject";
-import Three from "../../utils/three/three";
+import { Button } from "../../utils/ui/button";
 import { Gameface } from "../gameface/gameface";
-import { Notes } from "../notes/notes";
-import { Pads } from "../pads/pads";
 
 export class MainScene extends Phaser.Scene
 {
@@ -12,9 +8,9 @@ export class MainScene extends Phaser.Scene
     public layerNormal!: Phaser.GameObjects.Layer;
     public layerHud!: Phaser.GameObjects.Layer;
 
-    public firstClickText?: Phaser.GameObjects.Text;
-
     public fpsText!: Phaser.GameObjects.Text;
+
+    public onStart?: Function;
 
     constructor()
     {
@@ -31,13 +27,18 @@ export class MainScene extends Phaser.Scene
         this.layerHud = this.add.layer();
         this.layerHud.setDepth(10000);
 
-        this.fpsText = this.add.text(10, 10, "0 FPS", { font: '16px Arial' });
+        this.fpsText = this.add.text(10, 10, "0 FPS", { font: '16px Arial', color: '#000000' });
 
-        this.firstClickText = this.add.text(200, 200, 'Click anywhere to start', { font: '16px Arial' });
+        const gameSize = Gameface.Instance.getGameSize();
+        const button = new Button(this, "Play", gameSize.x/2, gameSize.y/2, 200, 50, "button");
+        button.onClick = () => {
+            button.destroy();
+            this.onStart?.();
+        };
     }
 
     public update(time: number, delta: number)
     {
-        this.fpsText.setText(`${this.game.loop.actualFps} FPS`);
+        this.fpsText.setText(`${this.game.loop.actualFps.toFixed(2)} FPS`);
     }
 }

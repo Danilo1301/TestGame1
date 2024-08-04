@@ -1,6 +1,6 @@
 import { BaseObject } from "../../utils/baseObject";
-import MeshObject from "../../utils/three/meshObject";
-import Three from "../../utils/three/three";
+import { Phaser3DObject } from "../../utils/three/phaser3dObject";
+import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { Pad } from "../pads/pad";
 import { GameScene } from "../scenes/gameScene";
@@ -9,16 +9,16 @@ import { MainScene } from "../scenes/mainScene";
 export class Note extends BaseObject
 {
     public movementSpeed: number = 0;
-    public meshObject: MeshObject;
     public image?: Phaser.GameObjects.Image;
     public canMove: boolean = true;
     public padIndex: number = -1;
+    public object: Phaser3DObject;
 
-    constructor(meshObject: MeshObject)
+    constructor(object: Phaser3DObject)
     {
         super();
 
-        this.meshObject = meshObject;
+        this.object = object;
 
         const scene = GameScene.Instance;
 
@@ -28,22 +28,22 @@ export class Note extends BaseObject
 
     public update()
     {
-        const mesh = this.meshObject.mesh;
+        const object = this.object.object;
 
         if(this.canMove)
         {
-            mesh.position.z += this.movementSpeed;
+            object.position.z += this.movementSpeed;
         }
 
         if(this.image)
         {
-            const screenPosition = Three.convert3DPositionTo2D(this.meshObject.mesh.position);
+            const screenPosition = ThreeScene.projectToScreen(object.position);
 
             this.image.setPosition(screenPosition.x, screenPosition.y);
 
-            const scale = Three.getDistanceFromCamera(mesh.position) * 0.1;
+            const scale = ThreeScene.getDistanceFromCamera(object.position) * 0.1;
 
-            this.meshObject.debugText.setLine("scale", `x${scale.toFixed(2)}`);
+            this.object.debugText.setLine("scale", `x${scale.toFixed(2)}`);
 
             //this.image.setScale(scale);
         }
@@ -51,15 +51,15 @@ export class Note extends BaseObject
 
     public destroy()
     {
-        this.meshObject.destroy();
+        this.object.destroy();
         this.image?.destroy();
         this.image = undefined;
     }
 
     public getDistanceFromPad(pad: Pad)
     {
-        const padPosition = pad.meshObject.mesh.position;
-        const position = this.meshObject.mesh.position;
+        const padPosition = pad.object.object.position;
+        const position = this.object.object.position;
 
         const distance = padPosition.distanceTo(position);
         return distance;

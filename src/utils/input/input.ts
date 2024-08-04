@@ -4,19 +4,32 @@ import { Debug } from "../debug/debug";
 
 export class Input extends BaseObject
 {
+    public static Instance: Input;
+    public static events = new Phaser.Events.EventEmitter();
+    public static mousePosition = new Phaser.Math.Vector2();
+
     public get scene() { return this._scene!; }
 
     private _scene?: Phaser.Scene;
 
     private _keysPressed: Map<string, boolean> = new Map<string, boolean>();
+    private _mouseDown: boolean = false;
 
     public get sceneInput() { return this.scene.input; }
+
+    constructor()
+    {
+        super();
+
+        Input.Instance = this;
+    }
 
     public init(scene: Phaser.Scene)
     {
         this._scene = scene;
 
-        const keyboard = scene.input.keyboard;
+        const input = scene.input;
+        const keyboard = input.keyboard;
         
         if(!keyboard)
         {
@@ -30,6 +43,37 @@ export class Input extends BaseObject
         keyboard.on('keyup', (event: KeyboardEvent) => {
             this.onKeyUp(event.key);
         });
+        
+        input.on('pointerdown', (pointer: PointerEvent) => {
+
+            /*
+            const sound = scene.game.sound;
+
+            if(sound instanceof Phaser.Sound.WebAudioSoundManager) {
+                if(sound.context.state == 'suspended') {
+                    sound.context.resume()
+                }
+            }
+            */
+
+            this.updateMousePosition(pointer)
+            this.onPointerDown(pointer);
+        });
+
+        input.on('pointerup', (pointer: PointerEvent) => {
+            this.updateMousePosition(pointer)
+            this.onPointerUp(pointer);
+        });
+
+        input.on('pointermove', (pointer: PointerEvent) => {
+            this.updateMousePosition(pointer)
+        });
+    }
+
+    public updateMousePosition(pointer: PointerEvent)
+    {
+        Input.mousePosition.x = pointer.x;
+        Input.mousePosition.y = pointer.y;
     }
 
     private onKeyPress(key: string)
@@ -48,5 +92,23 @@ export class Input extends BaseObject
         //Debug.log("Input", `key up: ${key}`);
 
         this._keysPressed.set(key, false);
+    }
+
+    private onPointerDown(pointer: PointerEvent)
+    {
+        if(this._mouseDown) return;
+
+        this._mouseDown = true;
+
+        Input.events.emit('pointerdown', pointer);
+    }
+
+    private onPointerUp(pointer: PointerEvent)
+    {
+        if(!this._mouseDown) return;
+
+        this._mouseDown = false;
+        
+        Input.events.emit('pointerup', pointer);
     }
 }

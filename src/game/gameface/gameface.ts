@@ -5,7 +5,7 @@ import { PhaserLoad } from "../../utils/phaserLoad/phaserLoad";
 import { GameScene } from "../scenes/gameScene";
 import { MainScene } from "../scenes/mainScene";
 import { SongSelectionScene } from "../scenes/songSelectionScene";
-import { ThreeScene } from "../scenes/threeScene";
+import { ThreeScene } from "../../utils/three/threeScene";
 import { SceneManager } from "./sceneManager";
 
 export class Gameface extends BaseObject
@@ -39,7 +39,6 @@ export class Gameface extends BaseObject
 
         this.log(this.phaser);
 
-        
         this.sceneManager.startScene(MainScene);
         this.sceneManager.startScene(ThreeScene);
 
@@ -53,9 +52,6 @@ export class Gameface extends BaseObject
 
         await this.fuckingWaitForFirstClick();
 
-        MainScene.Instance.firstClickText?.destroy();
-        MainScene.Instance.firstClickText = undefined;
-
         this.sceneManager.startScene(SongSelectionScene);
     }
 
@@ -68,16 +64,9 @@ export class Gameface extends BaseObject
     public async fuckingWaitForFirstClick()
     {
         const scene = MainScene.Instance;
-        let started = false;
 
         return new Promise<void>((resolve) => {
-            scene.input.on('pointerup', () => {
-                if(!started)
-                {
-                    started = true;
-                    resolve();
-                }
-            });
+            scene.onStart = () => resolve();
         });
     }
 

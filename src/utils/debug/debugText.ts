@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { MainScene } from "../../game/scenes/mainScene";
-import Three from '../three/three';
-import { GameScene } from '../../game/scenes/gameScene';
+import { ThreeScene } from '../three/threeScene';
 
 export class DebugText {
     public lines: Map<string, string> = new Map<string, string>();
@@ -10,9 +9,12 @@ export class DebugText {
     
     constructor(title: string)
     {
+        console.log("DebugText constructor");
+
         const scene = MainScene.Instance;
 
-        this.text = scene.add.text(0, 0, 'test', { font: '16px Arial' });
+        this.text = scene.add.text(0, 0, 'DEBUG_TEXT', { font: '16px Arial', color: '#ffff00' });
+        this.text.setOrigin(0.5, 0);
         scene.layerHud.add(this.text);
 
         console.log("text created")
@@ -27,7 +29,7 @@ export class DebugText {
 
     public set3DPosition(position: THREE.Vector3)
     {
-        const screenPosition = Three.convert3DPositionTo2D(position);
+        const screenPosition = ThreeScene.projectToScreen(position);
         this.position.x = screenPosition.x;
         this.position.y = screenPosition.y;
     }

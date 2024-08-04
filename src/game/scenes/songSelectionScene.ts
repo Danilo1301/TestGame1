@@ -21,6 +21,8 @@ export class SongSelectionScene extends Phaser.Scene
             button.onClick = () => this.selectSong(song);
             y += 50;
         }
+
+        this.selectSong(songs[0]);
     }
 
     public selectSong(song: Song)
