@@ -58,7 +58,13 @@ export class Gameface extends BaseObject
         //this.sceneManager.startScene(TestScene);
         this.sceneManager.startScene(SongSelectionScene);
 
-        MainScene.Instance.scene.bringToTop();
+        
+    }
+
+    public updateScenesOrder()
+    {
+        if(GameScene.Instance) GameScene.Instance.scene.bringToTop();
+        if(MainScene.Instance) MainScene.Instance.scene.bringToTop();
     }
 
     public async fuckingWaitForFirstClick()

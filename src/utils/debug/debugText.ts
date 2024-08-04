@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MainScene } from "../../game/scenes/mainScene";
 import Three from '../three/three';
+import { GameScene } from '../../game/scenes/gameScene';
 
 export class DebugText {
     public lines: Map<string, string> = new Map<string, string>();
@@ -11,8 +12,10 @@ export class DebugText {
     {
         const scene = MainScene.Instance;
 
-        this.text = scene.add.text(0, 0, '', { font: '16px Arial' });
+        this.text = scene.add.text(0, 0, 'test', { font: '16px Arial' });
         scene.layerHud.add(this.text);
+
+        console.log("text created")
 
         this.setLine("title", title);
     }
@@ -33,6 +36,7 @@ export class DebugText {
     {
         const text = this.text;
 
+        
         if(text)
         {
             let str = "";
@@ -44,7 +48,9 @@ export class DebugText {
             //text.setText(`${this.name} (${screenPosition.x}, ${screenPosition.y})`);
             text.setText(str);
             text.setPosition(this.position.x, this.position.y);
+            //text.setPosition(400, 300);
         }
+        
     }
 
     public destroy()

@@ -25,6 +25,9 @@ export class SceneManager extends BaseObject
         }
 
         const s = phaser.scene.add(key, scene, true);
+
+        this._gameface.updateScenesOrder();
+
         return s;
     }
 

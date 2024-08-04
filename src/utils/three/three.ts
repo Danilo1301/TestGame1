@@ -42,11 +42,21 @@ export default class Three
     public static animate()
     {
         const renderer = this.renderer;
+        const camera = this.camera;
 
         for(const meshObject of this.meshObjects)
         {
             meshObject.update();
         }
+
+        const size = gameSize;
+
+        renderer.setSize(size.x, size.y);
+        //camera.fov = Math.atan(size.y / 2 / camera.position.z) * 2 * THREE.MathUtils.RAD2DEG;
+        //console.log(camera.fov);
+
+        camera.aspect = size.x / size.y;
+        camera.updateProjectionMatrix();
 
         // fix stupid issue
         //renderer.domElement.width = gameSize.x;
