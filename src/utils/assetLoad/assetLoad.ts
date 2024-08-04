@@ -89,7 +89,7 @@ export class AssetLoad
     }
 
     public static getAssetsUrl() {
-        const serverAddress = "https://game.glitch.me";
+        const serverAddress = "https://guitargame.glitch.me";
 
         if(location.host.includes('localhost') || location.host.includes(':')) {
             return `${location.protocol}//${location.host}/assets/`;
