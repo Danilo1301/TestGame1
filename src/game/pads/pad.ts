@@ -12,6 +12,8 @@ export class Pad extends BaseObject
     public object: Phaser3DObject;
     public position: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
 
+    public startedDragAtTime: number = 0;
+
     private _active: boolean = false;
 
     private _keyObject?: Phaser.Input.Keyboard.Key;
@@ -42,7 +44,7 @@ export class Pad extends BaseObject
         });
 
         Input.events.on("pointerup", (event: PointerEvent) => {
-            this._active = false;
+            this.deactivatePad();
         });
     }
 
@@ -57,14 +59,20 @@ export class Pad extends BaseObject
             const notes = GameScene.Instance.notes;
 
             const distance = note.getDistanceFromPad(this);
-            const isGood = notes.isDistanceBetweenMsInterval(distance, 100);
+            const isGood = notes.isDistanceBetweenMsInterval(distance, 1000);
             
             if(isGood)
             {
-                note.canMove = false;
-                note.image!.alpha = 0.1;
+                note.setAsHitted();
+                note.draggedByPad = this;
+                this.startedDragAtTime = notes.soundNotes.getCurrentAudioTime();
             }
         }
+    }
+
+    public deactivatePad()
+    {
+        this._active = false;
     }
 
     public getPosition()

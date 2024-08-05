@@ -94,8 +94,6 @@ export class GameScene extends Phaser.Scene
 
     public padKeys: string[] = ["A", "S", "D", "F", "G"];
 
-    private _startedSound: boolean = false;
-
     constructor()
     {
         super({});
@@ -121,7 +119,7 @@ export class GameScene extends Phaser.Scene
             const x = i * distance - totalDistance/2;
             const z = this.ground.plankSize / 2;
 
-            const pad = this.pads.addPad(x, 0, z);
+            const pad = this.pads.addPad(x, 0.2, z);
             pad.setKey(this.padKeys[i]);
         }
 
@@ -142,22 +140,5 @@ export class GameScene extends Phaser.Scene
         this.ground.update();
         this.notes.update(delta);
         this.pads.update();
-
-        const song = this.notes.soundNotes.song;
-
-        if(!this._startedSound && song)
-        {
-            const startedTime = this.notes.soundNotes.startedTime;
-            const delay  = this.notes.soundNotes.soundDelay;
-
-            const now = performance.now();
-
-            if(now >= startedTime + delay)
-            {
-                this._startedSound = true;
-
-                AudioManager.playAudio(song.sound);
-            }
-        }
     }
 }

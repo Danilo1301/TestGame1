@@ -1,6 +1,7 @@
 import { BaseObject } from "../../utils/baseObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { randomIntFromInterval } from "../../utils/utils";
+import { SongNote } from "../constants/songs";
 import { GameScene } from "../scenes/gameScene";
 import { Note } from "./note";
 import { SoundNotes } from "./soundNotes";
@@ -22,31 +23,30 @@ export class Notes extends BaseObject
         this._soundNotes = new SoundNotes();
     }
 
-    public spawnNote(x: number, y: number, z: number)
+    public spawnNoteForPad(padIndex: number, songNote: SongNote)
     {
+        const pad = GameScene.Instance.pads.getPad(padIndex);
+        const padPosition = pad.object.object.position;
+
         const scene = ThreeScene.Instance;
 
         const box = scene.third.add.box({width: 0.1, height: 0.1, depth: 0.1});
         const object = ThreeScene.addPhaser3DObject(box);
         object.name = "Note " + this._notes.length;
-        box.position.set(x, y, z);
+        box.position.set(padPosition.x, padPosition.y, padPosition.z);
 
         const note = new Note(object);
-    
+        note.songNote = songNote;
+        note.padIndex = padIndex;
+
         this._notes.push(note);
-
-        return note;
-    }
-
-    public spawnNoteForPad(padIndex: number)
-    {
-        const pad = GameScene.Instance.pads.getPad(padIndex);
+        
+        /*
         const position = pad.getPosition();
 
         const distance = this.getSpawnNoteDistance();
-
-        const note = this.spawnNote(position.x, position.y, position.z - distance);
-        note.padIndex = padIndex;
+        */
+        
         return note;
     }
 
@@ -54,7 +54,14 @@ export class Notes extends BaseObject
     {
         const numOfPads = GameScene.Instance.pads.numOfPads;
         const padIndex = randomIntFromInterval(0, numOfPads-1);
-        return this.spawnNoteForPad(padIndex);
+
+        const songNote: SongNote = {
+            time: this.soundNotes.getCurrentAudioTime() + 2000,
+            pads: [padIndex],
+            dragTime: 0
+        }
+
+        return this.spawnNoteForPad(padIndex, songNote);
     }
 
     public update(delta: number)
@@ -69,7 +76,14 @@ export class Notes extends BaseObject
 
         for(const note of this._notes)
         {
-            note.movementSpeed = this.getMovementSpeed();
+            const pad = GameScene.Instance.pads.getPad(note.padIndex);
+
+            let z = pad.object.object.position.z;
+            let ms = (this.soundNotes.getCurrentAudioTime() * 1000) - note.songNote.time;
+            z += GameScene.Instance.notes.getDistanceFromMs(ms);
+
+            note.setZPosition(z);
+
             note.update();
         }
 
@@ -138,7 +152,7 @@ export class Notes extends BaseObject
 
             const distance = note.getDistanceFromPad(pad);
 
-            if(distance > 0.3) continue;
+            //if(distance > 1.0) continue;
 
             if(distance < closestDistance)
             {

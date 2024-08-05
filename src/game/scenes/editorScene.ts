@@ -65,7 +65,7 @@ export class EditorScene extends Phaser.Scene
         {
             for(const pad of songNote.pads)
             {
-                const note = GameScene.Instance.notes.spawnNoteForPad(pad); 
+                const note = GameScene.Instance.notes.spawnNoteForPad(pad, songNote); 
                 note.canMove = false;
 
                 const editorNote: EditorNote = {

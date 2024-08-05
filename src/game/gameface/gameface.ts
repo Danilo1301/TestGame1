@@ -51,8 +51,15 @@ export class Gameface extends BaseObject
 
         await this.fuckingWaitForFirstClick();
 
-        //this.sceneManager.startScene(SongSelectionScene);
-        this.sceneManager.startScene(EditorScene);
+        const openEditor = false;
+
+        if(openEditor)
+        {
+            this.sceneManager.startScene(EditorScene);
+        } else {
+            this.sceneManager.startScene(SongSelectionScene);
+        }
+
     }
 
     public updateScenesOrder()
