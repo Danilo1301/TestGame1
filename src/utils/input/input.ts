@@ -111,4 +111,17 @@ export class Input extends BaseObject
         
         Input.events.emit('pointerup', pointer);
     }
+
+    public static isPointInsideRect(pos: Phaser.Math.Vector2, rectPos: Phaser.Math.Vector2, rectSize: Phaser.Math.Vector2)
+    {
+        if (pos.x >= rectPos.x && pos.x <= rectPos.x + rectSize.x)
+        {
+            if (pos.y >= rectPos.y && pos.y <= rectPos.y + rectSize.y)
+            {
+                return true;
+            }
+        }
+    
+        return false;
+    }
 }

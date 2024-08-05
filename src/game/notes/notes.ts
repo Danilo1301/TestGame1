@@ -47,13 +47,14 @@ export class Notes extends BaseObject
 
         const note = this.spawnNote(position.x, position.y, position.z - distance);
         note.padIndex = padIndex;
+        return note;
     }
 
     public spawnRandomNoteForPad()
     {
         const numOfPads = GameScene.Instance.pads.numOfPads;
         const padIndex = randomIntFromInterval(0, numOfPads-1);
-        this.spawnNoteForPad(padIndex);
+        return this.spawnNoteForPad(padIndex);
     }
 
     public update(delta: number)
@@ -90,7 +91,7 @@ export class Notes extends BaseObject
     {
         const delta = this.delta;
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = 3000;
+        const timeToAchieve = this.soundNotes.soundDelay;
 
         const amount = distanceToMove / timeToAchieve * delta;
 
@@ -100,7 +101,7 @@ export class Notes extends BaseObject
     public getDistanceFromMs(ms: number)
     {
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = 1000;
+        const timeToAchieve = this.soundNotes.soundDelay;
 
         const mettersPerMs = distanceToMove/timeToAchieve;
 

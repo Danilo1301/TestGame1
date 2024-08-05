@@ -5,6 +5,7 @@ import { Notes } from "../notes/notes";
 import { Pads } from "../pads/pads";
 import { ExtendedObject3D } from '@enable3d/phaser-extension';
 import { setObjectPosition } from '../../utils/utils';
+import { AudioManager } from '../../utils/audioManager/audioManager';
 
 export class Ground {
     public plankSize: number = 10;
@@ -93,6 +94,8 @@ export class GameScene extends Phaser.Scene
 
     public padKeys: string[] = ["A", "S", "D", "F", "G"];
 
+    private _startedSound: boolean = false;
+
     constructor()
     {
         super({});
@@ -107,13 +110,6 @@ export class GameScene extends Phaser.Scene
     public async create()
     {
         this.ground.create();
-
-        /*
-        const ground = threeScene.third.physics.add.box({x: 0, y: -0.2, mass: 0, width: 3, depth: this.plankSize, height: 0.1});
-        const groundObject = ThreeScene.addPhaser3DObject(ground);
-        groundObject.name = "Ground";
-        */
-
 
         //add pads
         const distance = 0.5;
@@ -130,20 +126,15 @@ export class GameScene extends Phaser.Scene
         }
 
         //test
-        //this.notes.spawnRandomNoteForPad();
+        //const note = this.notes.spawnRandomNoteForPad();
+        //console.log(note.getScale())
     }
 
     public startSong(song: Song)
     {
-        
         setTimeout(() => {
-            setTimeout(() => {
-                this.sound.play(song.sound, {volume: 0.1});
-            }, 3000);
-    
             this.notes.soundNotes.startSong(song);
         }, 1000);
-        
     }
 
     public update(time: number, delta: number)
@@ -151,5 +142,22 @@ export class GameScene extends Phaser.Scene
         this.ground.update();
         this.notes.update(delta);
         this.pads.update();
+
+        const song = this.notes.soundNotes.song;
+
+        if(!this._startedSound && song)
+        {
+            const startedTime = this.notes.soundNotes.startedTime;
+            const delay  = this.notes.soundNotes.soundDelay;
+
+            const now = performance.now();
+
+            if(now >= startedTime + delay)
+            {
+                this._startedSound = true;
+
+                AudioManager.playAudio(song.sound);
+            }
+        }
     }
 }

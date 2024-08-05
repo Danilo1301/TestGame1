@@ -46,7 +46,7 @@ export class ThreeScene extends Scene3D
         for(const object of ThreeScene.phaser3dObjects) object.update();
     }
 
-    public static projectToScreen(position: THREE.Vector3): { x: number; y: number }
+    public static projectToScreen(position: THREE.Vector3)
     {
         const scene = ThreeScene.Instance;
 
@@ -56,10 +56,12 @@ export class ThreeScene extends Scene3D
         const widthHalf = size.x / 2;
         const heightHalf = size.y / 2;
         
-        return {
-            x: (vector.x * widthHalf) + widthHalf,
-            y: -(vector.y * heightHalf) + heightHalf
-        };
+        const screenPosition = new THREE.Vector2(
+            (vector.x * widthHalf) + widthHalf,
+            -(vector.y * heightHalf) + heightHalf
+        );
+
+        return screenPosition;
     }
 
     public static getDistanceFromCamera(position: THREE.Vector3)

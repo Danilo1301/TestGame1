@@ -13,7 +13,10 @@ export const config: Phaser.Types.Core.GameConfig = {
         width: gameSize.x,
         height: gameSize.y
     },
-    scene: []
+    scene: [],
+    audio: {
+        disableWebAudio: false
+    }
 }
 
 /*

@@ -7,6 +7,8 @@ import { MainScene } from "../scenes/mainScene";
 import { SongSelectionScene } from "../scenes/songSelectionScene";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { SceneManager } from "./sceneManager";
+import { AudioManager } from "../../utils/audioManager/audioManager";
+import { EditorScene } from "../scenes/editorScene";
 
 export class Gameface extends BaseObject
 {
@@ -42,9 +44,6 @@ export class Gameface extends BaseObject
         this.sceneManager.startScene(MainScene);
         this.sceneManager.startScene(ThreeScene);
 
-        //await Three.init(this.phaser);
-        //Three.animate();
-
         this.input.init(MainScene.Instance);
 
         AssetLoad.addAssets();
@@ -52,7 +51,8 @@ export class Gameface extends BaseObject
 
         await this.fuckingWaitForFirstClick();
 
-        this.sceneManager.startScene(SongSelectionScene);
+        //this.sceneManager.startScene(SongSelectionScene);
+        this.sceneManager.startScene(EditorScene);
     }
 
     public updateScenesOrder()

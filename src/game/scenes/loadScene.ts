@@ -1,4 +1,5 @@
 import { Asset, AssetLoad, AssetType, LoadState } from "../../utils/assetLoad/assetLoad"
+import { AudioManager } from "../../utils/audioManager/audioManager";
 
 interface LoadAsset {
     text: string
@@ -66,11 +67,16 @@ export class LoadScene extends Phaser.Scene
                 loadAsset.asset.loadState = LoadState.LOADING;
 
                 if(loadAsset.asset.type == AssetType.IMAGE) load.image(key, path);
-                if(loadAsset.asset.type == AssetType.AUDIO) load.audio(key, path);
+                //if(loadAsset.asset.type == AssetType.AUDIO) load.audio(key, path);
             }
 
             load.once('complete', async () => {
+
                 console.log("load completed");
+                console.log("loading audios...");
+
+                await AudioManager.loadAllAudios();
+
                 resolve();
             });
             load.start();

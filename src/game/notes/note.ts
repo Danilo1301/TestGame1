@@ -23,7 +23,6 @@ export class Note extends BaseObject
         const scene = GameScene.Instance;
 
         this.image = scene.add.image(0, 0, "note");
-        MainScene.Instance.layerHud.add(this.image);
     }
 
     public update()
@@ -41,12 +40,27 @@ export class Note extends BaseObject
 
             this.image.setPosition(screenPosition.x, screenPosition.y);
 
-            const scale = ThreeScene.getDistanceFromCamera(object.position) * 0.1;
+            const scale = this.getScale();
 
             this.object.debugText.setLine("scale", `x${scale.toFixed(2)}`);
 
-            //this.image.setScale(scale);
+            this.image.setScale(scale);
         }
+    }
+
+    public getScale()
+    {
+        const object = this.object.object;
+
+        const screenPos = ThreeScene.projectToScreen(object.position);
+
+        const pos2 = object.position.clone();
+        pos2.x += 0.1;
+        const screenPos2 = ThreeScene.projectToScreen(pos2);
+
+        const distance = screenPos.distanceTo(screenPos2);
+        
+        return distance * 0.08;
     }
 
     public destroy()

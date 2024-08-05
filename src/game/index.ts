@@ -3,6 +3,7 @@ import { Debug } from "../utils/debug/debug";
 import { Gameface } from "./gameface/gameface";
 import { GameScene } from "./scenes/gameScene";
 import { ThreeScene } from "../utils/three/threeScene";
+import { EditorScene } from "./scenes/editorScene";
 
 const gameface = new Gameface();
 
@@ -20,5 +21,6 @@ w["gameface"] = gameface;
 w["Debug"] = Debug;
 w["GameScene"] = GameScene;
 w["ThreeScene"] = ThreeScene;
+w["EditorScene"] = EditorScene;
 
 

@@ -22,7 +22,7 @@ export class SongSelectionScene extends Phaser.Scene
             y += 50;
         }
 
-        this.selectSong(songs[0]);
+        //this.selectSong(songs[0]);
     }
 
     public selectSong(song: Song)

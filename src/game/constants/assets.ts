@@ -10,5 +10,6 @@ export const imageAssets: AssetItem[] = [
 
 export const audioAssets: AssetItem[] = [
     {key: "sound1", path: "sound1.mp3"},
-    {key: "sound2", path: "sound2.mp3"}
+    {key: "sound2", path: "sound2.mp3"},
+    {key: "sound3", path: "sound3.mp3"}
 ];

@@ -4,8 +4,12 @@ import { GameScene } from "../scenes/gameScene";
 
 export class SoundNotes extends BaseObject
 {
-    private _song?: Song;
+    public soundDelay: number = 2000;
 
+    public get startedTime() { return this._startedTime; };
+    public get song() { return this._song; };
+    
+    private _song?: Song;
     private _startedTime: number = 0;
     private _lastCreatedNote?: SongNote;
     private _running: boolean = false;

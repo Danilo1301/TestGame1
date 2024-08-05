@@ -4,6 +4,7 @@ import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { GameScene } from "../scenes/gameScene";
+import { MainScene } from "../scenes/mainScene";
 
 export class Pad extends BaseObject
 {
@@ -61,6 +62,7 @@ export class Pad extends BaseObject
             if(isGood)
             {
                 note.canMove = false;
+                note.image!.alpha = 0.1;
             }
         }
     }
@@ -88,8 +90,6 @@ export class Pad extends BaseObject
 
         keyObject.on('down', function(event: KeyboardEvent) 
         {
-            console.log("pad down")
-
             pad.activatePad();
         });
 

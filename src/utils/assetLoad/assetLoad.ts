@@ -4,6 +4,7 @@ import { Gameface } from "../../game/gameface/gameface";
 import { LoadScene } from "../../game/scenes/loadScene";
 import { Debug } from "../debug/debug";
 import { audioAssets, imageAssets } from "../../game/constants/assets";
+import { AudioManager } from "../audioManager/audioManager";
 
 export enum LoadState {
     NOT_LOADED,
@@ -64,10 +65,13 @@ export class AssetLoad
             this.addImage(asset.key, asset.path);
         }
 
+        
         for(const asset of audioAssets)
         {
-            this.addAudio(asset.key, asset.path);
+            //this.addAudio(asset.key, asset.path);
+            AudioManager.addAudio(asset.key, asset.path);
         }
+    
     }
 
     public static async load()
