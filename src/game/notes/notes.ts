@@ -2,25 +2,21 @@ import { BaseObject } from "../../utils/baseObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { randomIntFromInterval } from "../../utils/utils";
 import { SongNote } from "../constants/songs";
-import { GameScene } from "../scenes/gameScene";
+import { GameScene } from "../scenes/gameScene/gameScene";
 import { Note } from "./note";
-import { SoundNotes } from "./soundNotes";
 
 export class Notes extends BaseObject
 {
     public delta: number = 0;
 
     public get notes() { return this._notes; };
-    public get soundNotes() { return this._soundNotes; };
-
     private _notes: Note[] = [];
-    private _soundNotes: SoundNotes;
+
+    public get soundPlayer() { return GameScene.Instance.soundPlayer; }
 
     constructor()
     {
         super();
-
-        this._soundNotes = new SoundNotes();
     }
 
     public spawnNoteForPad(padIndex: number, songNote: SongNote)
@@ -56,7 +52,7 @@ export class Notes extends BaseObject
         const padIndex = randomIntFromInterval(0, numOfPads-1);
 
         const songNote: SongNote = {
-            time: this.soundNotes.getCurrentAudioTime() + 2000,
+            time: this.soundPlayer.getCurrentAudioTime() + 2000,
             pads: [padIndex],
             dragTime: 0
         }
@@ -69,8 +65,6 @@ export class Notes extends BaseObject
         this.delta = delta;
 
         this.getMovementSpeed();
-
-        this.soundNotes.update(delta);
         
         const notesToDestroy: Note[] = [];
 
@@ -79,7 +73,7 @@ export class Notes extends BaseObject
             const pad = GameScene.Instance.pads.getPad(note.padIndex);
 
             let z = pad.object.object.position.z;
-            let ms = (this.soundNotes.getCurrentAudioTime() * 1000) - note.songNote.time;
+            let ms = (this.soundPlayer.getCurrentAudioTime() * 1000) - note.songNote.time;
             z += GameScene.Instance.notes.getDistanceFromMs(ms);
 
             note.setZPosition(z);
@@ -105,7 +99,7 @@ export class Notes extends BaseObject
     {
         const delta = this.delta;
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = this.soundNotes.soundDelay;
+        const timeToAchieve = this.soundPlayer.soundDelay;
 
         const amount = distanceToMove / timeToAchieve * delta;
 
@@ -115,7 +109,7 @@ export class Notes extends BaseObject
     public getDistanceFromMs(ms: number)
     {
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = this.soundNotes.soundDelay;
+        const timeToAchieve = this.soundPlayer.soundDelay;
 
         const mettersPerMs = distanceToMove/timeToAchieve;
 

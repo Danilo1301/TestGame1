@@ -3,7 +3,8 @@ import { Input } from "../../utils/input/input";
 import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
-import { GameScene } from "../scenes/gameScene";
+import { Note } from "../notes/note";
+import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 
 export class Pad extends BaseObject
@@ -12,6 +13,7 @@ export class Pad extends BaseObject
     public object: Phaser3DObject;
     public position: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
 
+    public draggingNote?: Note;
     public startedDragAtTime: number = 0;
 
     private _active: boolean = false;
@@ -29,13 +31,13 @@ export class Pad extends BaseObject
         this.image = scene.add.image(0, 0, "pad");
 
         Input.events.on("pointerdown", (event: PointerEvent) => {
-            console.log("poniter down")
+            //console.log("poniter down")
 
             const mousePosition = Input.mousePosition;
             const position = this.position;
             const distance = position.distance(mousePosition);
 
-            console.log(mousePosition, distance)
+            //console.log(mousePosition, distance)
 
             if(distance < 30)
             {
@@ -63,16 +65,41 @@ export class Pad extends BaseObject
             
             if(isGood)
             {
-                note.setAsHitted();
-                note.draggedByPad = this;
-                this.startedDragAtTime = notes.soundNotes.getCurrentAudioTime();
+                this.hitNote(note);
             }
         }
+    }
+
+    public hitNote(note: Note)
+    {
+        note.setAsHitted();
+        
+        if(note.songNote.dragTime > 0)
+        {
+            note.startBeeingDragged(this);
+
+            this.draggingNote = note;
+            this.startedDragAtTime = GameScene.Instance.soundPlayer.getCurrentAudioTime();
+        }
+    }
+
+    public stopDrag()
+    {
+        const note = this.draggingNote;
+
+        if(!note) return;
+
+        note.stopBeeingDragged();
+
+        this.draggingNote = undefined;
+        this.startedDragAtTime = 0;
     }
 
     public deactivatePad()
     {
         this._active = false;
+
+        this.stopDrag();
     }
 
     public getPosition()
@@ -103,7 +130,7 @@ export class Pad extends BaseObject
 
         keyObject.on('up', function(event: KeyboardEvent) 
         {
-            pad._active = false;
+            pad.deactivatePad();
         });
         
         this._keyObject = keyObject;

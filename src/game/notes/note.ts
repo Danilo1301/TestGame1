@@ -4,7 +4,7 @@ import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { Pad } from "../pads/pad";
-import { GameScene } from "../scenes/gameScene";
+import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 import { SongNote } from "../constants/songs";
 
@@ -15,6 +15,9 @@ export class Note extends BaseObject
         pads: [],
         dragTime: 0
     };
+    public visible: boolean = true;
+    public noteVisible: boolean = true;
+    public destroyed: boolean = false;
 
     public image?: Phaser.GameObjects.Image;
     public canMove: boolean = true;
@@ -31,14 +34,40 @@ export class Note extends BaseObject
         super();
 
         this.object = object;
-
-        const scene = GameScene.Instance;
-
-        this.image = scene.add.image(0, 0, "note");
     }
 
     public update()
     {
+        if(this.visible)
+        {
+            if(this.noteVisible)
+            {
+                if(!this.image)
+                {
+                    const scene = GameScene.Instance;
+                    this.image = scene.add.image(0, 0, "note");
+                }
+            } else {
+                if(this.image)
+                {
+                    this.image.destroy();
+                    this.image = undefined;
+                }
+            }
+        } else {
+            if(!this.destroyed)
+            {
+                this.destroy();
+            }
+        }
+
+        if(this.visible)
+        {
+            
+        } else {
+            
+        }
+
         const object = this.object.object;
         const dragObject = this.dragObject?.object;
 
@@ -51,7 +80,7 @@ export class Note extends BaseObject
                 const pad = this.draggedByPad;
                 const padPosition = pad.object.object.position;
 
-                const currentTime = GameScene.Instance.notes.soundNotes.getCurrentAudioTime() * 1000;
+                const currentTime = GameScene.Instance.soundPlayer.getCurrentAudioTime() * 1000;
                 const dragTime = this.songNote.dragTime;
                 const noteTime = this.songNote.time;
                 const originalSize = GameScene.Instance.notes.getDistanceFromMs(dragTime);
@@ -91,10 +120,12 @@ export class Note extends BaseObject
             dragObject.position.set(newPosition.x, newPosition.y, newPosition.z);
             this.dragObject!.debugText.setLine("size", this.dragSize.toFixed(2));
 
+            /*
             if(this.dragSize <= 0)
             {
                 this.draggedByPad = undefined;
             }
+            */
         }
 
         if(this.image)
@@ -128,7 +159,13 @@ export class Note extends BaseObject
 
     public destroy()
     {
+        this.destroyed = true;
+
         this.object.destroy();
+
+        this.dragObject?.destroy();
+        this.dragObject = undefined
+
         this.image?.destroy();
         this.image = undefined;
     }
@@ -185,13 +222,15 @@ export class Note extends BaseObject
 
     public setAsHitted()
     {
-        //note.canMove = false;
-        //note.image!.alpha = 0.1;
+        console.log("note hit!");
 
-        this.image?.destroy();
-        this.image = undefined;
-
-        console.log(this.dragObject)
+        if(this.songNote.dragTime == 0)
+        {
+            this.visible = false;
+            this.destroy();
+        } else {
+            this.noteVisible = false;
+        }
 
         //GameScene.Instance.notes.soundNotes.audio!.playbackRate = 0.5;
     }
@@ -199,5 +238,17 @@ export class Note extends BaseObject
     public setZPosition(z: number)
     {
         this.object.object.position.z = z;
+    }
+
+    public startBeeingDragged(pad: Pad)
+    {
+        this.draggedByPad = pad;
+    }
+
+    public stopBeeingDragged()
+    {
+        this.draggedByPad = undefined;
+
+        this.visible = false;
     }
 }

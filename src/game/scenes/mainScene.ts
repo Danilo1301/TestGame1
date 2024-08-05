@@ -31,7 +31,7 @@ export class MainScene extends Phaser.Scene
 
         const gameSize = Gameface.Instance.getGameSize();
         const button = new Button(this, "Play", gameSize.x/2, gameSize.y/2, 200, 50, "button");
-        button.onClick = () => {
+        button.onClick = () => {  
             button.destroy();
             this.onStart?.();
         };

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { DebugText } from '../debug/debugText';
 import { ExtendedObject3D } from '@enable3d/phaser-extension';
+import { ThreeScene } from './threeScene';
 
 export class Phaser3DObject
 {
@@ -24,5 +25,7 @@ export class Phaser3DObject
     public destroy()
     {
         this.debugText.destroy();
+        
+        ThreeScene.Instance.third.scene.remove(this.object);
     }
 }

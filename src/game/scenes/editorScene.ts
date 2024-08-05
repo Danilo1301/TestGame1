@@ -4,7 +4,7 @@ import { Song, SongNote, songs } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { Note } from "../notes/note";
 import { Timebar } from "./editor/timebar";
-import { GameScene } from "./gameScene";
+import { GameScene } from "./gameScene/gameScene";
 
 interface EditorNote {
     note: Note
@@ -14,8 +14,6 @@ interface EditorNote {
 export class EditorScene extends Phaser.Scene
 {
     public static Instance: EditorScene;
-    public song: Song;
-    public assetAudio!: AssetAudio;
     public timebar: Timebar;
 
     public notes: EditorNote[] = [];
@@ -26,14 +24,34 @@ export class EditorScene extends Phaser.Scene
         
         EditorScene.Instance = this;
 
-        this.song = songs[0];
         this.timebar = new Timebar();
+    }
+
+    public setSong(song: Song)
+    {
+        GameScene.Instance.soundPlayer.startSong(song);
     }
 
     public async create()
     {
         console.log("create")
         
+        this.timebar.create(this);
+        this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
+            console.log(currentLength)
+
+            const audio = GameScene.Instance.soundPlayer.audio!;
+
+            if(audio.ended) audio.play();
+
+            audio.currentTime = currentLength;
+        });
+
+
+        Gameface.Instance.sceneManager.startScene(GameScene);
+
+
+       /*
         AudioManager.playAudioWithVolume(this.song.sound, 0.05);
 
         const audioAsset = AudioManager.assets.get(this.song.sound);
@@ -58,9 +76,11 @@ export class EditorScene extends Phaser.Scene
 
             audioAsset!.audio!.currentTime = currentLength;
         });
+        */
 
-        Gameface.Instance.sceneManager.startScene(GameScene);
+        
 
+        /*
         for(const songNote of this.song.notes)
         {
             for(const pad of songNote.pads)
@@ -76,10 +96,11 @@ export class EditorScene extends Phaser.Scene
                 this.notes.push(editorNote);
             }
         }
+        */
 
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
         {
-            const audio = this.assetAudio.audio!;
+            const audio = GameScene.Instance.soundPlayer.audio!;
 
             if(audio.paused)
             {
@@ -95,11 +116,17 @@ export class EditorScene extends Phaser.Scene
     {
         this.timebar.update();
 
-        this.timebar.currentLength = this.assetAudio.audio!.currentTime;
-        this.timebar.totalLength = this.assetAudio.audio!.duration;
+        const audio = GameScene.Instance.soundPlayer.audio;
+
+        if(audio)
+        {
+            this.timebar.currentLength = audio.currentTime;
+            this.timebar.totalLength = audio.duration;
+        }
 
         //console.log(this.timebar.currentLength + " / " + this.timebar.totalLength)
 
+        /*
         for(const editorNote of this.notes)
         {
             const pad = GameScene.Instance.pads.getPad(editorNote.note.padIndex);
@@ -113,10 +140,11 @@ export class EditorScene extends Phaser.Scene
             const position = editorNote.note.object.object.position;
             editorNote.note.object.object.position.set(position.x, position.y, z);
         }
+        */
     }
 
     public setPlaybackSpeed(speed: number)
     {
-        this.assetAudio.audio!.playbackRate = speed;
+        GameScene.Instance.soundPlayer.audio!.playbackRate = speed;
     }
 }

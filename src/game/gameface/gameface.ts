@@ -2,7 +2,7 @@ import { AssetLoad } from "../../utils/assetLoad/assetLoad";
 import { BaseObject } from "../../utils/baseObject";
 import { Input } from "../../utils/input/input";
 import { PhaserLoad } from "../../utils/phaserLoad/phaserLoad";
-import { GameScene } from "../scenes/gameScene";
+import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 import { SongSelectionScene } from "../scenes/songSelectionScene";
 import { ThreeScene } from "../../utils/three/threeScene";
@@ -51,6 +51,8 @@ export class Gameface extends BaseObject
 
         await this.fuckingWaitForFirstClick();
 
+        //this.enterFullscreen();
+
         const openEditor = false;
 
         if(openEditor)
@@ -60,6 +62,42 @@ export class Gameface extends BaseObject
             this.sceneManager.startScene(SongSelectionScene);
         }
 
+    }
+
+    public isFullscreen()
+    {
+        const doc: any = document;
+
+        return doc.fullscreenElement || 
+            doc.webkitFullscreenElement || 
+            doc.mozFullScreenElement || 
+            doc.msFullscreenElement;
+    }
+
+    public enterFullscreen()
+    {
+        var elem = document.documentElement;
+
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        }
+    }
+
+    public leaveFullscreen()
+    {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+
+    public toggleFullscreen()
+    {
+        if(this.isFullscreen())
+        {
+            this.leaveFullscreen();
+        } else {
+            this.enterFullscreen();
+        }
     }
 
     public updateScenesOrder()
