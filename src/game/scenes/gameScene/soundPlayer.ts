@@ -29,10 +29,22 @@ export class SoundPlayer
         this._audio.play();
         this._audio.pause();
 
-        for(const songNote of song.notes)
+        this.recreateNotes();
+    }
+
+    public recreateNotes()
+    {
+        this.destroyNotes();
+
+        for(const songNote of this.song!.notes)
         {
             this.createNotesForSongNote(songNote);
         }
+    }
+
+    public destroyNotes()
+    {
+        GameScene.Instance.notes.destroyNotes();
     }
 
     public update(delta: number)

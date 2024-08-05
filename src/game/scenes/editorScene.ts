@@ -1,10 +1,13 @@
 import { AssetAudio, AudioManager } from "../../utils/audioManager/audioManager";
 import { Input } from "../../utils/input/input";
+import { Button } from "../../utils/ui/button";
 import { Song, SongNote, songs } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { Note } from "../notes/note";
+import { AddNote } from "./editor/addNote";
 import { Timebar } from "./editor/timebar";
 import { GameScene } from "./gameScene/gameScene";
+import { MainScene } from "./mainScene";
 
 interface EditorNote {
     note: Note
@@ -18,6 +21,8 @@ export class EditorScene extends Phaser.Scene
 
     public notes: EditorNote[] = [];
 
+    public song?: Song;
+
     constructor()
     {
         super({});
@@ -29,7 +34,9 @@ export class EditorScene extends Phaser.Scene
 
     public setSong(song: Song)
     {
-        GameScene.Instance.soundPlayer.startSong(song);
+        this.song = Object.assign({}, song);
+
+        GameScene.Instance.soundPlayer.startSong(this.song);
     }
 
     public async create()
@@ -47,38 +54,15 @@ export class EditorScene extends Phaser.Scene
             audio.currentTime = currentLength;
         });
 
+        const addNote = new Button(this, "Add note", 50, 180, 80, 50, "button");
+        addNote.onClick = () => {
+            const addNotePanel = new AddNote(this);
+        };
 
         Gameface.Instance.sceneManager.startScene(GameScene);
 
 
-       /*
-        AudioManager.playAudioWithVolume(this.song.sound, 0.05);
 
-        const audioAsset = AudioManager.assets.get(this.song.sound);
-        this.assetAudio = audioAsset!;
-        
-        console.log(audioAsset)
-
-        console.log(this.timebar)
-        console.log(this.timebar.create)
-        console.log(this.timebar.create(this))
-
-        this.timebar.create(this);
-        this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
-            console.log(currentLength)
-
-            const audio = audioAsset!.audio!;
-
-            if(audio.ended)
-            {
-                audio.play();
-            }
-
-            audioAsset!.audio!.currentTime = currentLength;
-        });
-        */
-
-        
 
         /*
         for(const songNote of this.song.notes)

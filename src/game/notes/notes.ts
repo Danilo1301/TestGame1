@@ -60,6 +60,16 @@ export class Notes extends BaseObject
         return this.spawnNoteForPad(padIndex, songNote);
     }
 
+    public destroyNotes()
+    {
+        for(const note of this._notes)
+        {
+            note.destroy();
+        }
+
+        this._notes = [];
+    }
+
     public update(delta: number)
     {
         this.delta = delta;

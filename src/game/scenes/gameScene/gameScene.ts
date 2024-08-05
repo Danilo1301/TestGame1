@@ -59,7 +59,7 @@ export class GameScene extends Phaser.Scene
         //const note = this.notes.spawnRandomNoteForPad();
         //console.log(note.getScale())
 
-        const button = new Button(this, "Fullscreen", 50, 80, 50, 50, "button");
+        const button = new Button(this, "Fullscreen", 30, 120, 50, 50, "button");
         button.onClick = () => {
             Gameface.Instance.toggleFullscreen();
         };

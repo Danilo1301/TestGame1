@@ -27,7 +27,7 @@ export class MainScene extends Phaser.Scene
         this.layerHud = this.add.layer();
         this.layerHud.setDepth(10000);
 
-        this.fpsText = this.add.text(10, 10, "0 FPS", { font: '16px Arial', color: '#000000' });
+        this.fpsText = this.add.text(5, 5, "0 FPS", { font: '16px Arial', color: '#000000' });
 
         const gameSize = Gameface.Instance.getGameSize();
         const button = new Button(this, "Play", gameSize.x/2, gameSize.y/2, 200, 50, "button");
