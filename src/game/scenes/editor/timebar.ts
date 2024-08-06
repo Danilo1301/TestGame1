@@ -44,6 +44,8 @@ export class Timebar extends BaseObject
 
                 this.currentLength = xPos * this.totalLength;
 
+                console.log(`changedcurrentlength ${this.currentLength}/${this.totalLength}`)
+
                 this.events.emit("changedcurrentlength", this.currentLength);
             }
         });

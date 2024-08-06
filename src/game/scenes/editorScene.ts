@@ -47,13 +47,15 @@ export class EditorScene extends Phaser.Scene
         this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
             console.log(currentLength)
 
-            const soundInstance = GameScene.Instance.soundPlayer.soundInstance!;
+            const audio = GameScene.Instance.soundPlayer.audio!;
 
-            console.log(soundInstance.playState)
+            //console.log(soundInstance.playState)
 
-            if(soundInstance.playState == "playFinished") soundInstance.play();
+            //if(soundInstance.playState == "playFinished") soundInstance.play();
 
-            soundInstance.position = currentLength;
+            if(audio.paused) audio.play();
+
+            audio.currentTime = currentLength/1000;
         });
 
         const addNote = new Button(this, "Add note", 50, 180, 80, 50, "button");
@@ -86,14 +88,14 @@ export class EditorScene extends Phaser.Scene
 
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
         {
-            const soundInstance = GameScene.Instance.soundPlayer.soundInstance!;
+            const audio = GameScene.Instance.soundPlayer.audio!;
 
-            if(soundInstance.paused)
+            if(audio.paused)
             {
-                soundInstance.play();
-                soundInstance.position = this.timebar.currentLength;
+                audio.play();
+                audio.currentTime = this.timebar.currentLength;
             } else {
-                soundInstance.paused = true;
+                audio.pause();
             }
         });
     }
@@ -102,13 +104,11 @@ export class EditorScene extends Phaser.Scene
     {
         this.timebar.update();
 
-        const soundInstance = GameScene.Instance.soundPlayer.soundInstance;
+        const soundPlayer = GameScene.Instance.soundPlayer;
 
-        if(soundInstance)
-        {
-            this.timebar.currentLength = soundInstance.position;
-            this.timebar.totalLength = soundInstance.duration;
-        }
+        this.timebar.currentLength = soundPlayer.getAudioCurrentTime();
+        this.timebar.totalLength = soundPlayer.getAudioDuration();
+        
 
         //console.log(this.timebar.currentLength + " / " + this.timebar.totalLength)
 

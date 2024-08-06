@@ -5,7 +5,7 @@ export interface AssetAudio
 {
     key: string
     url: string
-    obj: Object
+    audio?: HTMLAudioElement
     loadState: LoadState
 
 }
@@ -27,7 +27,7 @@ export class AudioManager
         const asset: AssetAudio = {
             key: key,
             url: url,
-            obj: {},
+            audio: undefined,
             loadState: LoadState.LOADING
         }
 
@@ -41,10 +41,6 @@ export class AudioManager
 
     public static playAudioWithVolume(key: string, volume: number)
     {
-        const instance = createjs.Sound.play(key);
-
-        return instance;
-        /*
         const asset = this.assets.get(key);
         
         if(!asset) throw "Asset " + key + " not found";
@@ -57,22 +53,10 @@ export class AudioManager
         audio.play();
 
         return audio;
-        */
-
     }
 
     public static async loadAllAudios()
     {
-        for(const asset of this.assets.values())
-        {
-            const obj = createjs.Sound.registerSound(`/assets/${asset.url}`, asset.key);
-            asset.obj = obj;
-
-            console.log(`loading audio ${asset.key}`, obj);
-        }
-        
-
-        /*
         return new Promise<void>((resolve) => {
             let notLoaded = this.getNotLoadedCount();
 
@@ -95,7 +79,6 @@ export class AudioManager
                 }, false);
             }
         });
-        */
     }
 
     public static getNotLoadedCount()

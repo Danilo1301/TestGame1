@@ -7,11 +7,11 @@ export class SoundPlayer
     public soundDelay: number = 2000;
     
     public get song() { return this._song; };
-    public get soundInstance() { return this._soundInstance; };
+    public get audio() { return this._audio; };
     public get startedTime() { return this._startedTime; };
     
     private _song?: Song;
-    private _soundInstance?: createjs.AbstractSoundInstance;
+    private _audio?: HTMLAudioElement;
     private _startedTime: number = 0;
 
     private _currentSoundPosition: number = -3000;
@@ -24,17 +24,21 @@ export class SoundPlayer
         this._startedTime = performance.now();
         this._running = true;
 
-        this._soundInstance = AudioManager.playAudio(song.sound);
-        this._soundInstance.paused = true;
-
-        /*
-        this._audio = AudioManager.assets.get(song.sound)!.audio!;
-
-        this._audio.play();
-        this._audio.pause();
-        */
+        this._audio = AudioManager.playAudio(song.sound);
+        //this._audio.pause();
+        //this._audio.play();
 
         this.recreateNotes();
+    }
+
+    public getAudioCurrentTime()
+    {
+        return this.audio!.currentTime * 1000;
+    }
+
+    public getAudioDuration()
+    {
+        return this.audio!.duration * 1000;
     }
 
     public recreateNotes()
@@ -56,26 +60,31 @@ export class SoundPlayer
     {
         if(!this._running) return;
 
+        this._currentSoundPosition = this.getAudioCurrentTime();
+
+
+        /*
         if(this._currentSoundPosition < 0)
         {
             this._currentSoundPosition += delta;
         } else {
             const time = this._currentSoundPosition;
 
-            this._currentSoundPosition = this._soundInstance!.position;
+            this._currentSoundPosition = this.getAudioCurrentTime();
 
-            const soundInstance = this._soundInstance!;
+            const audio = this.audio!;
 
-            if(soundInstance.paused)
+            if(audio.paused)
             {
                 if(!this._hasSongStarted)
                 {
                     this._hasSongStarted = true;
-                    soundInstance.play();
-                    soundInstance.position = time;
+                    audio.play();
+                    audio.currentTime = time;
                 }
             }
         }
+        */
     }
 
     public getCurrentSoundPosition()
