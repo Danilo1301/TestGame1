@@ -79,7 +79,7 @@ export class Pad extends BaseObject
             note.startBeeingDragged(this);
 
             this.draggingNote = note;
-            this.startedDragAtTime = GameScene.Instance.soundPlayer.getCurrentAudioTime();
+            this.startedDragAtTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
         }
     }
 

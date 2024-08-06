@@ -80,7 +80,7 @@ export class Note extends BaseObject
                 const pad = this.draggedByPad;
                 const padPosition = pad.object.object.position;
 
-                const currentTime = GameScene.Instance.soundPlayer.getCurrentAudioTime() * 1000;
+                const currentTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
                 const dragTime = this.songNote.dragTime;
                 const noteTime = this.songNote.time;
                 const originalSize = GameScene.Instance.notes.getDistanceFromMs(dragTime);

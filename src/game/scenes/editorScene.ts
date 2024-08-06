@@ -47,11 +47,13 @@ export class EditorScene extends Phaser.Scene
         this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
             console.log(currentLength)
 
-            const audio = GameScene.Instance.soundPlayer.audio!;
+            const soundInstance = GameScene.Instance.soundPlayer.soundInstance!;
 
-            if(audio.ended) audio.play();
+            console.log(soundInstance.playState)
 
-            audio.currentTime = currentLength;
+            if(soundInstance.playState == "playFinished") soundInstance.play();
+
+            soundInstance.position = currentLength;
         });
 
         const addNote = new Button(this, "Add note", 50, 180, 80, 50, "button");
@@ -84,14 +86,14 @@ export class EditorScene extends Phaser.Scene
 
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
         {
-            const audio = GameScene.Instance.soundPlayer.audio!;
+            const soundInstance = GameScene.Instance.soundPlayer.soundInstance!;
 
-            if(audio.paused)
+            if(soundInstance.paused)
             {
-                audio.play();
-                audio.currentTime = this.timebar.currentLength;
+                soundInstance.play();
+                soundInstance.position = this.timebar.currentLength;
             } else {
-                audio.pause();
+                soundInstance.paused = true;
             }
         });
     }
@@ -100,12 +102,12 @@ export class EditorScene extends Phaser.Scene
     {
         this.timebar.update();
 
-        const audio = GameScene.Instance.soundPlayer.audio;
+        const soundInstance = GameScene.Instance.soundPlayer.soundInstance;
 
-        if(audio)
+        if(soundInstance)
         {
-            this.timebar.currentLength = audio.currentTime;
-            this.timebar.totalLength = audio.duration;
+            this.timebar.currentLength = soundInstance.position;
+            this.timebar.totalLength = soundInstance.duration;
         }
 
         //console.log(this.timebar.currentLength + " / " + this.timebar.totalLength)
@@ -129,6 +131,6 @@ export class EditorScene extends Phaser.Scene
 
     public setPlaybackSpeed(speed: number)
     {
-        GameScene.Instance.soundPlayer.audio!.playbackRate = speed;
+        //GameScene.Instance.soundPlayer.soundInstance!. audio!.playbackRate = speed;
     }
 }

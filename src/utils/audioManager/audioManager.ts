@@ -1,10 +1,11 @@
+import { Gameface } from "../../game/gameface/gameface";
 import { AssetLoad, LoadState } from "../assetLoad/assetLoad";
 
 export interface AssetAudio
 {
     key: string
     url: string
-    audio?: HTMLAudioElement
+    obj: Object
     loadState: LoadState
 
 }
@@ -13,6 +14,11 @@ export class AudioManager
 {
     public static assets = new Map<string, AssetAudio>();
     public static onLoadedAllAudios?: Function;
+    
+    public static get sound() {
+        const w: any = window;
+        return w["createjs"].Sound as createjs.Sound;
+    };
 
     public static addAudio(key: string, url: string)
     {
@@ -21,7 +27,7 @@ export class AudioManager
         const asset: AssetAudio = {
             key: key,
             url: url,
-            audio: undefined,
+            obj: {},
             loadState: LoadState.LOADING
         }
 
@@ -30,11 +36,15 @@ export class AudioManager
 
     public static playAudio(key: string)
     {
-        this.playAudioWithVolume(key, 1.0);
+        return this.playAudioWithVolume(key, 1.0);
     }
 
     public static playAudioWithVolume(key: string, volume: number)
     {
+        const instance = createjs.Sound.play(key);
+
+        return instance;
+        /*
         const asset = this.assets.get(key);
         
         if(!asset) throw "Asset " + key + " not found";
@@ -47,10 +57,22 @@ export class AudioManager
         audio.play();
 
         return audio;
+        */
+
     }
 
     public static async loadAllAudios()
     {
+        for(const asset of this.assets.values())
+        {
+            const obj = createjs.Sound.registerSound(`/assets/${asset.url}`, asset.key);
+            asset.obj = obj;
+
+            console.log(`loading audio ${asset.key}`, obj);
+        }
+        
+
+        /*
         return new Promise<void>((resolve) => {
             let notLoaded = this.getNotLoadedCount();
 
@@ -73,6 +95,7 @@ export class AudioManager
                 }, false);
             }
         });
+        */
     }
 
     public static getNotLoadedCount()

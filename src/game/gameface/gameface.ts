@@ -2,13 +2,13 @@ import { AssetLoad } from "../../utils/assetLoad/assetLoad";
 import { BaseObject } from "../../utils/baseObject";
 import { Input } from "../../utils/input/input";
 import { PhaserLoad } from "../../utils/phaserLoad/phaserLoad";
-import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 import { SongSelectionScene } from "../scenes/songSelectionScene";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { SceneManager } from "./sceneManager";
 import { AudioManager } from "../../utils/audioManager/audioManager";
 import { EditorScene } from "../scenes/editorScene";
+import { GameScene } from "../scenes/gameScene/gameScene";
 
 export class Gameface extends BaseObject
 {

@@ -76,7 +76,7 @@ export class AddNote
 
             const song = EditorScene.Instance.song!;
 
-            const time = GameScene.Instance.soundPlayer.getCurrentAudioTime() * 1000;
+            const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
 
             const pads: number[] = [];
             for(const pad of this.padSelectors)

@@ -74,7 +74,7 @@ export class LoadScene extends Phaser.Scene
 
                 console.log("load completed");
                 console.log("loading audios...");
-
+                
                 await AudioManager.loadAllAudios();
 
                 resolve();

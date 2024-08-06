@@ -52,7 +52,7 @@ export class Notes extends BaseObject
         const padIndex = randomIntFromInterval(0, numOfPads-1);
 
         const songNote: SongNote = {
-            time: this.soundPlayer.getCurrentAudioTime() + 2000,
+            time: this.soundPlayer.getCurrentSoundPosition() + 2000,
             pads: [padIndex],
             dragTime: 0
         }
@@ -83,7 +83,7 @@ export class Notes extends BaseObject
             const pad = GameScene.Instance.pads.getPad(note.padIndex);
 
             let z = pad.object.object.position.z;
-            let ms = (this.soundPlayer.getCurrentAudioTime() * 1000) - note.songNote.time;
+            let ms = (this.soundPlayer.getCurrentSoundPosition()) - note.songNote.time;
             z += GameScene.Instance.notes.getDistanceFromMs(ms);
 
             note.setZPosition(z);
