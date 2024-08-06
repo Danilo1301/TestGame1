@@ -144,6 +144,7 @@ export class Note extends BaseObject
 
     public getScale()
     {
+        /*
         const object = this.object.object;
 
         const screenPos = ThreeScene.projectToScreen(object.position);
@@ -153,8 +154,9 @@ export class Note extends BaseObject
         const screenPos2 = ThreeScene.projectToScreen(pos2);
 
         const distance = screenPos.distanceTo(screenPos2);
+        */
         
-        return distance * 0.08;
+        return this.object.getScale() * 0.8;
     }
 
     public destroy()

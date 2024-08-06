@@ -18,8 +18,11 @@ export class Phaser3DObject
     public update()
     {
         this.debugText.setLine("title", this.name);
+        //this.debugText.setLine("scale", `Scale:  ${this.getScale().toFixed(2)}`);
         this.debugText.set3DPosition(this.object.position);
         this.debugText.update();
+
+
     }
 
     public destroy()
@@ -27,5 +30,19 @@ export class Phaser3DObject
         this.debugText.destroy();
         
         ThreeScene.Instance.third.scene.remove(this.object);
+    }
+
+    public getScale()
+    {
+        const left = this.object.position.clone();
+        left.x -= 0.5;
+
+        const right = this.object.position.clone();
+        right.x += 0.5;
+
+        const s1 = ThreeScene.projectToScreen(left);
+        const s2 = ThreeScene.projectToScreen(right);
+
+        return (s2.x - s1.x) * 0.01;
     }
 }

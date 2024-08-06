@@ -51,7 +51,7 @@ export class GameScene extends Phaser.Scene
             const x = i * distance - totalDistance/2;
             const z = this.ground.plankSize / 2;
 
-            const pad = this.pads.addPad(x, 0.2, z);
+            const pad = this.pads.addPad(x, this.pads.padHeight, z);
             pad.setKey(this.padKeys[i]);
         }
 

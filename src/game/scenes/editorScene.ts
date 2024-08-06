@@ -5,6 +5,8 @@ import { Song, SongNote, songs } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { Note } from "../notes/note";
 import { AddNote } from "./editor/addNote";
+import { BPMMeter } from "./editor/bmpMeter";
+import { BPMBar } from "./editor/bpmBar";
 import { Timebar } from "./editor/timebar";
 import { GameScene } from "./gameScene/gameScene";
 import { MainScene } from "./mainScene";
@@ -18,10 +20,13 @@ export class EditorScene extends Phaser.Scene
 {
     public static Instance: EditorScene;
     public timebar: Timebar;
+    public bpmMeter: BPMMeter;
 
     public notes: EditorNote[] = [];
 
     public song?: Song;
+
+    public bpmBars: BPMBar[] = [];
 
     constructor()
     {
@@ -30,11 +35,14 @@ export class EditorScene extends Phaser.Scene
         EditorScene.Instance = this;
 
         this.timebar = new Timebar();
+        this.bpmMeter = new BPMMeter();
     }
 
     public setSong(song: Song)
     {
         this.song = Object.assign({}, song);
+        this.bpmMeter.bpm = song.bpm;
+        this.bpmMeter.offset = song.offset;
 
         GameScene.Instance.soundPlayer.startSong(this.song);
     }
@@ -55,8 +63,10 @@ export class EditorScene extends Phaser.Scene
 
             if(audio.paused) audio.play();
 
-            audio.currentTime = currentLength/1000;
+            audio.currentTime = currentLength;
         });
+
+        this.bpmMeter.create(this);
 
         const addNote = new Button(this, "Add note", 50, 180, 80, 50, "button");
         addNote.onClick = () => {
@@ -65,27 +75,6 @@ export class EditorScene extends Phaser.Scene
 
         Gameface.Instance.sceneManager.startScene(GameScene);
 
-
-
-
-        /*
-        for(const songNote of this.song.notes)
-        {
-            for(const pad of songNote.pads)
-            {
-                const note = GameScene.Instance.notes.spawnNoteForPad(pad, songNote); 
-                note.canMove = false;
-
-                const editorNote: EditorNote = {
-                    note: note,
-                    songNote: songNote
-                }
-
-                this.notes.push(editorNote);
-            }
-        }
-        */
-
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
         {
             const audio = GameScene.Instance.soundPlayer.audio!;
@@ -93,22 +82,49 @@ export class EditorScene extends Phaser.Scene
             if(audio.paused)
             {
                 audio.play();
-                audio.currentTime = this.timebar.currentLength;
+                
             } else {
                 audio.pause();
             }
+            audio.currentTime = this.timebar.currentLength;
         });
     }
 
     public update(time: number, delta: number)
     {
         this.timebar.update();
+        this.bpmMeter.update();
 
         const soundPlayer = GameScene.Instance.soundPlayer;
 
-        this.timebar.currentLength = soundPlayer.getAudioCurrentTime();
-        this.timebar.totalLength = soundPlayer.getAudioDuration();
+        this.timebar.currentLength = soundPlayer.getAudioCurrentTime() / 1000;
+        this.timebar.totalLength = soundPlayer.getAudioDuration() / 1000;
         
+        while(this.bpmBars.length < 3)
+        {
+            const bpmBar = new BPMBar(this);
+
+            this.bpmBars.push(bpmBar);
+        }
+
+        for(const bpmBar of this.bpmBars)
+        {
+            const index = this.bpmBars.indexOf(bpmBar);
+            const length = this.bpmBars.length;
+            //const off = Math.floor(length/2);
+
+            const soundTime = soundPlayer.getAudioCurrentTime();
+            //const beat = this.bpmMeter.getBeatTime(this.bpmMeter.bpm, this.bpmMeter.offset);
+
+            let t = soundTime;
+
+            t -= this.bpmMeter.getCurrentBeatTime(index);   
+
+        
+            bpmBar.setTimeMs(t);
+            bpmBar.update();
+        }
+
 
         //console.log(this.timebar.currentLength + " / " + this.timebar.totalLength)
 

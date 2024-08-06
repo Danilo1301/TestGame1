@@ -4,6 +4,9 @@ import { Pad } from "./pad";
 
 export class Pads extends BaseObject
 {
+    
+    public padHeight: number = 0.2;
+    
     public get pads() { return this._pads; };
     public get numOfPads() { return this._pads.length; };
 

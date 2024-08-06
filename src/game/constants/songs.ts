@@ -7,11 +7,24 @@ export interface SongNote {
 export interface Song {
     name: string
     sound: string
+    bpm: number
+    offset: number
     notes: SongNote[]
 }
 
 export const songs: Song[] = [
-    {name: "Neovaii - Crash", sound: "sound1", notes: [
+    {name: "TAIGA - Ghostbusters", sound: "sound3", bpm: 128, offset: 15, notes: [
+        {time: 1000, pads: [1], dragTime: 1000},
+        {time: 2100, pads: [1], dragTime: 0},
+        {time: 2432, pads: [2], dragTime: 0},
+        {time: 2760, pads: [1], dragTime: 0},
+        {time: 3100, pads: [2], dragTime: 0},
+        {time: 3400, pads: [1], dragTime: 0},
+        {time: 4400, pads: [3], dragTime: 0},
+        {time: 5400, pads: [3], dragTime: 0},
+        {time: 6400, pads: [3], dragTime: 0},
+    ]},
+    {name: "Neovaii - Crash", sound: "sound1", bpm: 100, offset: 0, notes: [
         {time: 0, pads: [1], dragTime: 300},
         {time: 467, pads: [1], dragTime: 0},
         {time: 875, pads: [1], dragTime: 300},
@@ -21,7 +34,7 @@ export const songs: Song[] = [
         {time: 2608, pads: [3], dragTime: 300},
         {time: 3011, pads: [3], dragTime: 0}
     ]},
-    {name: "NCS Faded", sound: "sound2", notes: [
+    {name: "NCS Faded", sound: "sound2", bpm: 100, offset: 0, notes: [
         {time: 100, pads: [1], dragTime: 0},
         {time: 460, pads: [2], dragTime: 0},
         {time: 782, pads: [1], dragTime: 0},
@@ -33,16 +46,5 @@ export const songs: Song[] = [
         {time: 2760, pads: [1], dragTime: 0},
         {time: 3100, pads: [2], dragTime: 0},
         {time: 3400, pads: [1], dragTime: 0},
-    ]},
-    {name: "TAIGA - Ghostbusters", sound: "sound3", notes: [
-        {time: 1000, pads: [1], dragTime: 1000},
-        {time: 2100, pads: [1], dragTime: 0},
-        {time: 2432, pads: [2], dragTime: 0},
-        {time: 2760, pads: [1], dragTime: 0},
-        {time: 3100, pads: [2], dragTime: 0},
-        {time: 3400, pads: [1], dragTime: 0},
-        {time: 4400, pads: [3], dragTime: 0},
-        {time: 5400, pads: [3], dragTime: 0},
-        {time: 6400, pads: [3], dragTime: 0},
     ]}
 ];
