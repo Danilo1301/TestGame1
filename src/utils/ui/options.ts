@@ -24,6 +24,9 @@ export class Options
         this.container = scene.add.container(0, 0);
         this.container.setPosition(200, 200);
 
+        const background = scene.add.rectangle(0, 0, displaySize, 30, 0xffffff);
+        this.container.add(background);
+
         const leftButton = new Button(scene, "<", -this._optionDisplaySize/2, 0, 30, 30, "button");
         leftButton.onClick = () => {
             this.addOptionBy(-1);

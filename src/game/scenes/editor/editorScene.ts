@@ -1,33 +1,30 @@
-import { AssetAudio, AudioManager } from "../../utils/audioManager/audioManager";
-import { Input } from "../../utils/input/input";
-import { Button } from "../../utils/ui/button";
-import { Options } from "../../utils/ui/options";
-import { Song, SongNote, songs } from "../constants/songs";
-import { Gameface } from "../gameface/gameface";
-import { Note } from "../notes/note";
-import { AddNote } from "./editor/addNote";
-import { BPMMeter } from "./editor/bmpMeter";
-import { BPMBar } from "./editor/bpmBar";
-import { Timebar } from "./editor/timebar";
-import { GameScene } from "./gameScene/gameScene";
-import { MainScene } from "./mainScene";
+import { AssetAudio, AudioManager } from "../../../utils/audioManager/audioManager";
+import { Input } from "../../../utils/input/input";
+import { Button } from "../../../utils/ui/button";
+import { Options } from "../../../utils/ui/options";
+import { Song, SongNote, songs } from "../../constants/songs";
+import { Gameface } from "../../gameface/gameface";
+import { AddNote } from "./addNote";
+import { BPMMeter } from "./bmpMeter";
 
-interface EditorNote {
-    note: Note
-    songNote: SongNote
-}
+import { Timebar } from "./timebar";
+import { GameScene } from "../gameScene/gameScene";
 
 export class EditorScene extends Phaser.Scene
 {
     public static Instance: EditorScene;
+    public static showDeleteNoteButton: boolean = true;
+
     public timebar: Timebar;
     public bpmMeter: BPMMeter;
-
+    
     //public notes: EditorNote[] = [];
-
+    
     public song?: Song;
-
+    
     private _bpmOptions!: Options;
+    private _addNotePanel?: AddNote;
+
 
     constructor()
     {
@@ -75,7 +72,13 @@ export class EditorScene extends Phaser.Scene
 
         const addNote = new Button(this, "Add note", 50, 180, 80, 50, "button");
         addNote.onClick = () => {
-            const addNotePanel = new AddNote(this);
+            EditorScene.showDeleteNoteButton = false;
+
+            this._addNotePanel = new AddNote(this);
+            this._addNotePanel.onClose = () => {
+                this._addNotePanel = undefined;
+                EditorScene.showDeleteNoteButton = true;
+            };
         };
 
         const snap = new Button(this, "Snap", 50, 240, 80, 50, "button");

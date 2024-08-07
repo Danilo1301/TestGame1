@@ -5,7 +5,7 @@ import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { Note } from "../notes/note";
-import { EditorScene } from "../scenes/editorScene";
+import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 

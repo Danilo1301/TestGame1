@@ -3,7 +3,7 @@ import { Button } from "../../utils/ui/button";
 import { Song, songs } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { AudioTestScene } from "./audioTestScene";
-import { EditorScene } from "./editorScene";
+import { EditorScene } from "./editor/editorScene";
 import { GameScene } from "./gameScene/gameScene";
 
 export class SongSelectionScene extends Phaser.Scene

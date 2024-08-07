@@ -7,7 +7,7 @@ import { SongSelectionScene } from "../scenes/songSelectionScene";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { SceneManager } from "./sceneManager";
 import { AudioManager } from "../../utils/audioManager/audioManager";
-import { EditorScene } from "../scenes/editorScene";
+import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 
 export class Gameface extends BaseObject

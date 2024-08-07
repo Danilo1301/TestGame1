@@ -9,7 +9,7 @@ import { MainScene } from "../scenes/mainScene";
 import { SongNote } from "../constants/songs";
 import { Input } from "../../utils/input/input";
 import { Button } from "../../utils/ui/button";
-import { EditorScene } from "../scenes/editorScene";
+import { EditorScene } from "../scenes/editor/editorScene";
 
 export class Note extends BaseObject
 {
@@ -148,7 +148,7 @@ export class Note extends BaseObject
 
             const distanceFromMouse = this.getDistanceFromMouse();
 
-            if(distanceFromMouse < 30)
+            if(distanceFromMouse < 30 && EditorScene.showDeleteNoteButton)
             {
                 if(!this.deleteNoteButton)
                 {

@@ -1,9 +1,9 @@
 import { Button } from "../../../utils/ui/button";
 import { SongNote } from "../../constants/songs";
 import { Gameface } from "../../gameface/gameface";
-import { EditorScene } from "../editorScene";
 import { GameScene } from "../gameScene/gameScene";
 import { MainScene } from "../mainScene";
+import { EditorScene } from "./editorScene";
 
 export class PadSelector
 {
@@ -50,6 +50,8 @@ export class AddNote
     public background: Phaser.GameObjects.Rectangle;
     public addButton: Button;
 
+    public onClose?: Function;
+
     constructor(scene: Phaser.Scene)
     {
         const gameSize = Gameface.Instance.getGameSize();
@@ -58,15 +60,16 @@ export class AddNote
         this.container.setPosition(gameSize.x/2, gameSize.y/2);
         MainScene.Instance.layerHud.add(this.container);
 
-        this.background = scene.add.rectangle(0, 0, 400, 400, 0xff0000);
+        this.background = scene.add.rectangle(0, 0, 400, 400, 0xffffff);
         this.container.add(this.background);
 
-        for(let i = 0; i < 5; i++)
+        const numPads = 5;
+        for(let i = 0; i < numPads; i++)
         {
             const padSelector = new PadSelector(scene);
 
             this.container.add(padSelector.container);
-            padSelector.container.setPosition(i * 60, 0);
+            padSelector.container.setPosition((i - (numPads-1)/2) * 60, 0);
             this.padSelectors.push(padSelector);
         }
 
@@ -88,17 +91,22 @@ export class AddNote
                 }
             }
 
-            const songNote: SongNote = {
-                time: time,
-                pads: pads,
-                dragTime: 0
-            };
+            if(pads.length > 0)
+            {
+                const songNote: SongNote = {
+                    time: time,
+                    pads: pads,
+                    dragTime: 0
+                };
 
-            song.notes.push(songNote);
+                song.notes.push(songNote);
 
-            GameScene.Instance.soundPlayer.recreateNotes();
+                GameScene.Instance.soundPlayer.recreateNotes();
+            }
 
             this.destroy();
+
+            this.onClose?.();
         };
         this.container.add(this.addButton.container);
     }

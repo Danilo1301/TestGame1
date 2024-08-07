@@ -3,7 +3,7 @@ import { Debug } from "../utils/debug/debug";
 import { Gameface } from "./gameface/gameface";
 import { GameScene } from "./scenes/gameScene/gameScene";
 import { ThreeScene } from "../utils/three/threeScene";
-import { EditorScene } from "./scenes/editorScene";
+import { EditorScene } from "./scenes/editor/editorScene";
 
 const gameface = new Gameface();
 
