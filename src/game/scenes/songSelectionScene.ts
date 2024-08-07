@@ -21,7 +21,7 @@ export class SongSelectionScene extends Phaser.Scene
         for(const song of songs)
         {
             const button = new Button(this, song.name, x, y, 200, 50, "button");
-            button.container.alpha = 0.5;
+            //button.container.alpha = 0.5;
             button.onClick = () => this.selectSong(song);
 
             const editor = new Button(this, "Edit", x + 200, y, 200, 50, "button");
@@ -44,8 +44,6 @@ export class SongSelectionScene extends Phaser.Scene
 
     public selectSong(song: Song)
     {
-        return;
-
         Gameface.Instance.sceneManager.startScene(GameScene);
 
         GameScene.Instance.startSong(song);
