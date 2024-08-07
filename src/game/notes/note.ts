@@ -7,6 +7,9 @@ import { Pad } from "../pads/pad";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 import { SongNote } from "../constants/songs";
+import { Input } from "../../utils/input/input";
+import { Button } from "../../utils/ui/button";
+import { EditorScene } from "../scenes/editorScene";
 
 export class Note extends BaseObject
 {
@@ -29,6 +32,8 @@ export class Note extends BaseObject
     public dragSize: number = this.dragTotalSize;
     public draggedByPad?: Pad;
 
+    public deleteNoteButton?: Button;
+
     constructor(object: Phaser3DObject)
     {
         super();
@@ -46,6 +51,7 @@ export class Note extends BaseObject
                 {
                     const scene = GameScene.Instance;
                     this.image = scene.add.image(0, 0, "note");
+                    MainScene.Instance.layerNotes.add(this.image);
                 }
             } else {
                 if(this.image)
@@ -139,6 +145,31 @@ export class Note extends BaseObject
             //this.object.debugText.setLine("scale", `x${scale.toFixed(2)}`);
 
             this.image.setScale(scale);
+
+            const distanceFromMouse = this.getDistanceFromMouse();
+
+            if(distanceFromMouse < 30)
+            {
+                if(!this.deleteNoteButton)
+                {
+                    this.deleteNoteButton = new Button(MainScene.Instance, "X", 0, 0, 30, 30, "close");
+                    this.deleteNoteButton.onClick = () => {
+                        EditorScene.Instance.deleteNote(this.songNote.time);
+                    };
+                    MainScene.Instance.layerHud.add(this.deleteNoteButton.container);
+                }
+            } else {
+                if(this.deleteNoteButton)
+                {
+                    this.deleteNoteButton.destroy();
+                    this.deleteNoteButton = undefined;
+                }
+            }
+
+            if(this.deleteNoteButton)
+            {
+                this.deleteNoteButton.container.setPosition(this.image.x, this.image.y);
+            }
         }
     }
 
@@ -159,6 +190,14 @@ export class Note extends BaseObject
         return this.object.getScale() * 0.8;
     }
 
+    public getDistanceFromMouse()
+    {
+        if(!this.image) return 0;
+
+        const mousePosition = Input.mousePosition;
+        return mousePosition.distance(new Phaser.Math.Vector2(this.image.x, this.image.y));
+    }
+
     public destroy()
     {
         this.destroyed = true;
@@ -170,6 +209,9 @@ export class Note extends BaseObject
 
         this.image?.destroy();
         this.image = undefined;
+
+        this.deleteNoteButton?.destroy()
+        this.deleteNoteButton = undefined;
     }
 
     public getDistanceFromPad(pad: Pad)

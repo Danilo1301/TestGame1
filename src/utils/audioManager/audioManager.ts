@@ -1,4 +1,5 @@
 import { Gameface } from "../../game/gameface/gameface";
+import { MainScene } from "../../game/scenes/mainScene";
 import { AssetLoad, LoadState } from "../assetLoad/assetLoad";
 
 export interface AssetAudio
@@ -37,6 +38,11 @@ export class AudioManager
     public static playAudio(key: string)
     {
         return this.playAudioWithVolume(key, 1.0);
+    }
+
+    public static playAudioPhaser(key: string)
+    {
+        MainScene.Instance.sound.play(key);
     }
 
     public static playAudioWithVolume(key: string, volume: number)

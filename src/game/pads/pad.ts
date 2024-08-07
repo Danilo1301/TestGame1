@@ -1,9 +1,11 @@
+import { AudioManager } from "../../utils/audioManager/audioManager";
 import { BaseObject } from "../../utils/baseObject";
 import { Input } from "../../utils/input/input";
 import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { Note } from "../notes/note";
+import { EditorScene } from "../scenes/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 
@@ -25,10 +27,12 @@ export class Pad extends BaseObject
         super();
 
         this.object = object;
+        this.object.debugText.createDebugText();
 
         const scene = GameScene.Instance;
         
         this.image = scene.add.image(0, 0, "pad");
+        MainScene.Instance.layerNotes.add(this.image);
 
         Input.events.on("pointerdown", (event: PointerEvent) => {
             //console.log("poniter down")
@@ -53,18 +57,23 @@ export class Pad extends BaseObject
     public activatePad()
     {
         this._active = true;
-
+        
         const note = GameScene.Instance.notes.getClosestNoteForPad(this.getIndex());
-
+        
         if(note)
         {
             const notes = GameScene.Instance.notes;
-
+            
             const distance = note.getDistanceFromPad(this);
             const isGood = notes.isDistanceBetweenMsInterval(distance, 1000);
             
+            
             if(isGood)
             {
+                AudioManager.playAudioPhaser("osu_hitsound");
+                
+                if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
+
                 this.hitNote(note);
             }
         }
@@ -93,6 +102,8 @@ export class Pad extends BaseObject
 
         this.draggingNote = undefined;
         this.startedDragAtTime = 0;
+
+        AudioManager.playAudioPhaser("osu_hitsound");
     }
 
     public deactivatePad()

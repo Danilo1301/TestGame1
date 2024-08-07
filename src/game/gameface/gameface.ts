@@ -49,6 +49,8 @@ export class Gameface extends BaseObject
         AssetLoad.addAssets();
         await AssetLoad.load();
 
+        MainScene.Instance.createPlayButton();
+        
         await this.fuckingWaitForFirstClick();
 
         //this.enterFullscreen();

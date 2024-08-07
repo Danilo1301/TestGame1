@@ -9,17 +9,16 @@ export class DebugText {
     
     constructor(title: string)
     {
-        console.log("DebugText constructor");
+        this.setLine("title", title);
+    }
 
+    public createDebugText()
+    {
         const scene = MainScene.Instance;
 
         this.text = scene.add.text(0, 0, 'DEBUG_TEXT', { font: '16px Arial', color: '#ffff00' });
         this.text.setOrigin(0.5, 0);
         scene.layerHud.add(this.text);
-
-        console.log("text created")
-
-        this.setLine("title", title);
     }
 
     public setLine(key: string, text: string)

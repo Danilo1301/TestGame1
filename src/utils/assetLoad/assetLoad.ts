@@ -68,7 +68,7 @@ export class AssetLoad
         
         for(const asset of audioAssets)
         {
-            //this.addAudio(asset.key, asset.path);
+            this.addAudio(asset.key, asset.path);
             AudioManager.addAudio(asset.key, asset.path);
         }
     

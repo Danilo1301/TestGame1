@@ -1,12 +1,13 @@
 import { Phaser3DObject } from "../../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../../utils/three/threeScene";
 import { GameScene } from "../gameScene/gameScene";
+import { MainScene } from "../mainScene";
 
 export class BPMBar
 {
     public object: Phaser3DObject;
     public image: Phaser.GameObjects.Image;
-    public scale: number = 1.0;
+    public scale: number = 1.5;
 
     constructor(scene: Phaser.Scene)
     {
@@ -26,6 +27,7 @@ export class BPMBar
         this.object = ThreeScene.addPhaser3DObject(obj);
 
         this.image = scene.add.image(0, 0, "bpm_divisor");
+        MainScene.Instance.layerGround.add(this.image);
     }
 
     public setTimeMs(ms: number)

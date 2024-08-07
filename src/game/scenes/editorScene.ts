@@ -23,7 +23,7 @@ export class EditorScene extends Phaser.Scene
     public timebar: Timebar;
     public bpmMeter: BPMMeter;
 
-    public notes: EditorNote[] = [];
+    //public notes: EditorNote[] = [];
 
     public song?: Song;
 
@@ -46,6 +46,8 @@ export class EditorScene extends Phaser.Scene
         this.bpmMeter.offset = song.offset;
 
         GameScene.Instance.soundPlayer.startSong(this.song);
+
+        this.exportSong();
     }
 
     public async create()
@@ -76,7 +78,7 @@ export class EditorScene extends Phaser.Scene
 
         const snap = new Button(this, "Snap", 50, 240, 80, 50, "button");
         snap.onClick = () => {
-            this.snapToClosestBeatDivisior();
+            this.snapToClosestBeatDivisior(0);
         };
 
         const speedList: number[] = [1, 0.75, 0.5, 0.25, 0.1];
@@ -104,6 +106,9 @@ export class EditorScene extends Phaser.Scene
 
         Gameface.Instance.sceneManager.startScene(GameScene);
 
+        // KEYBOARD KEYS ------------------------
+
+        // SPACE
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
         {
             const audio = GameScene.Instance.soundPlayer.audio!;
@@ -117,7 +122,20 @@ export class EditorScene extends Phaser.Scene
             }
             audio.currentTime = this.timebar.currentLength;
         });
+
+        // UP / DOWN
+        this.input.keyboard!.on('keydown-UP', (event: KeyboardEvent) =>
+        {
+            this.snapToClosestBeatDivisior(1);
+        });
+
+        this.input.keyboard!.on('keydown-DOWN', (event: KeyboardEvent) =>
+        {
+            this.snapToClosestBeatDivisior(-1);
+        });
     }
+
+    
 
     public update(time: number, delta: number)
     {
@@ -137,7 +155,12 @@ export class EditorScene extends Phaser.Scene
         GameScene.Instance.soundPlayer.audio!.playbackRate = speed;
     }
 
-    public snapToClosestBeatDivisior()
+    /*
+    1 = next beat
+    0 = closest beat
+    -1 = previous beat
+    */
+    public snapToClosestBeatDivisior(direction: number)
     {
         const soundPlayer = GameScene.Instance.soundPlayer;
         const numDivisions = (1 / this.bpmMeter.bpmDivision) + 1;
@@ -149,9 +172,19 @@ export class EditorScene extends Phaser.Scene
         
         console.log(`soundTime=${soundTime}`);
         
-        for(let i = 0; i < numDivisions; i++)
+        for(let i = -1; i < numDivisions; i++)
         {
-            const t = this.bpmMeter.getCurrentBeatTime(i * this.bpmMeter.bpmDivision);;
+            const t = this.bpmMeter.getCurrentBeatTime((i * this.bpmMeter.bpmDivision));
+
+            if(direction == 1)
+            {
+                if(t <= soundTime) continue;
+            }
+
+            if(direction == -1)
+            {
+                if(t >= soundTime) continue;
+            }
 
             const timeDiff = Math.abs(soundTime - t);
             if(timeDiff < closestTimeDiff)
@@ -164,5 +197,39 @@ export class EditorScene extends Phaser.Scene
         }
         
         soundPlayer.audio!.currentTime = snapToTime / 1000;
+    }
+
+    public exportSong()
+    {
+        const song = this.song!;
+
+        let str = "";
+        for(const songNote of song.notes)
+        {
+            str += ` {time: ${songNote.time}, pads: ${JSON.stringify(songNote.pads)}, dragTime: ${songNote.dragTime}},\n`;
+        }
+
+        console.log(str);
+    }
+
+    public deleteNote(time: number)
+    {
+        const song = this.song!;
+
+        let deleteIndex = -1;
+
+        for(const songNote of song.notes)
+        {
+            if(songNote.time == time)
+            {
+                deleteIndex = song.notes.indexOf(songNote);
+            }
+        }
+
+        if(deleteIndex != -1)
+        {
+            song.notes.splice(deleteIndex, 1);
+            GameScene.Instance.soundPlayer.recreateNotes();
+        }
     }
 }
