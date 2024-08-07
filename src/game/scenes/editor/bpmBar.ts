@@ -6,6 +6,7 @@ export class BPMBar
 {
     public object: Phaser3DObject;
     public image: Phaser.GameObjects.Image;
+    public scale: number = 1.0;
 
     constructor(scene: Phaser.Scene)
     {
@@ -45,6 +46,12 @@ export class BPMBar
         const screenPos = ThreeScene.projectToScreen(this.object.object.position);
 
         this.image.setPosition(screenPos.x, screenPos.y);
-        this.image.setScale(this.object.getScale());
+        this.image.setScale(this.object.getScale() * this.scale);
+    }
+
+    public destroy()
+    {
+        this.image.destroy();
+        this.object.destroy();
     }
 }

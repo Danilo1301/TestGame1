@@ -5,6 +5,7 @@ import { Button } from '../../../utils/ui/button';
 import { Gameface } from '../../gameface/gameface';
 import { SoundPlayer } from './soundPlayer';
 import { Ground } from './ground';
+import { ThreeScene } from "../../../utils/three/threeScene";
 
 export class GameScene extends Phaser.Scene
 {
@@ -73,9 +74,14 @@ export class GameScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
+        //ThreeScene.Instance.third.camera.position.x += 0.01
+        //ThreeScene.Instance.third.camera.lookAt(0, 0, 3)
+
         this.soundPlayer.update(delta);
         this.ground.update();
         this.notes.update(delta);
         this.pads.update();
+
+        
     }
 }

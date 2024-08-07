@@ -12,17 +12,22 @@ export interface Song {
     notes: SongNote[]
 }
 
+/*
+* Find BPM: https://tunebat.com/Analyzer
+*/
+
 export const songs: Song[] = [
     {name: "TAIGA - Ghostbusters", sound: "sound3", bpm: 128, offset: 15, notes: [
-        {time: 1000, pads: [1], dragTime: 1000},
-        {time: 2100, pads: [1], dragTime: 0},
-        {time: 2432, pads: [2], dragTime: 0},
-        {time: 2760, pads: [1], dragTime: 0},
-        {time: 3100, pads: [2], dragTime: 0},
-        {time: 3400, pads: [1], dragTime: 0},
-        {time: 4400, pads: [3], dragTime: 0},
-        {time: 5400, pads: [3], dragTime: 0},
-        {time: 6400, pads: [3], dragTime: 0},
+        {time: 1874, pads: [1], dragTime: 467},
+        {time: 2808, pads: [2], dragTime: 0},
+        {time: 3275, pads: [3], dragTime: 0},
+        {time: 3742, pads: [2], dragTime: 0},
+        {time: 4209, pads: [1], dragTime: 0},
+        {time: 4675, pads: [2], dragTime: 0},
+        {time: 5142, pads: [3], dragTime: 0},
+        {time: 5619, pads: [2], dragTime: 0},
+        {time: 6085, pads: [1], dragTime: 0},
+        {time: 6552, pads: [2], dragTime: 0},
     ]},
     {name: "Neovaii - Crash", sound: "sound1", bpm: 100, offset: 0, notes: [
         {time: 0, pads: [1], dragTime: 300},

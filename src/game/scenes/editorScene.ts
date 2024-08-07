@@ -1,6 +1,7 @@
 import { AssetAudio, AudioManager } from "../../utils/audioManager/audioManager";
 import { Input } from "../../utils/input/input";
 import { Button } from "../../utils/ui/button";
+import { Options } from "../../utils/ui/options";
 import { Song, SongNote, songs } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { Note } from "../notes/note";
@@ -26,7 +27,7 @@ export class EditorScene extends Phaser.Scene
 
     public song?: Song;
 
-    public bpmBars: BPMBar[] = [];
+    private _bpmOptions!: Options;
 
     constructor()
     {
@@ -73,6 +74,34 @@ export class EditorScene extends Phaser.Scene
             const addNotePanel = new AddNote(this);
         };
 
+        const snap = new Button(this, "Snap", 50, 240, 80, 50, "button");
+        snap.onClick = () => {
+            this.snapToClosestBeatDivisior();
+        };
+
+        const speedList: number[] = [1, 0.75, 0.5, 0.25, 0.1];
+        let x = 25;
+        for(const speed of speedList)
+        {
+            const setSpeed = new Button(this, `x${speed.toFixed(2)}`, x, 290, 50, 30, "button");
+            setSpeed.onClick = () => {
+                this.setPlaybackSpeed(speed);
+            };
+            x += 50;
+        }
+
+        const bpmOptions = new Options(this, 100);
+        bpmOptions.addOption("1/2", 1/2);
+        bpmOptions.addOption("1/3", 1/3);
+        bpmOptions.addOption("1/4", 1/4);
+        bpmOptions.addOption("1/5", 1/5);
+        bpmOptions.addOption("1/8", 1/8);
+        bpmOptions.addOption("1/12", 1/12);
+        bpmOptions.onOptionChange = () => {
+            this.bpmMeter.bpmDivision = bpmOptions.getCurrentOptionValue();
+        };
+        this._bpmOptions = bpmOptions;
+
         Gameface.Instance.sceneManager.startScene(GameScene);
 
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
@@ -95,58 +124,45 @@ export class EditorScene extends Phaser.Scene
         this.timebar.update();
         this.bpmMeter.update();
 
+        this._bpmOptions.update();
+
         const soundPlayer = GameScene.Instance.soundPlayer;
 
         this.timebar.currentLength = soundPlayer.getAudioCurrentTime() / 1000;
         this.timebar.totalLength = soundPlayer.getAudioDuration() / 1000;
-        
-        while(this.bpmBars.length < 3)
-        {
-            const bpmBar = new BPMBar(this);
-
-            this.bpmBars.push(bpmBar);
-        }
-
-        for(const bpmBar of this.bpmBars)
-        {
-            const index = this.bpmBars.indexOf(bpmBar);
-            const length = this.bpmBars.length;
-            //const off = Math.floor(length/2);
-
-            const soundTime = soundPlayer.getAudioCurrentTime();
-            //const beat = this.bpmMeter.getBeatTime(this.bpmMeter.bpm, this.bpmMeter.offset);
-
-            let t = soundTime;
-
-            t -= this.bpmMeter.getCurrentBeatTime(index);   
-
-        
-            bpmBar.setTimeMs(t);
-            bpmBar.update();
-        }
-
-
-        //console.log(this.timebar.currentLength + " / " + this.timebar.totalLength)
-
-        /*
-        for(const editorNote of this.notes)
-        {
-            const pad = GameScene.Instance.pads.getPad(editorNote.note.padIndex);
-
-            let z = pad.object.object.position.z;
-
-            let ms = (this.timebar.currentLength * 1000) - editorNote.songNote.time;
-
-            z += GameScene.Instance.notes.getDistanceFromMs(ms);
-
-            const position = editorNote.note.object.object.position;
-            editorNote.note.object.object.position.set(position.x, position.y, z);
-        }
-        */
     }
 
     public setPlaybackSpeed(speed: number)
     {
-        //GameScene.Instance.soundPlayer.soundInstance!. audio!.playbackRate = speed;
+        GameScene.Instance.soundPlayer.audio!.playbackRate = speed;
+    }
+
+    public snapToClosestBeatDivisior()
+    {
+        const soundPlayer = GameScene.Instance.soundPlayer;
+        const numDivisions = (1 / this.bpmMeter.bpmDivision) + 1;
+
+        const soundTime = soundPlayer.getAudioCurrentTime();
+
+        let snapToTime = soundTime; //default
+        let closestTimeDiff = Infinity;
+        
+        console.log(`soundTime=${soundTime}`);
+        
+        for(let i = 0; i < numDivisions; i++)
+        {
+            const t = this.bpmMeter.getCurrentBeatTime(i * this.bpmMeter.bpmDivision);;
+
+            const timeDiff = Math.abs(soundTime - t);
+            if(timeDiff < closestTimeDiff)
+            {
+                closestTimeDiff = timeDiff;
+                snapToTime = t;
+            }
+            
+            console.log(`t=${t}`);
+        }
+        
+        soundPlayer.audio!.currentTime = snapToTime / 1000;
     }
 }

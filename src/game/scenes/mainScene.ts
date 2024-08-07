@@ -1,5 +1,6 @@
 import { AudioManager } from "../../utils/audioManager/audioManager";
 import { Button } from "../../utils/ui/button";
+import { Options } from "../../utils/ui/options";
 import { Gameface } from "../gameface/gameface";
 
 export class MainScene extends Phaser.Scene
