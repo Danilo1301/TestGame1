@@ -105,6 +105,7 @@ export class Gameface extends BaseObject
     public updateScenesOrder()
     {
         if(GameScene.Instance) GameScene.Instance.scene.bringToTop();
+        if(EditorScene.Instance) EditorScene.Instance.scene.bringToTop();
         if(MainScene.Instance) MainScene.Instance.scene.bringToTop();
     }
 

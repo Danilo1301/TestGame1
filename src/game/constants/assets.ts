@@ -7,6 +7,8 @@ export const imageAssets: AssetItem[] = [
     {key: "note", path: "note.png"},
     {key: "pad", path: "pad.png"},
     {key: "bpm_divisor", path: "bpm_divisor.png"},
+    {key: "mask", path: "mask.png"},
+    {key: "background", path: "background.png"},
 ];
 
 export const audioAssets: AssetItem[] = [

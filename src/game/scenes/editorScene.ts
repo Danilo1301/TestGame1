@@ -54,6 +54,8 @@ export class EditorScene extends Phaser.Scene
     {
         console.log("create")
         
+        Gameface.Instance.sceneManager.startScene(GameScene);
+        
         this.timebar.create(this);
         this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
             console.log(currentLength)
@@ -103,8 +105,6 @@ export class EditorScene extends Phaser.Scene
             this.bpmMeter.bpmDivision = bpmOptions.getCurrentOptionValue();
         };
         this._bpmOptions = bpmOptions;
-
-        Gameface.Instance.sceneManager.startScene(GameScene);
 
         // KEYBOARD KEYS ------------------------
 
@@ -176,17 +176,21 @@ export class EditorScene extends Phaser.Scene
         {
             const t = this.bpmMeter.getCurrentBeatTime((i * this.bpmMeter.bpmDivision));
 
+            const timeDiff = Math.abs(soundTime - t);
+
             if(direction == 1)
             {
                 if(t <= soundTime) continue;
+                if(timeDiff < 1) continue;
             }
 
             if(direction == -1)
             {
                 if(t >= soundTime) continue;
+                if(timeDiff < 1) continue;
             }
 
-            const timeDiff = Math.abs(soundTime - t);
+            
             if(timeDiff < closestTimeDiff)
             {
                 closestTimeDiff = timeDiff;

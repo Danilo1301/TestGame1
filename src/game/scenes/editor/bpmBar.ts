@@ -11,8 +11,6 @@ export class BPMBar
 
     constructor(scene: Phaser.Scene)
     {
-        scene.add.rectangle(0, 0, 200, 5, 0xffffff);
-
         const threeScene = ThreeScene.Instance;
 
         const obj = threeScene.third.add.box({

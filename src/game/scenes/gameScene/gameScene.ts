@@ -6,6 +6,7 @@ import { Gameface } from '../../gameface/gameface';
 import { SoundPlayer } from './soundPlayer';
 import { Ground } from './ground';
 import { ThreeScene } from "../../../utils/three/threeScene";
+import { MainScene } from "../mainScene";
 
 export class GameScene extends Phaser.Scene
 {
@@ -42,6 +43,18 @@ export class GameScene extends Phaser.Scene
     {
         this.ground.create();
 
+        //background
+        const background = this.add.image(0, 0, "background");
+        background.setOrigin(0);
+
+        const shape = this.add.image(0, 0, "mask").setVisible(false);
+        shape.setOrigin(0);
+
+        var mask = this.add.bitmapMask(shape);
+
+        background.setMask(mask);
+        //MainScene.Instance.layerHud.add(background);
+
         //add pads
         const distance = 0.5;
         const numOfPads = 5;
@@ -64,7 +77,6 @@ export class GameScene extends Phaser.Scene
         button.onClick = () => {
             Gameface.Instance.toggleFullscreen();
         };
-
     }
 
     public startSong(song: Song)

@@ -22,7 +22,7 @@ export class Timebar extends BaseObject
 
         container.setPosition(10, 40);
 
-        const background = scene.add.rectangle(0, 0, this.size.x, this.size.y, 0x000000);
+        const background = scene.add.rectangle(0, 0, this.size.x, this.size.y, 0x646400);
         background.setOrigin(0);
         container.add(background);
 

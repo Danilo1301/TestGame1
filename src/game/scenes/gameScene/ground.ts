@@ -6,7 +6,7 @@ import { setObjectPosition } from "../../../utils/utils";
 
 export class Ground
 {
-    public plankSize: number = 10;
+    public plankSize: number = 12;
 
     public box1?: ExtendedObject3D;
     public box2?: ExtendedObject3D;
