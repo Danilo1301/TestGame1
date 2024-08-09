@@ -10,6 +10,7 @@ export class Timebar extends BaseObject
     public totalLength = 1524.0;
 
     public indicator!: Phaser.GameObjects.Rectangle;
+    public container!: Phaser.GameObjects.Container;
 
     constructor()
     {
@@ -19,6 +20,7 @@ export class Timebar extends BaseObject
     public create(scene: Phaser.Scene)
     {
         const container = scene.add.container(0, 0);
+        this.container = container;
 
         container.setPosition(10, 40);
 

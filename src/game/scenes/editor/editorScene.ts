@@ -9,11 +9,15 @@ import { BPMMeter } from "./bmpMeter";
 
 import { Timebar } from "./timebar";
 import { GameScene } from "../gameScene/gameScene";
+import { Hud } from "../../hud/hud";
+import { MainScene } from "../mainScene";
+import { NoteOptions } from "./noteOptions";
+import { Note } from "../../notes/note";
 
 export class EditorScene extends Phaser.Scene
 {
     public static Instance: EditorScene;
-    public static showDeleteNoteButton: boolean = true;
+    public static showNoteOptionsButton: boolean = true;
 
     public timebar: Timebar;
     public bpmMeter: BPMMeter;
@@ -25,6 +29,7 @@ export class EditorScene extends Phaser.Scene
     private _bpmOptions!: Options;
     private _addNotePanel?: AddNote;
 
+    private _noteOptions?: NoteOptions;
 
     constructor()
     {
@@ -54,14 +59,10 @@ export class EditorScene extends Phaser.Scene
         Gameface.Instance.sceneManager.startScene(GameScene);
         
         this.timebar.create(this);
+        Hud.addToHudLayer(this.timebar.container);
+
         this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
-            console.log(currentLength)
-
             const audio = GameScene.Instance.soundPlayer.audio!;
-
-            //console.log(soundInstance.playState)
-
-            //if(soundInstance.playState == "playFinished") soundInstance.play();
 
             if(audio.paused) audio.play();
 
@@ -70,18 +71,18 @@ export class EditorScene extends Phaser.Scene
 
         this.bpmMeter.create(this);
 
-        const addNote = new Button(this, "Add note", 50, 180, 80, 50, "button");
+        const addNote = Hud.addButton("Add note", 50, 180, 80, 50, "button");
         addNote.onClick = () => {
-            EditorScene.showDeleteNoteButton = false;
+            EditorScene.showNoteOptionsButton = false;
 
             this._addNotePanel = new AddNote(this);
             this._addNotePanel.onClose = () => {
                 this._addNotePanel = undefined;
-                EditorScene.showDeleteNoteButton = true;
+                EditorScene.showNoteOptionsButton = true;
             };
         };
 
-        const snap = new Button(this, "Snap", 50, 240, 80, 50, "button");
+        const snap = Hud.addButton("Snap", 50, 240, 80, 50, "button");
         snap.onClick = () => {
             this.snapToClosestBeatDivisior(0);
         };
@@ -90,14 +91,14 @@ export class EditorScene extends Phaser.Scene
         let x = 25;
         for(const speed of speedList)
         {
-            const setSpeed = new Button(this, `x${speed.toFixed(2)}`, x, 290, 50, 30, "button");
+            const setSpeed = Hud.addButton(`x${speed.toFixed(2)}`, x, 290, 50, 30, "button");
             setSpeed.onClick = () => {
                 this.setPlaybackSpeed(speed);
             };
             x += 50;
         }
 
-        const bpmOptions = new Options(this, 100);
+        const bpmOptions = Hud.addOptions(100);
         bpmOptions.addOption("1/2", 1/2);
         bpmOptions.addOption("1/3", 1/3);
         bpmOptions.addOption("1/4", 1/4);
@@ -219,24 +220,96 @@ export class EditorScene extends Phaser.Scene
         console.log(str);
     }
 
-    public deleteNote(time: number)
+    public openNoteOptions(time: number)
     {
         const song = this.song!;
-
-        let deleteIndex = -1;
 
         for(const songNote of song.notes)
         {
             if(songNote.time == time)
             {
-                deleteIndex = song.notes.indexOf(songNote);
+                EditorScene.showNoteOptionsButton = false;
+                const noteOptions = new NoteOptions(this, songNote);
+                this._noteOptions = noteOptions;
+                this._noteOptions.onClose = () => {
+                    this._noteOptions = undefined;
+                    EditorScene.showNoteOptionsButton = true;
+                };
+                break;
             }
         }
+    }
 
-        if(deleteIndex != -1)
+    public deleteNote(songNote: SongNote)
+    {
+        const song = this.song!;
+
+        let deleteIndex = song.notes.indexOf(songNote);
+
+        if(deleteIndex >= 0)
         {
             song.notes.splice(deleteIndex, 1);
             GameScene.Instance.soundPlayer.recreateNotes();
         }
+    }
+
+    public findNextNote(songNote: SongNote)
+    {   
+        const song = this.song!;
+ 
+        let sortedNotes: SongNote[] = [];
+
+        for(const findSongNote of song.notes) sortedNotes.push(findSongNote);
+
+        sortedNotes = sortedNotes.sort((a, b) => a.time - b.time);
+
+        for(const findSongNote of sortedNotes)
+        {
+            console.log(findSongNote.time);
+        }
+
+        console.log(`sort:`);
+
+        const originalIndex = sortedNotes.indexOf(songNote);
+
+        sortedNotes = sortedNotes.filter((a, index) => {
+            return index == originalIndex + 1;
+        });
+
+        if(sortedNotes.length == 0)
+        {
+            return;
+        }
+
+        const nextNote = sortedNotes[0];
+
+        return nextNote;
+    }
+
+    public makeNoteSlider(songNote: SongNote)
+    {
+        console.log(`Make note slider:`, songNote);
+
+        const nextNote = this.findNextNote(songNote);
+
+        if(!nextNote)
+        {
+            console.error("Could not find next note");
+            return;
+        }
+
+        const diff = nextNote.time - songNote.time;
+        songNote.dragTime = diff;
+
+        this.deleteNote(nextNote);
+
+        GameScene.Instance.soundPlayer.recreateNotes();
+    }
+
+    public removeSlider(songNote: SongNote)
+    {
+        songNote.dragTime = 0;
+
+        GameScene.Instance.soundPlayer.recreateNotes();
     }
 }

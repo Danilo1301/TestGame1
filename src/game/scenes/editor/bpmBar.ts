@@ -23,6 +23,10 @@ export class BPMBar
         }, {});
 
         this.object = ThreeScene.addPhaser3DObject(obj);
+        const mat = this.object.object.material as THREE.Material;
+        this.object.object.castShadow = false;
+        mat.transparent = true;
+        mat.opacity = 0.0;
 
         this.image = scene.add.image(0, 0, "bpm_divisor");
         MainScene.Instance.layerGround.add(this.image);

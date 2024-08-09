@@ -7,6 +7,7 @@ import { SoundPlayer } from './soundPlayer';
 import { Ground } from './ground';
 import { ThreeScene } from "../../../utils/three/threeScene";
 import { MainScene } from "../mainScene";
+import { Hud } from "../../hud/hud";
 
 export class GameScene extends Phaser.Scene
 {
@@ -25,6 +26,7 @@ export class GameScene extends Phaser.Scene
     public canvas?: Phaser.Textures.CanvasTexture;
 
     public padKeys: string[] = ["A", "S", "D", "F", "G"];
+    public padColors: number[] = [0x00ff00, 0xff0000, 0xffff00, 0x0094FF, 0xFF8A3D];
 
     constructor()
     {
@@ -44,16 +46,20 @@ export class GameScene extends Phaser.Scene
         this.ground.create();
 
         //background
-        const background = this.add.image(0, 0, "background");
-        background.setOrigin(0);
+        const createBackground = false;
+        if(createBackground)
+        {
+            const background = this.add.image(0, 0, "background");
+            background.setOrigin(0);
 
-        const shape = this.add.image(0, 0, "mask").setVisible(false);
-        shape.setOrigin(0);
+            const shape = this.add.image(0, 0, "mask").setVisible(false);
+            shape.setOrigin(0);
 
-        var mask = this.add.bitmapMask(shape);
+            var mask = this.add.bitmapMask(shape);
 
-        background.setMask(mask);
-        //MainScene.Instance.layerHud.add(background);
+            background.setMask(mask);
+            MainScene.Instance.layerHud.add(background);
+        }
 
         //add pads
         const distance = 0.5;
@@ -67,13 +73,14 @@ export class GameScene extends Phaser.Scene
 
             const pad = this.pads.addPad(x, this.pads.padHeight, z);
             pad.setKey(this.padKeys[i]);
+            pad.color = this.padColors[i];
         }
 
         //test
         //const note = this.notes.spawnRandomNoteForPad();
         //console.log(note.getScale())
 
-        const button = new Button(this, "Fullscreen", 30, 120, 50, 50, "button");
+        const button = Hud.addButton("Fullscreen", 30, 120, 50, 50, "button");
         button.onClick = () => {
             Gameface.Instance.toggleFullscreen();
         };

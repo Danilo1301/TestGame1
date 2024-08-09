@@ -8,8 +8,7 @@ export class Ground
 {
     public plankSize: number = 12;
 
-    public box1?: ExtendedObject3D;
-    public box2?: ExtendedObject3D;
+    public boxes: ExtendedObject3D[] = [];
 
     constructor()
     {
@@ -18,9 +17,12 @@ export class Ground
 
     public create()
     {
-        this.box1 = this.createGroundPart(0, 0, 0);
+        this.boxes.push(this.createGroundPart(0, 0, 0));
+        this.boxes.push(this.createGroundPart(0, 0, 0));
+        this.boxes.push(this.createGroundPart(0, 0, 0));
+        //this.boxes.push(this.createGroundPart(0, 0, 0));
 
-        this.box2 = this.createGroundPart(0, 0, -this.plankSize);
+        //this.box2 = this.createGroundPart(0, 0, -this.plankSize);
         
         //setObjectPosition(this.box2, new THREE.Vector3(0, 0, -10));
     }
@@ -51,27 +53,22 @@ export class Ground
 
     public update()
     {
-        const speed = GameScene.Instance.notes.getMovementSpeed();
+        const time = GameScene.Instance.soundPlayer.getAudioCurrentTime();
+        const distance = GameScene.Instance.notes.getDistanceFromMs(time);
 
-        const box1 = this.box1!;
-        this.movePositionBy(box1, speed);
-
-        const box2 = this.box2!;
-        this.movePositionBy(box2, speed);
-    }
-
-    public movePositionBy(object: ExtendedObject3D, z: number)
-    {
-        const bodyPosition = object.position;
-        const position = new THREE.Vector3(bodyPosition.x, bodyPosition.y, bodyPosition.z);
-
-        position.z += z;
-        
-        if(position.z >= this.plankSize)
+        for(var i = 0; i < this.boxes.length; i++)
         {
-            position.z -= this.plankSize*2;
+            const box = this.boxes[i];
+            //const index = i;
+
+            let z = (distance % this.plankSize) - (i * this.plankSize);
+
+            const position = box.position.clone();
+            position.x = 0;
+            position.y = 0;
+            position.z = z;
+
+            setObjectPosition(box, position);
         }
-       
-        setObjectPosition(object, position);
     }
 }

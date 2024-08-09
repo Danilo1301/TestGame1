@@ -18,9 +18,8 @@ export interface Song {
 
 export const songs: Song[] = [
     {name: "TAIGA - Ghostbusters", sound: "sound3", bpm: 128, offset: 15, notes: [
-        {time: 1875, pads: [0,4], dragTime: 0},
+        {time: 1875, pads: [0,4], dragTime: 468.75},
         {time: 3750, pads: [0,4], dragTime: 0},
-        {time: 2343.75, pads: [2], dragTime: 0},
         {time: 2812.5, pads: [3], dragTime: 0},
         {time: 3281.25, pads: [1], dragTime: 0},
         {time: 7031.25, pads: [2], dragTime: 0},

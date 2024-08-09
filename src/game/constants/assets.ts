@@ -5,6 +5,7 @@ interface AssetItem {
 
 export const imageAssets: AssetItem[] = [
     {key: "note", path: "note.png"},
+    {key: "note_color", path: "note_color.png"},
     {key: "pad", path: "pad.png"},
     {key: "bpm_divisor", path: "bpm_divisor.png"},
     {key: "mask", path: "mask.png"},

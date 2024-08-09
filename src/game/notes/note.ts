@@ -10,6 +10,7 @@ import { SongNote } from "../constants/songs";
 import { Input } from "../../utils/input/input";
 import { Button } from "../../utils/ui/button";
 import { EditorScene } from "../scenes/editor/editorScene";
+import { Hud } from "../hud/hud";
 
 export class Note extends BaseObject
 {
@@ -22,7 +23,10 @@ export class Note extends BaseObject
     public noteVisible: boolean = true;
     public destroyed: boolean = false;
 
+    public container?: Phaser.GameObjects.Container;
     public image?: Phaser.GameObjects.Image;
+    public image_color?: Phaser.GameObjects.Image;
+
     public canMove: boolean = true;
     public padIndex: number = -1;
     public object: Phaser3DObject;
@@ -32,7 +36,7 @@ export class Note extends BaseObject
     public dragSize: number = this.dragTotalSize;
     public draggedByPad?: Pad;
 
-    public deleteNoteButton?: Button;
+    public moreOptionsNoteButton?: Button;
 
     constructor(object: Phaser3DObject)
     {
@@ -43,36 +47,47 @@ export class Note extends BaseObject
 
     public update()
     {
+        const scene = GameScene.Instance;
+
         if(this.visible)
         {
+            if(!this.container)
+            {
+                this.container = scene.add.container(0, 0);
+                Hud.addToHudLayer(this.container);
+            }
+
             if(this.noteVisible)
             {
                 if(!this.image)
                 {
-                    const scene = GameScene.Instance;
                     this.image = scene.add.image(0, 0, "note");
-                    MainScene.Instance.layerNotes.add(this.image);
+                    this.container.add(this.image);    
                 }
-            } else {
-                if(this.image)
+
+                if(!this.image_color)
                 {
-                    this.image.destroy();
-                    this.image = undefined;
+                    this.image_color = scene.add.image(0, 0, "note_color");
+                    this.container.add(this.image_color);    
                 }
+
+                const pad = GameScene.Instance.pads.getPad(this.padIndex);
+                if(pad) this.image_color.setTint(pad.color);
+            } else {
+                this.image?.destroy();
+                this.image = undefined;
+
+                this.image_color?.destroy();
+                this.image_color = undefined;
             }
         } else {
-            if(!this.destroyed)
+            if(this.container)
             {
-                this.destroy();
+                this.container.destroy();
             }
         }
 
-        if(this.visible)
-        {
-            
-        } else {
-            
-        }
+        //
 
         const object = this.object.object;
         const dragObject = this.dragObject?.object;
@@ -103,99 +118,62 @@ export class Note extends BaseObject
                 this.dragSize = originalSize + GameScene.Instance.notes.getDistanceFromMs(diff);
                 this.dragSize -= GameScene.Instance.notes.getDistanceFromMs(pressedDiff);
 
-                //this.dragSize = 
-
-                /*
-                const time = GameScene.Instance.notes.soundNotes.getCurrentAudioTime() * 1000;
-                const dragTime = this.songNote.dragTime;
-                const endTime = this.songNote.time + dragTime;
-
-                this.dragScale = 1 - (time - startedDragAt) / (endTime - startedDragAt);
-                */
-
-                //console.log((time - startedDragAt) + "/" + (endTime - startedDragAt));
-
                 newPosition.set(padPosition.x, padPosition.y, padPosition.z);
             } else {
             }
 
             newPosition.z -= this.dragSize/2;
-            //newPosition.z -= this.dragScale * this.dragSize/2;
 
             dragObject.scale.set(1, this.dragSize, 1);
             dragObject.position.set(newPosition.x, newPosition.y, newPosition.z);
             this.dragObject!.debugText.setLine("size", this.dragSize.toFixed(2));
-
-            /*
-            if(this.dragSize <= 0)
-            {
-                this.draggedByPad = undefined;
-            }
-            */
         }
 
-        if(this.image)
+        if(this.container)
         {
             const screenPosition = ThreeScene.projectToScreen(object.position);
 
-            this.image.setPosition(screenPosition.x, screenPosition.y);
+            this.container.setPosition(screenPosition.x, screenPosition.y);
 
             const scale = this.getScale();
 
             //this.object.debugText.setLine("scale", `x${scale.toFixed(2)}`);
 
-            this.image.setScale(scale);
+            this.container.setScale(scale);
 
             const distanceFromMouse = this.getDistanceFromMouse();
 
-            if(distanceFromMouse < 30 && EditorScene.showDeleteNoteButton)
+            if(distanceFromMouse < 30 && EditorScene.showNoteOptionsButton)
             {
-                if(!this.deleteNoteButton)
+                if(!this.moreOptionsNoteButton)
                 {
-                    this.deleteNoteButton = new Button(MainScene.Instance, "X", 0, 0, 30, 30, "close");
-                    this.deleteNoteButton.onClick = () => {
-                        EditorScene.Instance.deleteNote(this.songNote.time);
+                    this.moreOptionsNoteButton = new Button(MainScene.Instance, "+", 0, 0, 30, 30, "button");
+                    this.moreOptionsNoteButton.onClick = () => {
+                        EditorScene.Instance.openNoteOptions(this.songNote.time);
                     };
-                    MainScene.Instance.layerHud.add(this.deleteNoteButton.container);
+                    this.container.add(this.moreOptionsNoteButton.container)
                 }
             } else {
-                if(this.deleteNoteButton)
+                if(this.moreOptionsNoteButton)
                 {
-                    this.deleteNoteButton.destroy();
-                    this.deleteNoteButton = undefined;
+                    this.moreOptionsNoteButton.destroy();
+                    this.moreOptionsNoteButton = undefined;
                 }
-            }
-
-            if(this.deleteNoteButton)
-            {
-                this.deleteNoteButton.container.setPosition(this.image.x, this.image.y);
             }
         }
     }
 
     public getScale()
     {
-        /*
-        const object = this.object.object;
-
-        const screenPos = ThreeScene.projectToScreen(object.position);
-
-        const pos2 = object.position.clone();
-        pos2.x += 0.1;
-        const screenPos2 = ThreeScene.projectToScreen(pos2);
-
-        const distance = screenPos.distanceTo(screenPos2);
-        */
-        
         return this.object.getScale() * 0.8;
     }
 
     public getDistanceFromMouse()
     {
-        if(!this.image) return 0;
+        if(!this.container) return 0;
 
         const mousePosition = Input.mousePosition;
-        return mousePosition.distance(new Phaser.Math.Vector2(this.image.x, this.image.y));
+        return mousePosition.distance(new Phaser.Math.Vector2(this.container.x, this.container.y));
     }
 
     public destroy()
@@ -210,8 +188,14 @@ export class Note extends BaseObject
         this.image?.destroy();
         this.image = undefined;
 
-        this.deleteNoteButton?.destroy()
-        this.deleteNoteButton = undefined;
+        this.image_color?.destroy();
+        this.image_color = undefined;
+
+        this.container?.destroy();
+        this.container = undefined;
+
+        this.moreOptionsNoteButton?.destroy()
+        this.moreOptionsNoteButton = undefined;
     }
 
     public getDistanceFromPad(pad: Pad)

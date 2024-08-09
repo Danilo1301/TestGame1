@@ -22,6 +22,8 @@ export class Pad extends BaseObject
 
     private _keyObject?: Phaser.Input.Keyboard.Key;
 
+    public color: number = 0x0000ff;
+
     constructor(object: Phaser3DObject)
     {
         super();
@@ -158,7 +160,7 @@ export class Pad extends BaseObject
         {
             this.image.setPosition(this.position.x, this.position.y);
 
-            this.image.tint = active ? 0xffffff : 0x0;
+            this.image.tint = active ? this.color : 0x777777;
         }
     }
 }

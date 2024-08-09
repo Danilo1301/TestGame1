@@ -34,7 +34,7 @@ export class PadSelector
 
     public updateImage()
     {
-        this.image.tint = this.selected ? 0xffffff : 0x0;
+        this.image.tint = this.selected ? 0xffffff : 0x777777;
     }
 }
 
