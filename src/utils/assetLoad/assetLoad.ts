@@ -3,7 +3,7 @@ import { MainScene } from "../../game/scenes/mainScene";
 import { Gameface } from "../../game/gameface/gameface";
 import { LoadScene } from "../../game/scenes/loadScene";
 import { Debug } from "../debug/debug";
-import { audioAssets, imageAssets } from "../../game/constants/assets";
+import { atlasAssets, audioAssets, imageAssets } from "../../game/constants/assets";
 import { AudioManager } from "../audioManager/audioManager";
 
 export enum LoadState {
@@ -16,7 +16,8 @@ export enum AssetType {
     IMAGE,
     AUDIO,
     FONT,
-    TASK
+    ATLAS,
+    TASK,
 }
 
 export interface Asset {
@@ -58,6 +59,20 @@ export class AssetLoad
         this._assets.set(key, asset);
     }
 
+    public static addAtlas(key: string, path: string)
+    {
+        console.log(`Add asset to load: ${key} (${path})`);
+
+        const asset: Asset = {
+            key: key,
+            path: path,
+            loadState: LoadState.NOT_LOADED,
+            type: AssetType.ATLAS
+        }
+
+        this._assets.set(key, asset);
+    }
+
     public static addAssets()
     {
         for(const asset of imageAssets)
@@ -65,13 +80,16 @@ export class AssetLoad
             this.addImage(asset.key, asset.path);
         }
 
-        
+        for(const asset of atlasAssets)
+        {
+            this.addAtlas(asset.key, asset.path);
+        }
+    
         for(const asset of audioAssets)
         {
             this.addAudio(asset.key, asset.path);
             AudioManager.addAudio(asset.key, asset.path);
         }
-    
     }
 
     public static async load()

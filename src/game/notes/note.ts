@@ -12,6 +12,15 @@ import { Button } from "../../utils/ui/button";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { Hud } from "../hud/hud";
 
+export enum eNoteHitGood
+{
+    HIT_PERFECT,
+    HIT_GOOD,
+    HIT_OK,
+    HIT_BAD,
+    HIT_NOT_ON_TIME
+}
+
 export class Note extends BaseObject
 {
     public songNote: SongNote = {
@@ -22,10 +31,11 @@ export class Note extends BaseObject
     public visible: boolean = true;
     public noteVisible: boolean = true;
     public destroyed: boolean = false;
+    public hitted: boolean = false;
 
     public container?: Phaser.GameObjects.Container;
-    public image?: Phaser.GameObjects.Image;
-    public image_color?: Phaser.GameObjects.Image;
+    public sprite?: Phaser.GameObjects.Sprite;
+    public spriteColor?: Phaser.GameObjects.Sprite;
 
     public canMove: boolean = true;
     public padIndex: number = -1;
@@ -54,31 +64,32 @@ export class Note extends BaseObject
             if(!this.container)
             {
                 this.container = scene.add.container(0, 0);
-                Hud.addToHudLayer(this.container);
+                MainScene.Instance.layerNotes.add(this.container);
             }
 
             if(this.noteVisible)
             {
-                if(!this.image)
+                if(!this.sprite)
                 {
-                    this.image = scene.add.image(0, 0, "note");
-                    this.container.add(this.image);    
+                    this.sprite = scene.add.sprite(0, 0, "note_sheet", "note1.png");
+                    this.container.add(this.sprite);    
                 }
 
-                if(!this.image_color)
+                if(!this.spriteColor)
                 {
-                    this.image_color = scene.add.image(0, 0, "note_color");
-                    this.container.add(this.image_color);    
+                    this.spriteColor = scene.add.sprite(0, 0, "note_sheet", "note_color1.png");
+                    this.spriteColor.anims.play('note_color_idle');    
+                    this.container.add(this.spriteColor);    
                 }
 
                 const pad = GameScene.Instance.pads.getPad(this.padIndex);
-                if(pad) this.image_color.setTint(pad.color);
+                if(pad) this.spriteColor.setTint(pad.color);
             } else {
-                this.image?.destroy();
-                this.image = undefined;
+                this.sprite?.destroy();
+                this.sprite = undefined;
 
-                this.image_color?.destroy();
-                this.image_color = undefined;
+                this.spriteColor?.destroy();
+                this.spriteColor = undefined;
             }
         } else {
             if(this.container)
@@ -111,9 +122,9 @@ export class Note extends BaseObject
 
                 const pressedDiff = currentTime - startedDragAt;
 
-                console.log("originalSize", originalSize);
-                console.log("pressedDiff", pressedDiff);
-                console.log("diff", diff);
+                //console.log("originalSize", originalSize);
+                //console.log("pressedDiff", pressedDiff);
+                //console.log("diff", diff);
 
                 this.dragSize = originalSize + GameScene.Instance.notes.getDistanceFromMs(diff);
                 this.dragSize -= GameScene.Instance.notes.getDistanceFromMs(pressedDiff);
@@ -128,6 +139,14 @@ export class Note extends BaseObject
             dragObject.position.set(newPosition.x, newPosition.y, newPosition.z);
             this.dragObject!.debugText.setLine("size", this.dragSize.toFixed(2));
         }
+
+        /*
+        if(object.position.z > 0 && !this.destroyed)
+        {
+            GameScene.Instance.breakCombo();
+            this.destroy();
+        }
+        */
 
         if(this.container)
         {
@@ -185,11 +204,11 @@ export class Note extends BaseObject
         this.dragObject?.destroy();
         this.dragObject = undefined
 
-        this.image?.destroy();
-        this.image = undefined;
+        this.sprite?.destroy();
+        this.sprite = undefined;
 
-        this.image_color?.destroy();
-        this.image_color = undefined;
+        this.spriteColor?.destroy();
+        this.spriteColor = undefined;
 
         this.container?.destroy();
         this.container = undefined;
@@ -250,6 +269,8 @@ export class Note extends BaseObject
 
     public setAsHitted()
     {
+        this.hitted = true;
+
         console.log("note hit!");
 
         if(this.songNote.dragTime == 0)

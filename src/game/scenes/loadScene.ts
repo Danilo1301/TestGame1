@@ -68,6 +68,7 @@ export class LoadScene extends Phaser.Scene
 
                 if(loadAsset.asset.type == AssetType.IMAGE) load.image(key, path);
                 if(loadAsset.asset.type == AssetType.AUDIO) load.audio(key, path);
+                if(loadAsset.asset.type == AssetType.ATLAS) load.atlas(key, `${path}.png`, `${path}.json`);
             }
 
             load.once('complete', async () => {

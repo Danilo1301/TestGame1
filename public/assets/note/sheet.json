@@ -1,0 +1,115 @@
+{
+	"frames": {
+		"note1.png": {
+			"frame": {
+				"x": 0,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"sourceSize": {
+				"w": 63,
+				"h": 38
+			}
+		},
+		"note_color1.png": {
+			"frame": {
+				"x": 63,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"sourceSize": {
+				"w": 63,
+				"h": 38
+			}
+		},
+		"note_color2.png": {
+			"frame": {
+				"x": 126,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"sourceSize": {
+				"w": 63,
+				"h": 38
+			}
+		},
+		"note_color3.png": {
+			"frame": {
+				"x": 189,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"sourceSize": {
+				"w": 63,
+				"h": 38
+			}
+		},
+		"note_color4.png": {
+			"frame": {
+				"x": 252,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 63,
+				"h": 38
+			},
+			"sourceSize": {
+				"w": 63,
+				"h": 38
+			}
+		}
+	},
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "spritesheet.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 315,
+			"h": 38
+		},
+		"scale": "1"
+	}
+}

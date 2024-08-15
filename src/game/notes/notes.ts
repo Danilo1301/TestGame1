@@ -3,7 +3,7 @@ import { ThreeScene } from "../../utils/three/threeScene";
 import { randomIntFromInterval } from "../../utils/utils";
 import { SongNote } from "../constants/songs";
 import { GameScene } from "../scenes/gameScene/gameScene";
-import { Note } from "./note";
+import { eNoteHitGood, Note } from "./note";
 
 export class Notes extends BaseObject
 {
@@ -140,6 +140,18 @@ export class Notes extends BaseObject
         if(distance <= goodDistance) return true;
 
         return false;
+    }
+
+    public getHowGoodNoteIs(ms: number)
+    {
+        const distance = this.getDistanceFromMs(ms);
+
+        if(this.isDistanceBetweenMsInterval(distance, 60)) return eNoteHitGood.HIT_PERFECT;
+        if(this.isDistanceBetweenMsInterval(distance, 90)) return eNoteHitGood.HIT_GOOD;
+        if(this.isDistanceBetweenMsInterval(distance, 120)) return eNoteHitGood.HIT_OK;
+        if(this.isDistanceBetweenMsInterval(distance, 150)) return eNoteHitGood.HIT_BAD;
+
+        return eNoteHitGood.HIT_NOT_ON_TIME;
     }
 
     public getClosestNoteForPad(padIndex: number)

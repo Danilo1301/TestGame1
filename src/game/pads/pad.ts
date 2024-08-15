@@ -4,14 +4,16 @@ import { Input } from "../../utils/input/input";
 import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
-import { Note } from "../notes/note";
+import { eNoteHitGood, Note } from "../notes/note";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
 
 export class Pad extends BaseObject
 {
-    public image?: Phaser.GameObjects.Image;
+    public container!: Phaser.GameObjects.Container;
+    public spriteColor?: Phaser.GameObjects.Sprite;
+
     public object: Phaser3DObject;
     public position: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
 
@@ -33,8 +35,12 @@ export class Pad extends BaseObject
 
         const scene = GameScene.Instance;
         
-        this.image = scene.add.image(0, 0, "pad");
-        MainScene.Instance.layerNotes.add(this.image);
+        this.container = scene.add.container(50, 50);
+        MainScene.Instance.layerNotes.add(this.container);
+
+        this.spriteColor = scene.add.sprite(0, 0, 'pad_sheet', 'pad_color1.png');    
+        this.spriteColor.setScale(1.2);
+        this.container.add(this.spriteColor);
 
         Input.events.on("pointerdown", (event: PointerEvent) => {
             //console.log("poniter down")
@@ -60,23 +66,36 @@ export class Pad extends BaseObject
     {
         this._active = true;
         
+        this.spriteColor?.anims.play('pad_color_raise');    
+
         const note = GameScene.Instance.notes.getClosestNoteForPad(this.getIndex());
         
         if(note)
         {
-            const notes = GameScene.Instance.notes;
-            
-            const distance = note.getDistanceFromPad(this);
-            const isGood = notes.isDistanceBetweenMsInterval(distance, 1000);
-            
-            
-            if(isGood)
+            if(!note.hitted)
             {
-                AudioManager.playAudioPhaser("osu_hitsound");
-                
-                if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
+                const notes = GameScene.Instance.notes;
+            
+                const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+                const noteTime = note.songNote.time;
+                const distanceInMs = Math.abs(time - noteTime);
 
-                this.hitNote(note);
+                const hitType = notes.getHowGoodNoteIs(distanceInMs);
+
+                const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
+
+                if(countAsHit)
+                {
+                    AudioManager.playAudioPhaser("osu_hitsound");
+                    
+                    if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
+                    
+                    this.hitNote(note);
+
+                    GameScene.Instance.hitCombo(note, hitType)
+                } else {
+                    //GameScene.Instance.breakCombo();
+                }
             }
         }
     }
@@ -99,6 +118,19 @@ export class Pad extends BaseObject
         const note = this.draggingNote;
 
         if(!note) return;
+        
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+
+        const end = note.songNote.time + note.songNote.dragTime;
+
+        console.log(`start: ${note.songNote.time}`);
+        console.log(`end: ${note.songNote.time + note.songNote.dragTime}`);
+        console.log(`current: ${time}`);
+
+        const distanceInMs = Math.abs(end - time);
+        const distance = GameScene.Instance.notes.getDistanceFromMs(distanceInMs);
+
+        console.log(`distance: ${distance} (${distanceInMs}ms)`)
 
         note.stopBeeingDragged();
 
@@ -111,6 +143,8 @@ export class Pad extends BaseObject
     public deactivatePad()
     {
         this._active = false;
+
+        this.spriteColor?.anims.playReverse('pad_color_raise');
 
         this.stopDrag();
     }
@@ -156,11 +190,11 @@ export class Pad extends BaseObject
         const screenPosition = ThreeScene.projectToScreen(this.object.object.position);
         this.position.set(screenPosition.x, screenPosition.y);
 
-        if(this.image)
-        {
-            this.image.setPosition(this.position.x, this.position.y);
+        this.container.setPosition(this.position.x, this.position.y);
 
-            this.image.tint = active ? this.color : 0x777777;
+        if(this.spriteColor)
+        {
+            this.spriteColor.tint = active ? this.color : 0x777777;
         }
     }
 }
