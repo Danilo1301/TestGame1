@@ -32,13 +32,14 @@ export class Pad extends BaseObject
 
         this.object = object;
         this.object.debugText.createDebugText();
+        this.object.setInvisible();
 
         const scene = GameScene.Instance;
         
         this.container = scene.add.container(50, 50);
         MainScene.Instance.layerNotes.add(this.container);
 
-        this.spriteColor = scene.add.sprite(0, 0, 'pad_sheet', 'pad_color1.png');    
+        this.spriteColor = scene.add.sprite(0, 0, 'pad_sheet', 'pad_color2.png');    
         this.spriteColor.setScale(1.2);
         this.container.add(this.spriteColor);
 
@@ -51,7 +52,7 @@ export class Pad extends BaseObject
 
             //console.log(mousePosition, distance)
 
-            if(distance < 30)
+            if(distance < 50)
             {
                 this.activatePad();
             }
@@ -70,8 +71,11 @@ export class Pad extends BaseObject
 
         const note = GameScene.Instance.notes.getClosestNoteForPad(this.getIndex());
         
+        console.log(note);
+        
         if(note)
         {
+
             if(!note.hitted)
             {
                 const notes = GameScene.Instance.notes;
@@ -142,6 +146,8 @@ export class Pad extends BaseObject
 
     public deactivatePad()
     {
+        if(!this._active) return;
+
         this._active = false;
 
         this.spriteColor?.anims.playReverse('pad_color_raise');

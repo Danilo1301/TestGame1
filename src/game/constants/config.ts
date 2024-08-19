@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
-export const gameSize: Phaser.Math.Vector2 = new Phaser.Math.Vector2(900, 600);
+//export const gameSize: Phaser.Math.Vector2 = new Phaser.Math.Vector2(900, 600);
+export const gameSize: Phaser.Math.Vector2 = new Phaser.Math.Vector2(1280, 720);
 
 export const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.WEBGL,

@@ -28,18 +28,22 @@ export class Note extends BaseObject
         pads: [],
         dragTime: 0
     };
-    public visible: boolean = true;
-    public noteVisible: boolean = true;
+
+
+
+    //public visible: boolean = true;
+    //public noteVisible: boolean = true;
     public destroyed: boolean = false;
     public hitted: boolean = false;
+    public missed: boolean = false;
 
     public container?: Phaser.GameObjects.Container;
     public sprite?: Phaser.GameObjects.Sprite;
     public spriteColor?: Phaser.GameObjects.Sprite;
 
-    public canMove: boolean = true;
+    //public canMove: boolean = true;
     public padIndex: number = -1;
-    public object: Phaser3DObject;
+    public object?: Phaser3DObject;
 
     public dragObject?: Phaser3DObject;
     public dragTotalSize: number = 5;
@@ -48,26 +52,76 @@ export class Note extends BaseObject
 
     public moreOptionsNoteButton?: Button;
 
-    constructor(object: Phaser3DObject)
+    constructor()
     {
         super();
-
-        this.object = object;
     }
 
     public update()
     {
-        const scene = GameScene.Instance;
-
-        if(this.visible)
+        let inGameField = this.isInGameField();
+       
+        if(inGameField)
         {
-            if(!this.container)
-            {
-                this.container = scene.add.container(0, 0);
-                MainScene.Instance.layerNotes.add(this.container);
-            }
+            this.updateSprites();
+            this.updateDragObject();
+        } else {
 
-            if(this.noteVisible)
+            if(this.container)
+            {
+                this.destroy();
+            }
+        }
+
+        if(this.hasPassedEndGameField())
+        {
+            if(!this.hitted)
+            {
+                if(!this.missed)
+                {
+                    this.missed = true;
+                    console.log("break this stupid combo")
+
+                    GameScene.Instance.breakCombo();
+                }
+            }
+        }
+    }
+
+    public updateSprites()
+    {
+        this.destroyed = false;
+
+        const scene = GameScene.Instance;
+        const threeScene = ThreeScene.Instance;
+
+        if(!this.object)
+        {
+            const box = threeScene.third.add.box({width: 0.1, height: 0.1, depth: 0.1});
+            const object = ThreeScene.addPhaser3DObject(box);
+            this.object = object;
+
+            object.name = "Note";
+            object.debugText.createDebugText();
+
+            this.updatePositionRelativeToPad();
+            //box.position.set(0, 0, padPosition.z);
+        }
+
+        if(!this.container)
+        {
+            this.container = scene.add.container(0, 0);
+            MainScene.Instance.layerNotes.add(this.container);
+        }
+
+        if(this.container)
+        {
+            //this.container.visible = Math.random() * 100 > 10;
+
+            let createSprite = true;
+            if(this.hitted) createSprite = false;
+
+            if(createSprite)
             {
                 if(!this.sprite)
                 {
@@ -82,29 +136,45 @@ export class Note extends BaseObject
                     this.container.add(this.spriteColor);    
                 }
 
-                const pad = GameScene.Instance.pads.getPad(this.padIndex);
+                const pad = this.getPad();
                 if(pad) this.spriteColor.setTint(pad.color);
             } else {
-                this.sprite?.destroy();
-                this.sprite = undefined;
+                if(this.sprite)
+                {
+                    this.sprite.destroy()
+                    this.sprite = undefined;
+                }
 
-                this.spriteColor?.destroy();
-                this.spriteColor = undefined;
+                if(this.spriteColor)
+                {
+                    this.spriteColor.destroy();
+                    this.spriteColor = undefined;
+                }
             }
-        } else {
-            if(this.container)
+        }
+    }
+
+    public getPad()
+    {
+        return GameScene.Instance.pads.getPad(this.padIndex);;
+    }
+
+    public updateDragObject()
+    {
+        if(this.dragSize > 0)
+        {
+            if(!this.dragObject)
             {
-                this.container.destroy();
+                this.dragObject = this.createDragPart(this.dragSize);
             }
         }
 
-        //
-
-        const object = this.object.object;
         const dragObject = this.dragObject?.object;
 
-        if(dragObject)
+        if(dragObject && this.object)
         {
+            const object = this.object.object;
+
             const newPosition = object.position.clone();
             
             if(this.draggedByPad)
@@ -140,28 +210,20 @@ export class Note extends BaseObject
             this.dragObject!.debugText.setLine("size", this.dragSize.toFixed(2));
         }
 
-        /*
-        if(object.position.z > 0 && !this.destroyed)
+        if(this.container && this.object)
         {
-            GameScene.Instance.breakCombo();
-            this.destroy();
-        }
-        */
+            const object = this.object.object;
 
-        if(this.container)
-        {
+            //position
             const screenPosition = ThreeScene.projectToScreen(object.position);
-
             this.container.setPosition(screenPosition.x, screenPosition.y);
 
+            //scale
             const scale = this.getScale();
-
-            //this.object.debugText.setLine("scale", `x${scale.toFixed(2)}`);
-
             this.container.setScale(scale);
 
+            //+ button
             const distanceFromMouse = this.getDistanceFromMouse();
-
             if(distanceFromMouse < 30 && EditorScene.showNoteOptionsButton)
             {
                 if(!this.moreOptionsNoteButton)
@@ -182,8 +244,76 @@ export class Note extends BaseObject
         }
     }
 
+    public hasNotePassedStartOfGameField()
+    {
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+        const start = this.songNote.time - 2000;
+
+        if(time >= start)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public isDragPassedEndOfGameField()
+    {
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+        const end = this.getTimeOfEndOfGameField();
+
+        if(time > end + this.songNote.dragTime)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public isBeeingDragged()
+    {
+        return this.draggedByPad != undefined;
+    }
+
+    public getTimeOfEndOfGameField()
+    {
+        const end = this.songNote.time + 200;
+        return end;
+    }
+
+    public isInGameField()
+    {
+        if(!this.hasNotePassedStartOfGameField()) return false;
+
+        /*
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+
+        const start = this.songNote.time - 1000;
+
+        if(time >= start && !this.hasPassedEndGameField())
+        {
+            return true;
+        }
+        */
+
+
+        if(!this.isDragPassedEndOfGameField()) return true;
+
+        return false;
+    }
+
+    public hasPassedEndGameField()
+    {
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+
+        const end = this.getTimeOfEndOfGameField();
+
+        return time > end;
+    }
+
     public getScale()
     {
+        if(!this.object) throw "Object is not defined";
+
         return this.object.getScale() * 0.8;
     }
 
@@ -199,7 +329,8 @@ export class Note extends BaseObject
     {
         this.destroyed = true;
 
-        this.object.destroy();
+        this.object?.destroy();
+        this.object = undefined;
 
         this.dragObject?.destroy();
         this.dragObject = undefined
@@ -219,6 +350,8 @@ export class Note extends BaseObject
 
     public getDistanceFromPad(pad: Pad)
     {
+        if(!this.object) throw "Object is not defined";
+
         const padPosition = pad.object.object.position;
         const position = this.object.object.position;
 
@@ -233,8 +366,11 @@ export class Note extends BaseObject
         const shapeSize = new THREE.Vector2(0.1, 1);
 
         //ground
-        const texture = new THREE.TextureLoader().load('assets/drag.png');
-        const material = new THREE.MeshStandardMaterial({ map: texture });
+        //const texture = new THREE.TextureLoader().load('assets/drag.png');
+
+        const pad = this.getPad()!;
+
+        const material = new THREE.MeshStandardMaterial({ color: pad.color });
 
         // Cria o cubo com a geometria personalizada e o material
         const obj = threeScene.third.add.plane({
@@ -257,14 +393,6 @@ export class Note extends BaseObject
     public setDragSize(size: number)
     {
         this.dragSize = size;
-
-        if(size > 0)
-        {
-            if(!this.dragObject)
-            {
-                this.dragObject = this.createDragPart(this.dragSize);
-            }
-        }
     }
 
     public setAsHitted()
@@ -273,6 +401,7 @@ export class Note extends BaseObject
 
         console.log("note hit!");
 
+        /*
         if(this.songNote.dragTime == 0)
         {
             this.visible = false;
@@ -280,12 +409,17 @@ export class Note extends BaseObject
         } else {
             this.noteVisible = false;
         }
+        */
 
         //GameScene.Instance.notes.soundNotes.audio!.playbackRate = 0.5;
     }
 
-    public setZPosition(z: number)
+    public set3DPosition(x: number, y: number, z: number)
     {
+        if(!this.object) throw "Object not created yet";
+        
+        this.object.object.position.x = x;
+        this.object.object.position.y = y;
         this.object.object.position.z = z;
     }
 
@@ -298,6 +432,23 @@ export class Note extends BaseObject
     {
         this.draggedByPad = undefined;
 
-        this.visible = false;
+        this.dragSize = 0;
+
+        //this.visible = false;
+    }
+
+    public updatePositionRelativeToPad()
+    {
+        const pad = this.getPad()!;
+
+        let z = pad.object.object.position.z;
+        let ms = (GameScene.Instance.soundPlayer.getCurrentSoundPosition()) - this.songNote.time;
+        z += GameScene.Instance.notes.getDistanceFromMs(ms);
+
+        this.set3DPosition(
+            pad.object.object.position.x,
+            pad.object.object.position.y,
+            z
+        );
     }
 }

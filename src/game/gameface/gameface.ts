@@ -82,6 +82,9 @@ export class Gameface extends BaseObject
 
         if (elem.requestFullscreen) {
             elem.requestFullscreen();
+
+            const orientation: any = window.screen.orientation;
+            orientation.lock("landscape");
         }
     }
 

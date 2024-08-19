@@ -5,6 +5,7 @@ import { GameScene } from "./gameScene";
 export class SoundPlayer
 {
     public soundDelay: number = 2000;
+    public autoFinishWhenNoMoreNotes = true;
     
     public get song() { return this._song; };
     public get audio() { return this._audio; };
@@ -15,8 +16,10 @@ export class SoundPlayer
     private _startedTime: number = 0;
 
     private _currentSoundPosition: number = -3000;
-    private _hasSongStarted: boolean = false;
+    //private _hasSongStarted: boolean = false;
     private _running: boolean = false;
+
+    
 
     public startSong(song: Song)
     {
@@ -25,10 +28,24 @@ export class SoundPlayer
         this._running = true;
 
         this._audio = AudioManager.playAudio(song.sound);
+        this._audio.volume = 0.05;
+
         //this._audio.pause();
         //this._audio.play();
 
         this.recreateNotes();
+    }
+
+    public pauseSound()
+    {
+        const audio = this.audio!;
+        audio.pause();
+    }
+
+    public resumeSound()
+    {
+        const audio = this.audio!;
+        audio.play();
     }
 
     public getAudioCurrentTime()
@@ -62,29 +79,39 @@ export class SoundPlayer
 
         this._currentSoundPosition = this.getAudioCurrentTime();
 
-
-        /*
-        if(this._currentSoundPosition < 0)
+        if(this.autoFinishWhenNoMoreNotes)
         {
-            this._currentSoundPosition += delta;
-        } else {
-            const time = this._currentSoundPosition;
+            //finish game
+            const time = this.getAudioCurrentTime();
+            //console.log("time:", time);
 
-            this._currentSoundPosition = this.getAudioCurrentTime();
+            const finishTime = this.getFinishTime();
+            //console.log("finishTime:", finishTime);
 
-            const audio = this.audio!;
+            const finishDelay = 1000;
 
-            if(audio.paused)
+            if(time >= (finishTime + finishDelay) || this._audio!.ended)
             {
-                if(!this._hasSongStarted)
-                {
-                    this._hasSongStarted = true;
-                    audio.play();
-                    audio.currentTime = time;
-                }
+                this._audio?.pause();
+                console.log("finish");
+
+                this._running = false;
             }
         }
-        */
+    }
+
+    public getFinishTime()
+    {
+        const notes = GameScene.Instance.notes;
+        const lastNote = notes.getLastNote();
+
+        let finishTime = lastNote.songNote.time + lastNote.songNote.dragTime;
+
+        let soundFinishTime = this.getAudioDuration();
+
+        if(soundFinishTime < finishTime) finishTime = soundFinishTime;
+
+        return finishTime;
     }
 
     public getCurrentSoundPosition()

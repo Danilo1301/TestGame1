@@ -21,21 +21,18 @@ export class Notes extends BaseObject
 
     public spawnNoteForPad(padIndex: number, songNote: SongNote)
     {
-        const pad = GameScene.Instance.pads.getPad(padIndex);
-        const padPosition = pad.object.object.position;
+        //const pad = GameScene.Instance.pads.getPad(padIndex);
+        //const padPosition = pad.object.object.position;
 
-        const scene = ThreeScene.Instance;
+        //const scene = ThreeScene.Instance;
 
-        const box = scene.third.add.box({width: 0.1, height: 0.1, depth: 0.1});
-        const object = ThreeScene.addPhaser3DObject(box);
-        object.name = "Note " + this._notes.length;
-        box.position.set(padPosition.x, padPosition.y, padPosition.z);
-
-        const note = new Note(object);
+        const note = new Note();
         note.songNote = songNote;
         note.padIndex = padIndex;
 
         this._notes.push(note);
+
+        note.update();
         
         /*
         const position = pad.getPosition();
@@ -80,15 +77,11 @@ export class Notes extends BaseObject
 
         for(const note of this._notes)
         {
-            const pad = GameScene.Instance.pads.getPad(note.padIndex);
-
-            let z = pad.object.object.position.z;
-            let ms = (this.soundPlayer.getCurrentSoundPosition()) - note.songNote.time;
-            z += GameScene.Instance.notes.getDistanceFromMs(ms);
-
-            note.setZPosition(z);
-
             note.update();
+
+            if(!note.isInGameField()) continue;
+
+            note.updatePositionRelativeToPad();
         }
 
         for(const note of notesToDestroy)
@@ -159,12 +152,14 @@ export class Notes extends BaseObject
         let closestDistance = Infinity;
         let closestNote: Note | undefined = undefined;
 
-        const pad = GameScene.Instance.pads.getPad(padIndex);
+        const pad = GameScene.Instance.pads.getPad(padIndex)!;
 
         for(const note of this._notes)
         {
+            if(!note.isInGameField()) continue;
+
             if(note.padIndex != padIndex) continue;
-            if(!note.canMove) continue;
+            //if(!note.canMove) continue;
 
             const distance = note.getDistanceFromPad(pad);
 
@@ -178,5 +173,24 @@ export class Notes extends BaseObject
         }
 
         return closestNote;
+    }
+
+    public getLastNote()
+    {
+        const notes = this._notes.sort((a, b) => a.songNote.time - b.songNote.time);
+
+        const lastNote = notes[notes.length-1];
+
+        return lastNote;
+    }
+
+    public getNotesHitted()
+    {
+        return this._notes.filter(note => note.hitted);
+    }
+
+    public getNotesMissed()
+    {
+        return this._notes.filter(note => note.missed);
     }
 }

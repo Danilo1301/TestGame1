@@ -4,12 +4,24 @@ import { Gameface } from "../../gameface/gameface";
 import { Hud } from "../../hud/hud";
 import { eNoteHitGood } from "../../notes/note";
 
+interface AccuracyInfo {
+    text: string
+    color: number
+}
+
 export class HitAccuracy extends BaseObject
 {
     public text!: Phaser.GameObjects.Text;
     public comboText!: Phaser.GameObjects.Text;
     public scaleGraph: Graph = new Graph();
     public visibleTime: number = 0;
+    public accuracyInfo = new Map<eNoteHitGood, AccuracyInfo>([
+        [eNoteHitGood.HIT_PERFECT, { text: "PERFECT", color: 0x9000FF }],
+        [eNoteHitGood.HIT_GOOD, { text: "GOOD", color: 0x74BF13 }],
+        [eNoteHitGood.HIT_OK, { text: "OK", color: 0x808080 }],
+        [eNoteHitGood.HIT_BAD, { text: "BAD", color: 0X808080 }],
+        [eNoteHitGood.HIT_NOT_ON_TIME, { text: "BRUH", color: 0X808080 }],
+    ]);
 
     constructor()
     {
@@ -33,7 +45,7 @@ export class HitAccuracy extends BaseObject
         text.setOrigin(0.5);
         text.setStroke('#000000', 8);
 
-        const comboText = scene.add.text(gameSize.x / 2, 150, '100').setFontFamily('Arial');
+        const comboText = scene.add.text(gameSize.x / 2, 150, 'SCORE').setFontFamily('Arial');
         comboText.setFontSize(40);
         comboText.setColor('#ffffff');
         comboText.setOrigin(0.5);
@@ -60,18 +72,13 @@ export class HitAccuracy extends BaseObject
 
     public setHitType(hitType: eNoteHitGood)
     {
-        const names = new Map<eNoteHitGood, string>();
-        names.set(eNoteHitGood.HIT_PERFECT, "PERFECT");
-        names.set(eNoteHitGood.HIT_GOOD, "GOOD");
-        names.set(eNoteHitGood.HIT_OK, "OK");
-        names.set(eNoteHitGood.HIT_BAD, "BAD");
-        names.set(eNoteHitGood.HIT_NOT_ON_TIME, "WTF");
 
-        const str = names.get(hitType);
+        const info = this.accuracyInfo.get(hitType);
 
-        if(!str) return;
+        if(!info) return;
 
-        this.setText(str);
+        this.setText(info.text);
+        this.setColor(info.color);
     }
 
     public setText(str: string)
@@ -79,6 +86,15 @@ export class HitAccuracy extends BaseObject
         this.visibleTime = 1000;
         this.text.setText(str);
         this.scaleGraph.currentTime = 0;
+    }
+
+    public setColor(color: number)
+    {
+        const hexString = color.toString(16);
+
+        console.log(hexString);
+
+        this.text.setColor(`#${hexString}`);
     }
 
     public setComboText(str: string)

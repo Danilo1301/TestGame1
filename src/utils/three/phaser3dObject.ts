@@ -45,4 +45,12 @@ export class Phaser3DObject
 
         return (s2.x - s1.x) * 0.01;
     }
+
+    public setInvisible()
+    {
+        const mat = this.object.material as THREE.Material;
+        this.object.castShadow = false;
+        mat.transparent = true;
+        mat.opacity = 0.0;
+    }
 }

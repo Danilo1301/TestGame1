@@ -57,6 +57,7 @@ export class EditorScene extends Phaser.Scene
         console.log("create")
         
         Gameface.Instance.sceneManager.startScene(GameScene);
+        GameScene.Instance.soundPlayer.autoFinishWhenNoMoreNotes = false;
         
         this.timebar.create(this);
         Hud.addToHudLayer(this.timebar.container);
@@ -115,14 +116,14 @@ export class EditorScene extends Phaser.Scene
         // SPACE
         this.input.keyboard!.on('keydown-SPACE', (event: KeyboardEvent) =>
         {
-            const audio = GameScene.Instance.soundPlayer.audio!;
+            const soundPlayer = GameScene.Instance.soundPlayer;
+            const audio = soundPlayer.audio!;
 
             if(audio.paused)
             {
-                audio.play();
-                
+                soundPlayer.resumeSound();
             } else {
-                audio.pause();
+                soundPlayer.pauseSound();
             }
             audio.currentTime = this.timebar.currentLength;
         });

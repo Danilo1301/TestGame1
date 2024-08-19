@@ -10,12 +10,16 @@ import { MainScene } from "../mainScene";
 import { Hud } from "../../hud/hud";
 import { HitAccuracy } from "./hitAccuracy";
 import { eNoteHitGood, Note } from "../../notes/note";
+import { GameProgressBar } from "./gameProgressBar";
+import { GuitarHud } from "./guitarHud";
 
 export class GameScene extends Phaser.Scene
 {
     public static Instance: GameScene;
 
     public ground: Ground;
+
+    public topRightContainer!: Phaser.GameObjects.Container;
 
     public combo: number = 0;
     public prevHitSongNote?: SongNote;
@@ -24,11 +28,14 @@ export class GameScene extends Phaser.Scene
     public get notes() { return this._notes; }
     public get pads() { return this._pads; }
     public get hitAccuracy() { return this._hitAccuracy; }
+    public get gameProgressBar() { return this._gameProgressBar; }
 
     private _soundPlayer: SoundPlayer;
     private _notes: Notes;
     private _pads: Pads;
     private _hitAccuracy: HitAccuracy;
+    private _gameProgressBar: GameProgressBar;
+    private _guitarHud: GuitarHud;
 
     //public canvas?: Phaser.Textures.CanvasTexture;
 
@@ -45,6 +52,8 @@ export class GameScene extends Phaser.Scene
         this._notes = new Notes();
         this._pads = new Pads();
         this._hitAccuracy = new HitAccuracy();
+        this._gameProgressBar = new GameProgressBar();
+        this._guitarHud = new GuitarHud();
 
         GameScene.Instance = this;
     }
@@ -93,23 +102,55 @@ export class GameScene extends Phaser.Scene
         this.setupAnims();
 
         this.ground.create();
+        this.hitAccuracy.create(this);
+        this.gameProgressBar.create(this);
 
+        this.createBackground();
+
+        this.createPads();
+
+        var sprite = this.add.sprite(50, 50, "note_sheet", "note_color1.png");
+
+        //top right container
+        const gameSize = Gameface.Instance.getGameSize();
+
+        this.topRightContainer = this.add.container();
+        this.topRightContainer.setPosition(gameSize.x, 0);
+        Hud.addToHudLayer(this.topRightContainer);
+
+        this._guitarHud.create();
+    }
+
+    private createBackground()
+    {
         //background
-        const createBackground = true;
+        const createBackground = false;
         if(createBackground)
         {
+            const gameSize = Gameface.Instance.getGameSize();
+
+            const x = 1280/900;
+            const y = 720/600;
+
             const background = this.add.image(0, 0, "background");
-            background.setOrigin(0);
+            background.setOrigin(0.5);
+            background.setPosition(gameSize.x/2, gameSize.y/2);
+            background.setScale(x, y);
 
             const shape = this.add.image(0, 0, "mask").setVisible(false);
-            shape.setOrigin(0);
+            shape.setOrigin(0.5);
+            shape.setPosition(gameSize.x/2, gameSize.y/2);
+            shape.setScale(x, y);
 
             var mask = this.add.bitmapMask(shape);
 
             background.setMask(mask);
             MainScene.Instance.layerHud.add(background);
         }
+    }
 
+    private createPads()
+    {
         //add pads
         const distance = 0.5;
         const numOfPads = 5;
@@ -124,29 +165,6 @@ export class GameScene extends Phaser.Scene
             pad.setKey(this.padKeys[i]);
             pad.color = this.padColors[i];
         }
-
-        //test
-        //const note = this.notes.spawnRandomNoteForPad();
-        //console.log(note.getScale())
-
-        const button = Hud.addButton("Fullscreen", 30, 120, 50, 50, "button");
-        button.onClick = () => {
-            Gameface.Instance.toggleFullscreen();
-        };
-        
-        this.hitAccuracy.create(this);
-
-        var sprite = this.add.sprite(50, 50, "note_sheet", "note_color1.png");
-
-        
-        
-
-        /*
-        
-        */
-
-        /*
-        */
     }
 
     public startSong(song: Song)
@@ -164,6 +182,8 @@ export class GameScene extends Phaser.Scene
         this.notes.update(delta);
         this.pads.update();
         this.hitAccuracy.update(delta);
+        this.gameProgressBar.update(delta);
+        this._guitarHud.update();
     }
 
     public hitCombo(note: Note, hitType: eNoteHitGood)
@@ -184,7 +204,7 @@ export class GameScene extends Phaser.Scene
         GameScene.Instance.hitAccuracy.setComboText(`0`);
     }
 
-    public static getPixels()
+    public static saveImage()
     {
 
         const scene = this.Instance;

@@ -10,6 +10,10 @@ export const imageAssets: AssetItem[] = [
     {key: "bpm_divisor", path: "bpm_divisor.png"},
     {key: "mask", path: "mask.png"},
     {key: "background", path: "background.png"},
+    {key: "progress_bg", path: "progress_bg.png"},
+    {key: "guitar_slot", path: "guitar_slot.png"},
+    {key: "guitar_icon1", path: "guitar_icon1.png"},
+
 ];
 
 export const audioAssets: AssetItem[] = [

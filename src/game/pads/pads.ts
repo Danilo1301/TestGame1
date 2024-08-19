@@ -33,6 +33,7 @@ export class Pads extends BaseObject
         if(pad == undefined)
         {
             console.error("Could not find pad " + index);
+            return undefined;
         }
 
         return pad;

@@ -2,6 +2,7 @@ import { AudioManager } from "../../utils/audioManager/audioManager";
 import { Button } from "../../utils/ui/button";
 import { Options } from "../../utils/ui/options";
 import { Gameface } from "../gameface/gameface";
+import { Hud } from "../hud/hud";
 
 export class MainScene extends Phaser.Scene
 {
@@ -39,6 +40,11 @@ export class MainScene extends Phaser.Scene
 
         this.fpsText = this.add.text(5, 5, "0 FPS", { font: '16px Arial', color: '#000000' });
         this.layerHud.add(this.fpsText);
+
+        const button = Hud.addButton("Fullscreen", 30, 120, 50, 50, "button");
+        button.onClick = () => {
+            Gameface.Instance.toggleFullscreen();
+        };
     }
 
     public update(time: number, delta: number)

@@ -50,6 +50,10 @@ export const songs: Song[] = [
         {time: 15000, pads: [0,2], dragTime: 0},
         {time: 15937.5, pads: [2], dragTime: 0},
     ]},
+    {name: "TAIGA - Ghostbusters 2", sound: "sound3", bpm: 128, offset: 15, notes: [
+        {time: 1875, pads: [0,4], dragTime: 468.75},
+        {time: 2500, pads: [3], dragTime: 3000}
+    ]},
     {name: "Neovaii - Crash", sound: "sound1", bpm: 100, offset: 0, notes: [
         {time: 0, pads: [1], dragTime: 300},
         {time: 467, pads: [1], dragTime: 0},
@@ -58,7 +62,8 @@ export const songs: Song[] = [
         {time: 1707, pads: [3], dragTime: 300},
         {time: 2163, pads: [3], dragTime: 0},
         {time: 2608, pads: [3], dragTime: 300},
-        {time: 3011, pads: [3], dragTime: 0}
+        {time: 3011, pads: [3], dragTime: 0},
+        {time: 4000, pads: [1], dragTime: 6000}
     ]},
     {name: "NCS Faded", sound: "sound2", bpm: 100, offset: 0, notes: [
         {time: 100, pads: [1], dragTime: 0},
