@@ -27,9 +27,6 @@ export class MainScene extends Phaser.Scene
 
     public async create()
     {
-        this.layerBackground = this.add.layer();
-        this.layerBackground.setDepth(10);
-
         this.layerNormal = this.add.layer();
         this.layerNormal.setDepth(0);
 
@@ -38,6 +35,9 @@ export class MainScene extends Phaser.Scene
 
         this.layerNotes = this.add.layer();
         this.layerNotes.setDepth(1000);
+
+        this.layerBackground = this.add.layer();
+        this.layerBackground.setDepth(5000);
 
         this.layerHud = this.add.layer();
         this.layerHud.setDepth(10000);

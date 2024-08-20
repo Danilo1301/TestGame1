@@ -70,8 +70,6 @@ export class Notes extends BaseObject
     public update(delta: number)
     {
         this.delta = delta;
-
-        this.getMovementSpeed();
         
         const notesToDestroy: Note[] = [];
 
@@ -82,6 +80,7 @@ export class Notes extends BaseObject
             if(!note.isInGameField()) continue;
 
             note.updatePositionRelativeToPad();
+            note.updateContainerPosition(); //to fix position not syncing
         }
 
         for(const note of notesToDestroy)

@@ -1,5 +1,6 @@
 import { Debug } from "../../utils/debug/debug";
 import { Button } from "../../utils/ui/button";
+import { Options } from "../../utils/ui/options";
 import { Song, songs } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { AudioTestScene } from "./audioTestScene";
@@ -8,6 +9,8 @@ import { GameScene } from "./gameScene/gameScene";
 
 export class SongSelectionScene extends Phaser.Scene
 {
+    public multiplayerOptions!: Options;
+
     constructor()
     {
         super({});
@@ -36,8 +39,13 @@ export class SongSelectionScene extends Phaser.Scene
             Gameface.Instance.sceneManager.startScene(AudioTestScene);
 
             Gameface.Instance.sceneManager.removeScene(SongSelectionScene);
-
         };
+
+        const multiplayerOptions = new Options(this, 300);
+        multiplayerOptions.addOption("Multiplayer", 1);
+        multiplayerOptions.addOption("Single-player", 0);
+        multiplayerOptions.container.setPosition(800, 50);
+        this.multiplayerOptions = multiplayerOptions;
 
         //this.selectSong(songs[0]);
 
@@ -47,7 +55,14 @@ export class SongSelectionScene extends Phaser.Scene
     {
         Gameface.Instance.sceneManager.startScene(GameScene);
 
-        GameScene.Instance.startSong(song);
+        const isMultiplayer = this.multiplayerOptions.getCurrentOptionValue() == 1;
+
+        if(isMultiplayer)
+        {
+            GameScene.Instance.startMultiplayerSong(song);
+        } else {
+            GameScene.Instance.startSong(song);
+        }
 
         Gameface.Instance.sceneManager.removeScene(SongSelectionScene);
     }
@@ -62,6 +77,6 @@ export class SongSelectionScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
-        
+        this.multiplayerOptions.update();
     }
 }

@@ -19,8 +19,6 @@ export class SoundPlayer
     //private _hasSongStarted: boolean = false;
     private _running: boolean = false;
 
-    
-
     public startSong(song: Song)
     {
         this._song = song;
@@ -48,8 +46,15 @@ export class SoundPlayer
         audio.play();
     }
 
+    public isRunning()
+    {
+        return this._running;
+    }
+
     public getAudioCurrentTime()
     {
+        if(!this._running) return 0;
+
         return this.audio!.currentTime * 1000;
     }
 

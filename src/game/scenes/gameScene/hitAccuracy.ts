@@ -15,6 +15,7 @@ export class HitAccuracy extends BaseObject
     public comboText!: Phaser.GameObjects.Text;
     public scaleGraph: Graph = new Graph();
     public visibleTime: number = 0;
+    public comboVisible: boolean = false;
     public accuracyInfo = new Map<eNoteHitGood, AccuracyInfo>([
         [eNoteHitGood.HIT_PERFECT, { text: "PERFECT", color: 0x9000FF }],
         [eNoteHitGood.HIT_GOOD, { text: "GOOD", color: 0x74BF13 }],
@@ -68,6 +69,7 @@ export class HitAccuracy extends BaseObject
         this.text.setVisible(this.visibleTime > 0);
         
         this.comboText.setScale(this.scaleGraph.getValue());
+        this.comboText.setVisible(this.comboVisible);
     }
 
     public setHitType(hitType: eNoteHitGood)
@@ -101,5 +103,6 @@ export class HitAccuracy extends BaseObject
     {
         this.comboText.setText(str);
         this.scaleGraph.currentTime = 0;
+        this.comboVisible = true;
     }
 }

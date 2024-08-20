@@ -12,6 +12,7 @@ import { HitAccuracy } from "./hitAccuracy";
 import { eNoteHitGood, Note } from "../../notes/note";
 import { GameProgressBar } from "./gameProgressBar";
 import { GuitarHud } from "./guitarHud";
+import { InfoText } from "./infoText";
 
 export class GameScene extends Phaser.Scene
 {
@@ -29,12 +30,15 @@ export class GameScene extends Phaser.Scene
     public get notes() { return this._notes; }
     public get pads() { return this._pads; }
     public get hitAccuracy() { return this._hitAccuracy; }
+    public get infoText() { return this._infoText; }
     public get gameProgressBar() { return this._gameProgressBar; }
+    public get guitarHud() { return this._guitarHud; }
 
     private _soundPlayer: SoundPlayer;
     private _notes: Notes;
     private _pads: Pads;
     private _hitAccuracy: HitAccuracy;
+    private _infoText: InfoText;
     private _gameProgressBar: GameProgressBar;
     private _guitarHud: GuitarHud;
 
@@ -53,6 +57,7 @@ export class GameScene extends Phaser.Scene
         this._notes = new Notes();
         this._pads = new Pads();
         this._hitAccuracy = new HitAccuracy();
+        this._infoText = new InfoText();
         this._gameProgressBar = new GameProgressBar();
         this._guitarHud = new GuitarHud();
 
@@ -104,6 +109,7 @@ export class GameScene extends Phaser.Scene
 
         this.ground.create();
         this.hitAccuracy.create(this);
+        this.infoText.create(this);
         this.gameProgressBar.create(this);
 
         this.createBackground();
@@ -119,7 +125,7 @@ export class GameScene extends Phaser.Scene
         this.topRightContainer.setPosition(gameSize.x, 0);
         Hud.addToHudLayer(this.topRightContainer);
 
-        this._guitarHud.create();
+        this.guitarHud.create();
     }
 
     private createBackground()
@@ -177,6 +183,21 @@ export class GameScene extends Phaser.Scene
         GameScene.Instance.soundPlayer.startSong(song);
     }
 
+    public startMultiplayerSong(song: Song)
+    {
+        this.infoText.setText("waiting for opponent...", -1);
+
+        setTimeout(() => {
+            this.infoText.setText("Start!", 1000);
+
+            this.guitarHud.createSecondUser();
+
+            setTimeout(() => {
+                GameScene.Instance.soundPlayer.startSong(song);
+            }, 1000);
+        }, 3000);
+    }
+
     public update(time: number, delta: number)
     {
         //ThreeScene.Instance.third.camera.position.x += 0.01
@@ -187,6 +208,7 @@ export class GameScene extends Phaser.Scene
         this.notes.update(delta);
         this.pads.update();
         this.hitAccuracy.update(delta);
+        this.infoText.update(delta);
         this.gameProgressBar.update(delta);
         this._guitarHud.update();
     }

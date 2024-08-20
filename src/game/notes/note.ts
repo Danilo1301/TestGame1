@@ -210,18 +210,10 @@ export class Note extends BaseObject
             this.dragObject!.debugText.setLine("size", this.dragSize.toFixed(2));
         }
 
+        this.updateContainerPosition();
+
         if(this.container && this.object)
         {
-            const object = this.object.object;
-
-            //position
-            const screenPosition = ThreeScene.projectToScreen(object.position);
-            this.container.setPosition(screenPosition.x, screenPosition.y);
-
-            //scale
-            const scale = this.getScale();
-            this.container.setScale(scale);
-
             //+ button
             const distanceFromMouse = this.getDistanceFromMouse();
             if(distanceFromMouse < 30 && EditorScene.showNoteOptionsButton && EditorScene.isRunning())
@@ -244,10 +236,26 @@ export class Note extends BaseObject
         }
     }
 
+    public updateContainerPosition()
+    {
+        if(this.container && this.object)
+        {
+            const object = this.object.object;
+
+            //position
+            const screenPosition = ThreeScene.projectToScreen(object.position);
+            this.container.setPosition(screenPosition.x, screenPosition.y);
+
+            //scale
+            const scale = this.getScale();
+            this.container.setScale(scale);
+        }
+    }
+
     public hasNotePassedStartOfGameField()
     {
         const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-        const start = this.songNote.time - 2000;
+        const start = this.songNote.time - 3000;
 
         if(time >= start)
         {

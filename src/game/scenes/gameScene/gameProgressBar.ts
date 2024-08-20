@@ -23,6 +23,7 @@ export class GameProgressBar extends BaseObject
 
         const container = scene.add.container(0, 0);
         container.setPosition(150, gameSize.y - 150);
+        Hud.addToHudLayer(container);
 
         const bg = scene.add.image(0, 0, "progress_bg");
         container.add(bg);
@@ -45,9 +46,17 @@ export class GameProgressBar extends BaseObject
 
     public update(delta: number)
     {
-        const maxTime = GameScene.Instance.soundPlayer.getFinishTime();
-        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-        const progress = time / maxTime;
+        let maxTime = 1;
+        let time = 0;
+
+        if(GameScene.Instance.soundPlayer.isRunning())
+        {
+            maxTime = GameScene.Instance.soundPlayer.getFinishTime();
+            time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+        }
+        
+        let progress = time / maxTime;
+        if(progress > 1) progress = 1;
 
         const graphics = this.graphics;        
         graphics.clear();

@@ -20,6 +20,7 @@ export class Ground
         this.boxes.push(this.createGroundPart(0, 0, 0));
         this.boxes.push(this.createGroundPart(0, 0, 0));
         this.boxes.push(this.createGroundPart(0, 0, 0));
+        this.boxes.push(this.createGroundPart(0, 0, 0));
         //this.boxes.push(this.createGroundPart(0, 0, 0));
 
         //this.box2 = this.createGroundPart(0, 0, -this.plankSize);
@@ -62,6 +63,9 @@ export class Ground
             //const index = i;
 
             let z = (distance % this.plankSize) - (i * this.plankSize);
+
+            //make it far
+            z += this.plankSize;
 
             const position = box.position.clone();
             position.x = 0;
