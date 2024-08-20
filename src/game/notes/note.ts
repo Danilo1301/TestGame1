@@ -322,7 +322,7 @@ export class Note extends BaseObject
     {
         if(!this.object) throw "Object is not defined";
 
-        return this.object.getScale() * 0.8;
+        return this.object.getScale() * 0.75;
     }
 
     public getDistanceFromMouse()

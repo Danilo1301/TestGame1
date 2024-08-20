@@ -2,6 +2,8 @@ import { BaseObject } from "../../utils/baseObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Pad } from "./pad";
 
+
+
 export class Pads extends BaseObject
 {
     public padHeight: number = 0.2;
@@ -45,5 +47,19 @@ export class Pads extends BaseObject
         {
             pad.update();
         }
+    }
+
+    public getPadDragging()
+    {
+        for(const pad of this._pads)
+        {
+            if(pad.draggingNote) return pad;
+        }
+        return undefined;
+    }
+
+    public isAnyPadDragging()
+    {
+        return this.getPadDragging() != undefined;
     }
 }

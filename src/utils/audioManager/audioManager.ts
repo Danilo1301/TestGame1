@@ -42,7 +42,12 @@ export class AudioManager
 
     public static playAudioPhaser(key: string)
     {
-        MainScene.Instance.sound.play(key);
+        this.playAudioPhaserWithVolume(key, 1.0);
+    }
+
+    public static playAudioPhaserWithVolume(key: string, volume: number)
+    {
+        MainScene.Instance.sound.play(key, {volume: volume});
     }
 
     public static playAudioWithVolume(key: string, volume: number)

@@ -138,10 +138,10 @@ export class Notes extends BaseObject
     {
         const distance = this.getDistanceFromMs(ms);
 
-        if(this.isDistanceBetweenMsInterval(distance, 60)) return eNoteHitGood.HIT_PERFECT;
-        if(this.isDistanceBetweenMsInterval(distance, 90)) return eNoteHitGood.HIT_GOOD;
-        if(this.isDistanceBetweenMsInterval(distance, 120)) return eNoteHitGood.HIT_OK;
-        if(this.isDistanceBetweenMsInterval(distance, 150)) return eNoteHitGood.HIT_BAD;
+        if(this.isDistanceBetweenMsInterval(distance, 100)) return eNoteHitGood.HIT_PERFECT;
+        if(this.isDistanceBetweenMsInterval(distance, 150)) return eNoteHitGood.HIT_GOOD;
+        //if(this.isDistanceBetweenMsInterval(distance, 120)) return eNoteHitGood.HIT_OK;
+        if(this.isDistanceBetweenMsInterval(distance, 250)) return eNoteHitGood.HIT_BAD;
 
         return eNoteHitGood.HIT_NOT_ON_TIME;
     }

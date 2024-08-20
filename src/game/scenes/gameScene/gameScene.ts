@@ -13,15 +13,27 @@ import { eNoteHitGood, Note } from "../../notes/note";
 import { GameProgressBar } from "./gameProgressBar";
 import { GuitarHud } from "./guitarHud";
 import { InfoText } from "./infoText";
+import { AudioManager } from "../../../utils/audioManager/audioManager";
+import { Pad } from "../../pads/pad";
 
 export class GameScene extends Phaser.Scene
 {
     public static Instance: GameScene;
 
+    /*
+    Events:
+    pad_begin_drag
+    pad_end_drag
+
+    OBS: not working for some fucking reason
+    */
+    public events = new Phaser.Events.EventEmitter();
+
     public ground: Ground;
 
     public topRightContainer!: Phaser.GameObjects.Container;
 
+    public score: number = 0;
     public combo: number = 0;
     public money: number = 412.75;
     public prevHitSongNote?: SongNote;
@@ -47,6 +59,14 @@ export class GameScene extends Phaser.Scene
     public padKeys: string[] = ["A", "S", "D", "F", "G"];
     public padColors: number[] = [0x00ff00, 0xff0000, 0xffff00, 0x0094FF, 0xFF8A3D];
 
+    public scoreMap = new Map<eNoteHitGood, number>([
+        [eNoteHitGood.HIT_PERFECT, 100],
+        [eNoteHitGood.HIT_GOOD, 80],
+        [eNoteHitGood.HIT_OK, 50],
+        [eNoteHitGood.HIT_BAD, 10],
+        [eNoteHitGood.HIT_NOT_ON_TIME, 0],
+    ]);
+
     constructor()
     {
         super({});
@@ -62,6 +82,15 @@ export class GameScene extends Phaser.Scene
         this._guitarHud = new GuitarHud();
 
         GameScene.Instance = this;
+
+        this.setupEvents();
+    }
+
+    public setupEvents()
+    {
+        this.events.on("pad_begin_drag", () => {
+            
+        });
     }
 
     public setupAnims()
@@ -131,33 +160,31 @@ export class GameScene extends Phaser.Scene
     private createBackground()
     {
         //background
-        const createBackground = true;
-        if(createBackground)
-        {
-            const gameSize = Gameface.Instance.getGameSize();
+        
+        const gameSize = Gameface.Instance.getGameSize();
 
-            let x = 1280/900;
-            let y = 720/600;
+        let x = 1280/900;
+        let y = 720/600;
 
-            //reset
-            x = 1;
-            y = 1;
+        //reset
+        x = 1;
+        y = 1;
 
-            const background = this.add.image(0, 0, "background");
-            background.setOrigin(0.5);
-            background.setPosition(gameSize.x/2, gameSize.y/2);
-            background.setScale(x, y);
-            MainScene.Instance.layerBackground.add(background);
+        const background = this.add.image(0, 0, "background");
+        background.setOrigin(0.5);
+        background.setPosition(gameSize.x/2, gameSize.y/2);
+        background.setScale(x, y);
+        MainScene.Instance.layerBackground.add(background);
 
-            const shape = this.add.image(0, 0, "mask").setVisible(false);
-            shape.setOrigin(0.5);
-            shape.setPosition(gameSize.x/2, gameSize.y/2);
-            shape.setScale(x, y);
+        const shape = this.add.image(0, 0, "mask").setVisible(false);
+        shape.setOrigin(0.5);
+        shape.setPosition(gameSize.x/2, gameSize.y/2);
+        shape.setScale(x, y);
 
-            var mask = this.add.bitmapMask(shape);
+        var mask = this.add.bitmapMask(shape);
 
-            background.setMask(mask);
-        }
+        background.setMask(mask);
+        
     }
 
     private createPads()
@@ -211,10 +238,23 @@ export class GameScene extends Phaser.Scene
         this.infoText.update(delta);
         this.gameProgressBar.update(delta);
         this._guitarHud.update();
+
+        const padDragging = this.pads.getPadDragging();
+        if(padDragging)
+        {
+            const start = padDragging.startedDragAtTime;
+            const time = this.soundPlayer.getAudioCurrentTime();
+
+            console.log("start", start);
+            console.log("time", time);
+        }
     }
 
-    public hitCombo(note: Note, hitType: eNoteHitGood)
+    public onNoteHit(note: Note, hitType: eNoteHitGood, isEndDrag: boolean)
     {
+        if(!Gameface.isMobile)
+            AudioManager.playAudioPhaserWithVolume("osu_hitsound", 0.1);
+        
         if(GameScene.Instance.prevHitSongNote != note.songNote)
         {
             GameScene.Instance.prevHitSongNote = note.songNote;
@@ -223,6 +263,9 @@ export class GameScene extends Phaser.Scene
         }
 
         GameScene.Instance.hitAccuracy.setHitType(hitType);
+
+        const addScore = this.scoreMap.get(hitType);
+        if(addScore) this.score += addScore;
     }
 
     public breakCombo()

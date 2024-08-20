@@ -22,7 +22,7 @@ export class GameProgressBar extends BaseObject
         const gameSize = Gameface.Instance.getGameSize();
 
         const container = scene.add.container(0, 0);
-        container.setPosition(150, gameSize.y - 150);
+        container.setPosition(150, gameSize.y - 250);
         Hud.addToHudLayer(container);
 
         const bg = scene.add.image(0, 0, "progress_bg");

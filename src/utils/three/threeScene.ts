@@ -30,7 +30,7 @@ export class ThreeScene extends Scene3D
         this.third.warpSpeed("-ground");
 
         const camera = this.third.camera as THREE.PerspectiveCamera;
-
+        
         camera.fov = 60;
         
         const topView = false;
@@ -39,9 +39,19 @@ export class ThreeScene extends Scene3D
             camera.position.set(0, 10, 6);
             camera.lookAt(0, 0, 6);
         } else {
-            camera.position.set(0, 3, 8);
-            camera.lookAt(0, 0, 2.5);
+            //const camera = ThreeScene.Instance.third.camera
+
+            //camera.position.set(0, 3, 8);
+            //camera.lookAt(0, 0, 2.5);
+            //camera.updateProjectionMatrix();
+
+            camera.position.set(0, 2, 7.5);
+            camera.lookAt(0, 0, 3.5);
+            camera.updateProjectionMatrix();
         }
+
+     
+
 
         camera.updateProjectionMatrix();
 

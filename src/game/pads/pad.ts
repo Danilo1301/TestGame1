@@ -12,6 +12,7 @@ import { MainScene } from "../scenes/mainScene";
 export class Pad extends BaseObject
 {
     public container!: Phaser.GameObjects.Container;
+    public sprite?: Phaser.GameObjects.Sprite;
     public spriteColor?: Phaser.GameObjects.Sprite;
 
     public object: Phaser3DObject;
@@ -22,7 +23,7 @@ export class Pad extends BaseObject
 
     private _active: boolean = false;
 
-    private _keyObject?: Phaser.Input.Keyboard.Key;
+    private _lastTimeAwardedScoreByDragging: number = 0;
 
     public color: number = 0x0000ff;
 
@@ -39,8 +40,12 @@ export class Pad extends BaseObject
         this.container = scene.add.container(50, 50);
         MainScene.Instance.layerNotes.add(this.container);
 
+        this.sprite = scene.add.sprite(0, 0, 'pad_sheet', 'pad_color1.png');    
+        this.sprite.setScale(2.2);
+        this.container.add(this.sprite);
+        
         this.spriteColor = scene.add.sprite(0, 0, 'pad_sheet', 'pad_color2.png');    
-        this.spriteColor.setScale(1.2);
+        this.spriteColor.setScale(2.2);
         this.container.add(this.spriteColor);
 
         Input.events.on("pointerdown", (event: PointerEvent) => {
@@ -52,8 +57,9 @@ export class Pad extends BaseObject
 
             //console.log(mousePosition, distance)
 
-            if(distance < 50)
+            if(distance < 70)
             {
+                console.log(distance)
                 this.activatePad();
             }
         });
@@ -75,7 +81,6 @@ export class Pad extends BaseObject
         
         if(note)
         {
-
             if(!note.hitted)
             {
                 const notes = GameScene.Instance.notes;
@@ -90,14 +95,12 @@ export class Pad extends BaseObject
 
                 if(countAsHit)
                 {
-                    if(!Gameface.isMobile)
-                        AudioManager.playAudioPhaser("osu_hitsound");
+                    GameScene.Instance.onNoteHit(note, hitType, false);
                     
                     if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
                     
                     this.hitNote(note);
 
-                    GameScene.Instance.hitCombo(note, hitType)
                 } else {
                     //GameScene.Instance.breakCombo();
                 }
@@ -111,11 +114,19 @@ export class Pad extends BaseObject
         
         if(note.songNote.dragTime > 0)
         {
-            note.startBeeingDragged(this);
-
-            this.draggingNote = note;
-            this.startedDragAtTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+            this.startDrag(note);
         }
+    }
+
+    public startDrag(note: Note)
+    {
+        note.startBeeingDragged(this);
+
+        this.draggingNote = note;
+        this.startedDragAtTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+        this._lastTimeAwardedScoreByDragging = this.startedDragAtTime;
+
+        GameScene.Instance.events.emit("pad_begin_drag", this, note);
     }
 
     public stopDrag()
@@ -133,16 +144,21 @@ export class Pad extends BaseObject
         console.log(`current: ${time}`);
 
         const distanceInMs = Math.abs(end - time);
-        const distance = GameScene.Instance.notes.getDistanceFromMs(distanceInMs);
+        //const distance = GameScene.Instance.notes.getDistanceFromMs(distanceInMs);
 
-        console.log(`distance: ${distance} (${distanceInMs}ms)`)
+        console.log(`distance: (${distanceInMs}ms)`);
 
+        const hitType = GameScene.Instance.notes.getHowGoodNoteIs(distanceInMs);
+        //const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
+
+        
         note.stopBeeingDragged();
-
+        
         this.draggingNote = undefined;
         this.startedDragAtTime = 0;
-
-        AudioManager.playAudioPhaser("osu_hitsound");
+        
+        GameScene.Instance.onNoteHit(note, hitType, true);
+        GameScene.Instance.events.emit("pad_end_drag", this, note);
     }
 
     public deactivatePad()
@@ -186,8 +202,6 @@ export class Pad extends BaseObject
         {
             pad.deactivatePad();
         });
-        
-        this._keyObject = keyObject;
     }
 
     public update()
@@ -202,6 +216,23 @@ export class Pad extends BaseObject
         if(this.spriteColor)
         {
             this.spriteColor.tint = active ? this.color : 0x777777;
+        }
+
+        if(this.sprite)
+        {
+            this.sprite.tint = this.color;
+        }
+
+        //award score
+        if(this.draggingNote)
+        {
+            const now = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+            if(now - this._lastTimeAwardedScoreByDragging >= 500)
+            {
+                this._lastTimeAwardedScoreByDragging = now;
+
+                GameScene.Instance.score += 100;
+            }
         }
     }
 }

@@ -32,6 +32,8 @@ export class GuitarHud extends BaseObject
         this.player.data.hits = hittedNotes;
         this.player.data.misses = missedNotes;
         this.player.data.combo = GameScene.Instance.combo;
+        this.player.data.name = "My username";
+        this.player.data.score = GameScene.Instance.score;
         this.player.moneyText.setText(`R$ ${GameScene.Instance.money.toFixed(2)}`);
 
         for(const userGuitar of this.userGuitars)
@@ -54,7 +56,8 @@ export class GuitarHud extends BaseObject
     {
         const secondPlayer = this.createUser();
 
-        secondPlayer.container.setPosition(-100, 400);
+        secondPlayer.data.name = "Opponent";
+        secondPlayer.container.setPosition(-100, 350);
 
         return secondPlayer;
     }
