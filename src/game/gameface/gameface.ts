@@ -9,11 +9,14 @@ import { SceneManager } from "./sceneManager";
 import { AudioManager } from "../../utils/audioManager/audioManager";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
+import { PreloadScene } from "../scenes/preloadScene";
+import { isMobile } from "../../utils/utils";
 
 export class Gameface extends BaseObject
 {
     public static Instance: Gameface;
     public static isLowPerformance: boolean = true;
+    public static isMobile: boolean = false;
 
     public get phaser() { return this._phaser!; }
     public get sceneManager() { return this._sceneManager; }
@@ -41,6 +44,10 @@ export class Gameface extends BaseObject
 
         this.log(this.phaser);
 
+        if(isMobile.any()) Gameface.isMobile = true;
+
+        await this.waitForPreloadScene();
+
         this.sceneManager.startScene(MainScene);
         this.sceneManager.startScene(ThreeScene);
 
@@ -63,7 +70,14 @@ export class Gameface extends BaseObject
         } else {
             this.sceneManager.startScene(SongSelectionScene);
         }
+    }
 
+    private async waitForPreloadScene()
+    {
+        return new Promise<void>((resolve) => {
+            const preloadScene = this.sceneManager.startScene<PreloadScene>(PreloadScene)!;
+            preloadScene.onPreloadFinish = () => resolve();
+        });
     }
 
     public isFullscreen()

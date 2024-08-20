@@ -31,7 +31,7 @@ export class Pad extends BaseObject
         super();
 
         this.object = object;
-        this.object.debugText.createDebugText();
+        //this.object.debugText.createDebugText();
         this.object.setInvisible();
 
         const scene = GameScene.Instance;
@@ -90,7 +90,8 @@ export class Pad extends BaseObject
 
                 if(countAsHit)
                 {
-                    AudioManager.playAudioPhaser("osu_hitsound");
+                    if(!Gameface.isMobile)
+                        AudioManager.playAudioPhaser("osu_hitsound");
                     
                     if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
                     

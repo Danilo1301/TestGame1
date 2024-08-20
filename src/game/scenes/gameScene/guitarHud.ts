@@ -90,6 +90,7 @@ export class GuitarHud extends BaseObject
         this.player.data.hits = hittedNotes;
         this.player.data.misses = missedNotes;
         this.player.data.combo = GameScene.Instance.combo;
+        this.player.moneyText.setText(`R$ ${GameScene.Instance.money.toFixed(2)}`);
 
         for(const userGuitar of this.userGuitars)
         {

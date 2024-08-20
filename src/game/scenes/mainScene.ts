@@ -8,6 +8,7 @@ export class MainScene extends Phaser.Scene
 {
     public static Instance: MainScene;
     
+    public layerBackground!: Phaser.GameObjects.Layer;
     public layerNormal!: Phaser.GameObjects.Layer;
     public layerGround!: Phaser.GameObjects.Layer;
     public layerNotes!: Phaser.GameObjects.Layer;
@@ -26,6 +27,9 @@ export class MainScene extends Phaser.Scene
 
     public async create()
     {
+        this.layerBackground = this.add.layer();
+        this.layerBackground.setDepth(10);
+
         this.layerNormal = this.add.layer();
         this.layerNormal.setDepth(0);
 
@@ -38,13 +42,18 @@ export class MainScene extends Phaser.Scene
         this.layerHud = this.add.layer();
         this.layerHud.setDepth(10000);
 
-        this.fpsText = this.add.text(5, 5, "0 FPS", { font: '16px Arial', color: '#000000' });
+        this.fpsText = this.add.text(5, 5, '0 FPS').setFontFamily('Arial');
+        this.fpsText.setFontSize(20);
+        this.fpsText.setColor('#00ff00');
+        this.fpsText.setOrigin(0);
+        this.fpsText.setStroke('#000000', 4);
         this.layerHud.add(this.fpsText);
 
         const button = Hud.addButton("Fullscreen", 30, 120, 50, 50, "button");
         button.onClick = () => {
             Gameface.Instance.toggleFullscreen();
         };
+        Hud.addToHudLayer(button.container);
     }
 
     public update(time: number, delta: number)

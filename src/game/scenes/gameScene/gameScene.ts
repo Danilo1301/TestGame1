@@ -22,6 +22,7 @@ export class GameScene extends Phaser.Scene
     public topRightContainer!: Phaser.GameObjects.Container;
 
     public combo: number = 0;
+    public money: number = 412.75;
     public prevHitSongNote?: SongNote;
 
     public get soundPlayer() { return this._soundPlayer; }
@@ -124,18 +125,23 @@ export class GameScene extends Phaser.Scene
     private createBackground()
     {
         //background
-        const createBackground = false;
+        const createBackground = true;
         if(createBackground)
         {
             const gameSize = Gameface.Instance.getGameSize();
 
-            const x = 1280/900;
-            const y = 720/600;
+            let x = 1280/900;
+            let y = 720/600;
+
+            //reset
+            x = 1;
+            y = 1;
 
             const background = this.add.image(0, 0, "background");
             background.setOrigin(0.5);
             background.setPosition(gameSize.x/2, gameSize.y/2);
             background.setScale(x, y);
+            MainScene.Instance.layerBackground.add(background);
 
             const shape = this.add.image(0, 0, "mask").setVisible(false);
             shape.setOrigin(0.5);
@@ -145,7 +151,6 @@ export class GameScene extends Phaser.Scene
             var mask = this.add.bitmapMask(shape);
 
             background.setMask(mask);
-            MainScene.Instance.layerHud.add(background);
         }
     }
 

@@ -313,4 +313,9 @@ export class EditorScene extends Phaser.Scene
 
         GameScene.Instance.soundPlayer.recreateNotes();
     }
+
+    public static isRunning()
+    {
+        return Gameface.Instance.sceneManager.hasSceneStarted(EditorScene);
+    }
 }

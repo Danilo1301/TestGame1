@@ -1,5 +1,7 @@
 import { Asset, AssetLoad, AssetType, LoadState } from "../../utils/assetLoad/assetLoad"
 import { AudioManager } from "../../utils/audioManager/audioManager";
+import { ProgressBar } from "../../utils/ui/progressBar";
+import { Gameface } from "../gameface/gameface";
 
 interface LoadAsset {
     text: string
@@ -12,6 +14,8 @@ export class LoadScene extends Phaser.Scene
     public static Instance: LoadScene;
     
     private _loadAssets: LoadAsset[] = [];
+
+    public progressBar!: ProgressBar;
 
     constructor()
     {
@@ -35,11 +39,35 @@ export class LoadScene extends Phaser.Scene
 
             console.log("filecomplete", asset);
         });
+
+        const gamesize = Gameface.Instance.getGameSize();
+
+        const bg = this.add.rectangle(0, 0, gamesize.x, gamesize.y, 0x000000);
+        bg.setOrigin(0, 0);
+
+        const progressBar = new ProgressBar(this, gamesize.x - 50, 30);
+        progressBar.setProgress(0);
+        progressBar.setProgressColor(0xFFAC00);
+        progressBar.setRestColor(0xffffff);
+        progressBar.container.setPosition(gamesize.x/2, gamesize.y - 40);
+        this.progressBar = progressBar;
+
+        const mobileText = this.add.text(0, 0, Gameface.isMobile ? "Mobile" : "Desktop");
+        mobileText.setFontFamily('Arial');
+        mobileText.setOrigin(0);
     }
 
     public update(time: number, delta: number)
     {
-        
+        let totalAssets = 0;
+        let loadedAssets = 0;
+        for(const loadAsset of this._loadAssets)
+        {
+            totalAssets++;
+            if(loadAsset.asset.loadState == LoadState.LOADED) loadedAssets++;
+        }
+
+        this.progressBar.setProgress(loadedAssets / totalAssets);
     }
 
     public loadAsset(asset: Asset)

@@ -102,7 +102,7 @@ export class Note extends BaseObject
             this.object = object;
 
             object.name = "Note";
-            object.debugText.createDebugText();
+            //object.debugText.createDebugText();
 
             this.updatePositionRelativeToPad();
             //box.position.set(0, 0, padPosition.z);
@@ -224,7 +224,7 @@ export class Note extends BaseObject
 
             //+ button
             const distanceFromMouse = this.getDistanceFromMouse();
-            if(distanceFromMouse < 30 && EditorScene.showNoteOptionsButton)
+            if(distanceFromMouse < 30 && EditorScene.showNoteOptionsButton && EditorScene.isRunning())
             {
                 if(!this.moreOptionsNoteButton)
                 {

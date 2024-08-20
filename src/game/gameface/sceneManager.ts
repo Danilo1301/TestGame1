@@ -14,7 +14,7 @@ export class SceneManager extends BaseObject
         this._gameface = gameface;
     }
 
-    public startScene(scene: typeof Phaser.Scene)
+    public startScene<T>(scene: typeof Phaser.Scene)
     {
         const phaser = this.phaser;
         const key = scene.name;
@@ -29,6 +29,8 @@ export class SceneManager extends BaseObject
         this.log("start scene: " + key);
 
         this._gameface.updateScenesOrder();
+
+        if(s) return s as T;
 
         return s;
     }
