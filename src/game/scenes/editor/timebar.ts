@@ -4,7 +4,7 @@ import { Input } from "../../../utils/input/input";
 export class Timebar extends BaseObject
 {
     public events = new Phaser.Events.EventEmitter();
-    public size = new Phaser.Math.Vector2(500, 40);
+    public size = new Phaser.Math.Vector2(800, 40);
 
     public currentLength: number = 120.0;
     public totalLength = 1524.0;

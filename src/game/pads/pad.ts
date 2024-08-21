@@ -106,6 +106,8 @@ export class Pad extends BaseObject
                 }
             }
         }
+
+        GameScene.Instance.events.emit("pad_down", this);
     }
 
     public hitNote(note: Note)

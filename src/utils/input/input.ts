@@ -80,7 +80,7 @@ export class Input extends BaseObject
     {
         key = key.toUpperCase();
 
-        Debug.log("Input", `key press: ${key}`);
+        //Debug.log("Input", `key press: ${key}`);
 
         this._keysPressed.set(key, true);
     }

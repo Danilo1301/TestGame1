@@ -1,11 +1,61 @@
 import { AudioManager } from "../../../utils/audioManager/audioManager";
+import { BPMChange } from "../../constants/songs";
 import { GameScene } from "../gameScene/gameScene";
 import { BPMBar } from "./bpmBar";
 
+export class BPMKeyCounter {
+
+    public lastHit: number = 0;
+    public averageHits: number[] = [];
+
+    constructor()
+    {
+        
+    }
+
+    public setupEvents()
+    {
+        GameScene.Instance.events.on("pad_down", () => {
+
+            const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+            const lastHit = this.lastHit;
+
+            this.lastHit = time;
+
+            if(lastHit != 0)
+            {
+                const diff = Math.abs(time - lastHit);
+
+                this.averageHits.push(diff);
+
+                if(diff > 1000)
+                {
+                    this.averageHits = [];
+                    this.lastHit = 0;
+                }
+            }
+
+            let total = 0;
+            for(const t of this.averageHits) total += t;
+
+            let avg = total / this.averageHits.length;
+
+            const beatsPerSecond = 1000 / avg;
+            const beatsPerMinute = beatsPerSecond * 60;
+
+            console.log(this.averageHits);
+            console.log("avg", avg);
+            console.log("beatsPerMinute", beatsPerMinute);
+        })
+    }
+}
+
 export class BPMMeter
 {
-    public bpm: number = 128;
+    public bpms: BPMChange[] = [];
     public offset: number = 15;
+
+    public playBpmSound: boolean = true;
 
     public bpmDivision = 1/2;
 
@@ -16,98 +66,125 @@ export class BPMMeter
     private _audio!: HTMLAudioElement;
     private _lastBeatPlayed: number = -1;
 
+    public bpmKeyCounter: BPMKeyCounter;
+
     constructor()
     {
-
+        this.bpmKeyCounter = new BPMKeyCounter();
     }
 
     public create(scene: Phaser.Scene)
     {
-        this._audio = AudioManager.playAudio("bpm");
+        this._audio = AudioManager.playAudioWithVolume("bpm", 0.05);
         this._audio.pause();
     }
 
     public update()
     {
-        const beat = this.getBeat(this.bpm, this.offset);
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+        const bpm = this.getBPMOfTime(time);
 
-        let currentTime = GameScene.Instance.soundPlayer.getAudioCurrentTime();
+        //console.log(`time=${time.toFixed(1)} bpm=${bpm}`)
 
-        if(this._lastBeatPlayed != beat)
+        var bpmBarIndex = 0;
+
+        for(var i = 0; i < this.bpms.length; i++)
         {
-            this._lastBeatPlayed = beat;
+            const bpmChange = this.bpms[i];
+            const nextBpmChange: BPMChange | undefined = this.bpms[i+1];
 
-            console.log(`BEAT: currentTime: ${currentTime}`);
+            const soundFinishTime = GameScene.Instance.soundPlayer.getAudioDuration();
 
-            this._audio.currentTime = 0;
-            this._audio.play();
+            const startTime = bpmChange.time;
+            const endTime = nextBpmChange ? nextBpmChange.time : soundFinishTime;
+
+            const timeDuration = endTime - startTime;
+
+            const beats = this.getHowManyBeatsInTimeDuration(bpmChange.bpm, timeDuration);
+
+            //console.log("current", bpmChange)
+            //console.log("next", nextBpmChange)
+            //console.log(startTime, "->", endTime)
+            //console.log("beats", beats)
+
+            const minBeats = Math.floor(beats);
+
+            for(var beatI = 0; beatI <= minBeats; beatI++)
+            {
+                const durationOfOneBeat = this.getTimeDurationOfOneBeat(bpmChange.bpm);
+                const timePos = startTime + beatI * durationOfOneBeat;
+
+                const bpmBar = this.createBpmBar(bpmBarIndex++);
+                bpmBar.timeMs = timePos;
+                bpmBar.image.tint = i % 2 == 0 ? 0xff0000 : 0x0000ff;
+                bpmBar.scale = 1.5;
+                bpmBar.update();
+
+                if(beatI == minBeats) continue;
+
+                const divideIn = 1 / this.bpmDivision;
+
+                for(var beatDivI = 1; beatDivI < divideIn; beatDivI++)
+                {
+                    let divTimePos = timePos + (beatDivI * (durationOfOneBeat / divideIn));
+
+                    const bpmBarDiv = this.createBpmBar(bpmBarIndex++);
+                    bpmBarDiv.timeMs = divTimePos;
+                    bpmBarDiv.scale = 0.5;
+                    bpmBarDiv.update();
+                }
+            }
         }
+    }
 
-        //
-
+    public createBpmBar(index: number)
+    {
         const scene = GameScene.Instance;
-        const soundPlayer = GameScene.Instance.soundPlayer;
 
-        //bpm bars
-        
-        while(this.bpmBars.length < 3)
+        if(index < this.bpmDivisionBars.length)
         {
-            const bpmBar = new BPMBar(scene);
-            this.bpmBars.push(bpmBar);
+            return this.bpmDivisionBars[index];
         }
 
-        for(const bpmBar of this.bpmBars)
+        const bpmBar = new BPMBar(scene);
+        this.bpmDivisionBars.push(bpmBar);
+        return bpmBar;
+    }
+
+    public getTimeDurationOfOneBeat(bpm: number)
+    {
+        const beatsPerMinute = bpm;
+        const beatsPerSecond = beatsPerMinute / 60;
+
+        const beatDurationInOneSecond = 1 / beatsPerSecond;
+
+        return beatDurationInOneSecond * 1000;
+    }
+
+    public getBPMOfTime(time: number)
+    {
+        let currentBpm = this.bpms[0];
+
+        for(var i = 0; i < this.bpms.length; i++)
         {
-            const index = this.bpmBars.indexOf(bpmBar);
-            const length = this.bpmBars.length;
-            //const off = Math.floor(length/2);
+            const bpm = this.bpms[i];
 
-            const soundTime = soundPlayer.getAudioCurrentTime();
-
-            let t = soundTime;
-
-            t -= this.getCurrentBeatTime(index);   
-
-            bpmBar.setTimeMs(t);
-            bpmBar.update();
+            if(bpm.time <= time) currentBpm = bpm;
+            
+            //console.log(i, bpm.time);
         }
 
-        //bpm bars divisions
+        return currentBpm.bpm;
+    }
 
-        const numDivisions = (1 / this.bpmDivision) - 1;
+    public getHowManyBeatsInTimeDuration(bpm: number, time: number)
+    {
+        const beatsPerMinute = bpm;
+        const beatsPerSecond = beatsPerMinute / 60;
 
-        while(this.bpmDivisionBars.length < numDivisions)
-        {
-            console.log(`Current: ${this.bpmDivisionBars.length}, goal: ${numDivisions}`);
+        const seconds = time / 1000;
 
-            const bpmBar = new BPMBar(scene);
-            this.bpmDivisionBars.push(bpmBar);
-        }
-        while(this.bpmDivisionBars.length > numDivisions)
-        {
-            console.log(`Current: ${this.bpmDivisionBars.length}, goal: ${numDivisions}`);
-
-            const bpmBar = this.bpmDivisionBars[0];
-            bpmBar.destroy();
-
-            this.bpmDivisionBars.splice(0, 1);
-        }
-
-        for(const bpmBar of this.bpmDivisionBars)
-        {
-            const index = this.bpmDivisionBars.indexOf(bpmBar);
-
-            const soundTime = soundPlayer.getAudioCurrentTime();
-
-            let t = soundTime;
-            t -= this.getCurrentBeatTime((index + 1) * this.bpmDivision);   
-
-            bpmBar.setTimeMs(t);
-            bpmBar.scale = 0.5;
-            bpmBar.update();
-        }
-
-        //console.log("divide in " + numDivions);
+        return beatsPerSecond * seconds;
     }
 
     public getBeat(bpm: number, offset: number)
@@ -124,18 +201,6 @@ export class BPMMeter
 
     public getCurrentBeatTime(beatOffset: number)
     {
-        const bpm = this.bpm;
-        const offset = this.offset;
-
-        const perBeat = 60000/bpm;
-
-        let currentTime = GameScene.Instance.soundPlayer.getAudioCurrentTime();
-        currentTime += offset;
-
-        const beat = Math.floor(currentTime/perBeat) + beatOffset
-
-        const t = beat * perBeat;
-
-        return t;
+        return 0;
     }
 }

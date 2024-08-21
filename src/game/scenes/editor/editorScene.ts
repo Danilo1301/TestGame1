@@ -44,7 +44,7 @@ export class EditorScene extends Phaser.Scene
     public setSong(song: Song)
     {
         this.song = Object.assign({}, song);
-        this.bpmMeter.bpm = song.bpm;
+        this.bpmMeter.bpms = song.bpms;
         this.bpmMeter.offset = song.offset;
 
         GameScene.Instance.soundPlayer.startSong(this.song);
@@ -59,13 +59,15 @@ export class EditorScene extends Phaser.Scene
         Gameface.Instance.sceneManager.startScene(GameScene);
         GameScene.Instance.soundPlayer.autoFinishWhenNoMoreNotes = false;
         
+        this.bpmMeter.bpmKeyCounter.setupEvents();
+
         this.timebar.create(this);
         Hud.addToHudLayer(this.timebar.container);
 
         this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
             const audio = GameScene.Instance.soundPlayer.audio!;
 
-            if(audio.paused) audio.play();
+            //if(audio.paused) audio.play();
 
             audio.currentTime = currentLength;
         });
