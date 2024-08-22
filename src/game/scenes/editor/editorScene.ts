@@ -13,6 +13,7 @@ import { Hud } from "../../hud/hud";
 import { MainScene } from "../mainScene";
 import { NoteOptions } from "./noteOptions";
 import { Note } from "../../notes/note";
+import { BPMOffsetsPanel } from "./bpmOffsetsPanel";
 
 export class EditorScene extends Phaser.Scene
 {
@@ -28,6 +29,7 @@ export class EditorScene extends Phaser.Scene
     
     private _bpmOptions!: Options;
     private _addNotePanel?: AddNote;
+    private _bpmOffsetsPanel?: BPMOffsetsPanel;
 
     private _noteOptions?: NoteOptions;
 
@@ -87,7 +89,16 @@ export class EditorScene extends Phaser.Scene
 
         const snap = Hud.addButton("Snap", 50, 240, 80, 50, "button");
         snap.onClick = () => {
-            this.snapToClosestBeatDivisior(0);
+            this.snapToClosestBeatDivisior();
+        };
+
+        const offsets = Hud.addButton("BPM Offsets", 150, 240, 100, 50, "button");
+        offsets.onClick = () => {
+            const panel = new BPMOffsetsPanel(this);
+            this._bpmOffsetsPanel = panel;
+            panel.onClose = () => {
+                this._bpmOffsetsPanel = undefined;
+            };
         };
 
         const speedList: number[] = [1, 0.75, 0.5, 0.25, 0.1];
@@ -133,12 +144,12 @@ export class EditorScene extends Phaser.Scene
         // UP / DOWN
         this.input.keyboard!.on('keydown-UP', (event: KeyboardEvent) =>
         {
-            this.snapToClosestBeatDivisior(1);
+            this.moveSoundBy(500);
         });
 
         this.input.keyboard!.on('keydown-DOWN', (event: KeyboardEvent) =>
         {
-            this.snapToClosestBeatDivisior(-1);
+            this.moveSoundBy(-500);
         });
     }
 
@@ -148,6 +159,8 @@ export class EditorScene extends Phaser.Scene
     {
         this.timebar.update();
         this.bpmMeter.update();
+
+        this._bpmOffsetsPanel?.update();
 
         this._bpmOptions.update();
 
@@ -167,8 +180,19 @@ export class EditorScene extends Phaser.Scene
     0 = closest beat
     -1 = previous beat
     */
-    public snapToClosestBeatDivisior(direction: number)
+    public snapToClosestBeatDivisior()
     {
+        const soundPlayer = GameScene.Instance.soundPlayer;
+
+        const time = soundPlayer.getAudioCurrentTime();
+
+        const closestBpmBar = EditorScene.Instance.bpmMeter.getClosestBpmBar(time);
+
+        let snapTo = closestBpmBar.timeMs;
+
+        soundPlayer.audio!.currentTime = snapTo / 1000;
+
+        /*
         const soundPlayer = GameScene.Instance.soundPlayer;
         const numDivisions = (1 / this.bpmMeter.bpmDivision) + 1;
 
@@ -208,17 +232,37 @@ export class EditorScene extends Phaser.Scene
         }
         
         soundPlayer.audio!.currentTime = snapToTime / 1000;
+        */
+    }
+
+    public moveSoundBy(offsetTime: number)
+    {
+        const soundPlayer = GameScene.Instance.soundPlayer;
+        const time = soundPlayer.getAudioCurrentTime();
+
+        soundPlayer.audio!.currentTime = (time + offsetTime) / 1000;
     }
 
     public exportSong()
     {
         const song = this.song!;
 
-        let str = "";
+        let str = "bpms: [\n";
+
+        for(const bpmChange of song.bpms)
+        {
+            str += `    {time: ${bpmChange.time}, bpm: ${bpmChange.bpm}},\n`;
+        }
+        
+        str += "],\n";
+        str += "notes: [\n";
+        
         for(const songNote of song.notes)
         {
-            str += ` {time: ${songNote.time}, pads: ${JSON.stringify(songNote.pads)}, dragTime: ${songNote.dragTime}},\n`;
+            str += `    {time: ${songNote.time}, pads: ${JSON.stringify(songNote.pads)}, dragTime: ${songNote.dragTime}},\n`;
         }
+
+        str += "]";
 
         console.log(str);
     }

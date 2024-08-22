@@ -18,16 +18,16 @@ export class SongSelectionScene extends Phaser.Scene
 
     public async create()
     {
-        let y = 50;
+        let y = 80;
         let x = 300;
 
         for(const song of songs)
         {
-            const button = new Button(this, song.name, x, y, 200, 50, "button");
+            const button = new Button(this, song.name, x, y, 400, 50, "button");
             //button.container.alpha = 0.5;
             button.onClick = () => this.selectSong(song);
 
-            const editor = new Button(this, "Edit", x + 200, y, 200, 50, "button");
+            const editor = new Button(this, "Edit", x + 280, y, 100, 50, "button");
             editor.onClick = () => this.editSong(song);
 
             y += 50;

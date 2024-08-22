@@ -15,6 +15,7 @@ export class Button {
     private _height: number;
 
     private _isPointerOver: boolean = false;
+    public isPointerDown: boolean = false;
     
     constructor(scene: Phaser.Scene, text: string, x: number, y: number, width: number, height: number, texture: string) {
         this._width = width;
@@ -58,8 +59,15 @@ export class Button {
             self._isPointerOver = false;
         })
 
+        background.on('pointerdown',function(pointer: any) {
+            //alert("down")
+            self.isPointerDown = true;
+            //Input.simulatePointerUp(pointer);
+        })
 
         background.on('pointerup',function(pointer: any) {
+            //alert("up")
+            self.isPointerDown = false;
             self.onClick?.();
             //Input.simulatePointerUp(pointer);
         })

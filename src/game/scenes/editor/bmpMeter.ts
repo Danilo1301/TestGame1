@@ -59,12 +59,13 @@ export class BPMMeter
 
     public bpmDivision = 1/2;
 
-    public bpmBars: BPMBar[] = [];
+    //public bpmBars: BPMBar[] = [];
     public bpmDivisionBars: BPMBar[] = [];
 
     //private _lastPlayedSound: number = 0;
     private _audio!: HTMLAudioElement;
-    private _lastBeatPlayed: number = -1;
+    
+    private _lastBpmBarPlayedTime: number = 0;
 
     public bpmKeyCounter: BPMKeyCounter;
 
@@ -118,6 +119,7 @@ export class BPMMeter
                 bpmBar.timeMs = timePos;
                 bpmBar.image.tint = i % 2 == 0 ? 0xff0000 : 0x0000ff;
                 bpmBar.scale = 1.5;
+                bpmBar.isSubDivision = false;
                 bpmBar.update();
 
                 if(beatI == minBeats) continue;
@@ -131,10 +133,55 @@ export class BPMMeter
                     const bpmBarDiv = this.createBpmBar(bpmBarIndex++);
                     bpmBarDiv.timeMs = divTimePos;
                     bpmBarDiv.scale = 0.5;
+                    bpmBarDiv.image.tint = 0xffffff;
+                    bpmBarDiv.isSubDivision = true;
                     bpmBarDiv.update();
                 }
             }
         }
+
+        const closestBpmBar = this.getClosestBpmBar(time);
+
+        //console.log("closest", closestBpmBar.timeMs)
+        //console.log("_lastBpmBarPlayed", this._lastBpmBarPlayedTime)
+
+        if(closestBpmBar.timeMs != this._lastBpmBarPlayedTime)
+        {
+            if(time >= closestBpmBar.timeMs && !closestBpmBar.isSubDivision)
+            {
+                this._lastBpmBarPlayedTime = closestBpmBar.timeMs;
+
+                console.log("changed");
+
+                if(this.playBpmSound)
+                {
+                    this._audio.currentTime = 0;
+                    this._audio.play();
+                }
+            }
+        }
+    }
+
+    public getClosestBpmBar(time: number)
+    {
+        const bars = this.bpmDivisionBars.sort((a, b) => {
+
+            const distanceA = this.getBpmBarDistanceFromTime(a, time);
+            const distanceB = this.getBpmBarDistanceFromTime(b, time);
+
+            return distanceA - distanceB;
+
+        });
+
+        const closestBpmBar = bars[0];
+        //const distance = this.getBpmBarDistanceFromTime(closestBpmBar, time);
+
+        return closestBpmBar;
+    }
+
+    public getBpmBarDistanceFromTime(bpmBar: BPMBar, time: number)
+    {
+        return Math.abs(time - bpmBar.timeMs);
     }
 
     public createBpmBar(index: number)
@@ -161,7 +208,7 @@ export class BPMMeter
         return beatDurationInOneSecond * 1000;
     }
 
-    public getBPMOfTime(time: number)
+    public getBPMChangeOfTime(time: number)
     {
         let currentBpm = this.bpms[0];
 
@@ -174,7 +221,13 @@ export class BPMMeter
             //console.log(i, bpm.time);
         }
 
-        return currentBpm.bpm;
+        return currentBpm;
+    }
+
+    public getBPMOfTime(time: number)
+    {
+        let bpmChange = this.getBPMChangeOfTime(time);
+        return bpmChange.bpm;
     }
 
     public getHowManyBeatsInTimeDuration(bpm: number, time: number)

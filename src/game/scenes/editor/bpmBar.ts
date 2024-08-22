@@ -8,6 +8,7 @@ export class BPMBar
     public object: Phaser3DObject;
     public image: Phaser.GameObjects.Image;
     public scale: number = 1.5;
+    public isSubDivision: boolean = false;
 
     public timeMs: number = 0;
 
