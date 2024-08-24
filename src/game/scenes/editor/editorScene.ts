@@ -15,6 +15,8 @@ import { NoteOptions } from "./noteOptions";
 import { Note } from "../../notes/note";
 import { BPMOffsetsPanel } from "./bpmOffsetsPanel";
 
+import JSONFormatter from "json-formatter-js";
+
 export class EditorScene extends Phaser.Scene
 {
     public static Instance: EditorScene;
@@ -101,6 +103,27 @@ export class EditorScene extends Phaser.Scene
             };
         };
 
+        const exportSongBtn = Hud.addButton("Export", 250, 240, 100, 50, "button");
+        exportSongBtn.onClick = () => {
+
+            const newWindow = window.open("", "_blank");
+
+            // Verifica se a nova janela não foi bloqueada pelo navegador
+            if (newWindow) {
+
+                const song = EditorScene.Instance.song!;
+                
+                //const formatter = new JSONFormatter(song);
+                //document.body.appendChild(formatter.render());
+
+                newWindow.document.write(`<pre>${JSON.stringify(song)}</pre>`);
+
+            } else {
+                alert('Popup blocked!');
+            }
+
+        };
+
         const speedList: number[] = [1, 0.75, 0.5, 0.25, 0.1];
         let x = 25;
         for(const speed of speedList)
@@ -144,12 +167,12 @@ export class EditorScene extends Phaser.Scene
         // UP / DOWN
         this.input.keyboard!.on('keydown-UP', (event: KeyboardEvent) =>
         {
-            this.moveSoundBy(500);
+            this.moveSoundBy(1000);
         });
 
         this.input.keyboard!.on('keydown-DOWN', (event: KeyboardEvent) =>
         {
-            this.moveSoundBy(-500);
+            this.moveSoundBy(-1000);
         });
     }
 
@@ -240,7 +263,17 @@ export class EditorScene extends Phaser.Scene
         const soundPlayer = GameScene.Instance.soundPlayer;
         const time = soundPlayer.getAudioCurrentTime();
 
-        soundPlayer.audio!.currentTime = (time + offsetTime) / 1000;
+        const audio = soundPlayer.audio!;
+
+        const soundIsPlaying = !audio.paused;
+        //const newPosition = parseFloat(((time + offsetTime) / 1000).toFixed(0));
+        const newPosition = ((time + offsetTime) / 1000);
+
+        console.log(`Move to ${newPosition}`);
+
+        audio.pause();
+        if(soundIsPlaying) audio.play();
+        audio.currentTime = newPosition;
     }
 
     public exportSong()

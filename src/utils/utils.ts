@@ -35,3 +35,19 @@ export const isMobile = {
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
     }
 };
+
+export function msToTime(duration: number) {
+    var milliseconds = Math.floor((duration % 1000) / 100);
+
+    var seconds = Math.floor((duration / 1000) % 60);
+    var minutes = Math.floor((duration / (1000 * 60)) % 60);
+    var hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  
+    var hoursStr = (hours < 10) ? "0" + `${hours}` : `${hours}`;
+    var minutesStr = (minutes < 10) ? "0" + minutes : minutes;
+    var secondsStr = (seconds < 10) ? "0" + seconds : seconds;
+  
+    //return hoursStr + ":" + minutesStr + ":" + secondsStr + "." + milliseconds;
+    return hoursStr + ":" + minutesStr + ":" + secondsStr;
+  }
+  console.log(msToTime(300000))

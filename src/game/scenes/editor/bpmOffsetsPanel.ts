@@ -1,3 +1,4 @@
+import { isNumberBetweenInverval } from "../../../utils/interval";
 import { Button } from "../../../utils/ui/button";
 import { NumberRange } from "../../../utils/ui/numberRange";
 import { BPMChange, SongNote } from "../../constants/songs";
@@ -67,9 +68,22 @@ export class BPMEditPanel
 
         const timeRange = new NumberRange(scene, 200);
         this.timeRange = timeRange;
+        this.timeRange.addBy = 0.5;
         this.timeRange.value = bpmChange.time;
         this.timeRange.onValueChange = () => {
+
+            const diff = this.timeRange.value - bpmChange.time;
+
+            const bpmChangeInterval = EditorScene.Instance.bpmMeter.getBPMChangeInterval(bpmChange);
+
             bpmChange.time = this.timeRange.value;
+
+            for(const note of EditorScene.Instance.song!.notes)
+            {
+                if(!isNumberBetweenInverval(note.time, bpmChangeInterval)) continue;
+
+                note.time += diff;
+            }
         };
         container.add(timeRange.container);
         

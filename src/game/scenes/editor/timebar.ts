@@ -1,5 +1,6 @@
 import { BaseObject } from "../../../utils/baseObject";
 import { Input } from "../../../utils/input/input";
+import { msToTime } from "../../../utils/utils";
 
 export class Timebar extends BaseObject
 {
@@ -9,8 +10,9 @@ export class Timebar extends BaseObject
     public currentLength: number = 120.0;
     public totalLength = 1524.0;
 
-    public indicator!: Phaser.GameObjects.Rectangle;
     public container!: Phaser.GameObjects.Container;
+    public indicator!: Phaser.GameObjects.Rectangle;
+    public timeText!: Phaser.GameObjects.Text;
 
     constructor()
     {
@@ -32,6 +34,11 @@ export class Timebar extends BaseObject
         indicator.setOrigin(0.5, 0);
         container.add(indicator);
         this.indicator = indicator;
+
+        const timeText = scene.add.text(0, this.size.y/2, "0:00:00");
+        timeText.setOrigin(0, 0.5);
+        container.add(timeText);
+        this.timeText = timeText;
 
         Input.events.on("pointerdown", () => {
             
@@ -56,6 +63,8 @@ export class Timebar extends BaseObject
     public update()
     {
         this.updateIndicatorPosition();
+
+        this.timeText.setText(msToTime(this.currentLength * 1000));
     }
 
     public updateIndicatorPosition()

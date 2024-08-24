@@ -24,6 +24,7 @@ export const audioAssets: AssetItem[] = [
     {key: "sound4", path: "sound4.mp3"},
     {key: "sound5", path: "sound5.mp3"},
     {key: "sound6", path: "sound6.mp3"},
+    {key: "sound7", path: "sound7.mp3"},
     {key: "bpm", path: "bpm.ogg"},
     {key: "osu_hitsound", path: "osu_hitsound.ogg"},
 ];

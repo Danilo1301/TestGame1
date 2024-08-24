@@ -1,4 +1,5 @@
 import { AudioManager } from "../../../utils/audioManager/audioManager";
+import { Interval } from "../../../utils/interval";
 import { BPMChange } from "../../constants/songs";
 import { GameScene } from "../gameScene/gameScene";
 import { BPMBar } from "./bpmBar";
@@ -28,7 +29,7 @@ export class BPMKeyCounter {
 
                 this.averageHits.push(diff);
 
-                if(diff > 1000)
+                if(diff > 2000)
                 {
                     this.averageHits = [];
                     this.lastHit = 0;
@@ -76,7 +77,7 @@ export class BPMMeter
 
     public create(scene: Phaser.Scene)
     {
-        this._audio = AudioManager.playAudioWithVolume("bpm", 0.05);
+        this._audio = AudioManager.playAudioWithVolume("bpm", 0.02);
         this._audio.pause();
     }
 
@@ -92,12 +93,11 @@ export class BPMMeter
         for(var i = 0; i < this.bpms.length; i++)
         {
             const bpmChange = this.bpms[i];
-            const nextBpmChange: BPMChange | undefined = this.bpms[i+1];
 
-            const soundFinishTime = GameScene.Instance.soundPlayer.getAudioDuration();
+            const bpmChangeInterval = this.getBPMChangeInterval(bpmChange);
 
-            const startTime = bpmChange.time;
-            const endTime = nextBpmChange ? nextBpmChange.time : soundFinishTime;
+            const startTime = bpmChangeInterval.from;
+            const endTime = bpmChangeInterval.to;
 
             const timeDuration = endTime - startTime;
 
@@ -160,6 +160,25 @@ export class BPMMeter
                 }
             }
         }
+    }
+
+    public getBPMChangeInterval(bpmChange: BPMChange)
+    {
+        const index = this.bpms.indexOf(bpmChange);
+
+        const nextBpmChange: BPMChange | undefined = this.bpms[index+1];
+
+        const soundFinishTime = GameScene.Instance.soundPlayer.getAudioDuration();
+
+        const startTime = bpmChange.time;
+        const endTime = nextBpmChange ? nextBpmChange.time : soundFinishTime;
+
+        const interval: Interval = {
+            from: startTime,
+            to: endTime
+        }
+
+        return interval;
     }
 
     public getClosestBpmBar(time: number)
