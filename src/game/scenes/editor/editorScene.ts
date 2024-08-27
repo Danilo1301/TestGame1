@@ -71,9 +71,12 @@ export class EditorScene extends Phaser.Scene
         this.timebar.events.on("changedcurrentlength", (currentLength: number) => {
             const audio = GameScene.Instance.soundPlayer.audio!;
 
-            //if(audio.paused) audio.play();
+            //const newTime = Math.round(currentLength);
+            const newTime = parseFloat(currentLength.toFixed(2));
 
-            audio.currentTime = currentLength;
+            console.log('Move timebar to', newTime);
+
+            audio.currentTime = newTime
         });
 
         this.bpmMeter.create(this);
@@ -161,7 +164,7 @@ export class EditorScene extends Phaser.Scene
             } else {
                 soundPlayer.pauseSound();
             }
-            audio.currentTime = this.timebar.currentLength;
+            //audio.currentTime = this.timebar.currentLength;
         });
 
         // UP / DOWN
@@ -189,7 +192,7 @@ export class EditorScene extends Phaser.Scene
 
         const soundPlayer = GameScene.Instance.soundPlayer;
 
-        this.timebar.currentLength = soundPlayer.getAudioCurrentTime() / 1000;
+        this.timebar.currentLength = soundPlayer.getCurrentSoundPosition() / 1000;
         this.timebar.totalLength = soundPlayer.getAudioDuration() / 1000;
     }
 
@@ -207,7 +210,7 @@ export class EditorScene extends Phaser.Scene
     {
         const soundPlayer = GameScene.Instance.soundPlayer;
 
-        const time = soundPlayer.getAudioCurrentTime();
+        const time = soundPlayer.getCurrentSoundPosition();
 
         const closestBpmBar = EditorScene.Instance.bpmMeter.getClosestBpmBar(time);
 
@@ -261,13 +264,18 @@ export class EditorScene extends Phaser.Scene
     public moveSoundBy(offsetTime: number)
     {
         const soundPlayer = GameScene.Instance.soundPlayer;
-        const time = soundPlayer.getAudioCurrentTime();
+        const time = soundPlayer.getRealAudioCurrentTime();
 
         const audio = soundPlayer.audio!;
 
         const soundIsPlaying = !audio.paused;
         //const newPosition = parseFloat(((time + offsetTime) / 1000).toFixed(0));
-        const newPosition = ((time + offsetTime) / 1000);
+        let newPosition = ((time + offsetTime) / 1000)
+        //const newPosition = ((time + offsetTime) / 1000);
+
+        console.log(`Trying to move to ${newPosition}`);
+
+        newPosition = parseFloat(newPosition.toFixed(2));
 
         console.log(`Move to ${newPosition}`);
 

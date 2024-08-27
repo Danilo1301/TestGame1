@@ -15,6 +15,7 @@ export class MainScene extends Phaser.Scene
     public layerHud!: Phaser.GameObjects.Layer;
 
     public fpsText!: Phaser.GameObjects.Text;
+    public testText!: Phaser.GameObjects.Text;
 
     public onStart?: Function;
 
@@ -49,6 +50,12 @@ export class MainScene extends Phaser.Scene
         this.fpsText.setStroke('#000000', 4);
         this.layerHud.add(this.fpsText);
 
+        this.testText = this.add.text(5, 30, 'TEST').setFontFamily('Arial');
+        this.testText.setFontSize(20);
+        this.testText.setColor('#00ff00');
+        this.testText.setOrigin(0);
+        this.testText.setStroke('#000000', 4);
+
         const button = Hud.addButton("Fullscreen", 30, 120, 50, 50, "button");
         button.onClick = () => {
             Gameface.Instance.toggleFullscreen();
@@ -59,6 +66,14 @@ export class MainScene extends Phaser.Scene
     public update(time: number, delta: number)
     {
         this.fpsText.setText(`${this.game.loop.actualFps.toFixed(2)} FPS`);
+
+        this.testText.setText([
+            'activePointer.isDown: ' + this.input.activePointer?.isDown,
+            'pointer1.isDown: ' + this.input.pointer1?.isDown,
+            'pointer2.isDown: ' + this.input.pointer2?.isDown,
+            'pointer3.isDown: ' + this.input.pointer3?.isDown,
+            'pointer4.isDown: ' + this.input.pointer4?.isDown
+        ]);
     }
 
     public createPlayButton()

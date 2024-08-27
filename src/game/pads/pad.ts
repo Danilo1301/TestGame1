@@ -27,6 +27,8 @@ export class Pad extends BaseObject
 
     public color: number = 0x0000ff;
 
+    public pointerIdPressingThisPad: number = 0;
+
     constructor(object: Phaser3DObject)
     {
         super();
@@ -48,7 +50,9 @@ export class Pad extends BaseObject
         this.spriteColor.setScale(2.2);
         this.container.add(this.spriteColor);
 
-        Input.events.on("pointerdown", (event: PointerEvent) => {
+        const pad = this;
+        
+        Input.events.on("pointerdown", (event: PointerEvent, pointerId: number) => {
             //console.log("poniter down")
 
             const mousePosition = Input.mousePosition;
@@ -60,11 +64,15 @@ export class Pad extends BaseObject
             if(distance < 70)
             {
                 console.log(distance)
+                this.pointerIdPressingThisPad = pointerId;
                 this.activatePad();
             }
         });
 
-        Input.events.on("pointerup", (event: PointerEvent) => {
+        Input.events.on("pointerup", (event: PointerEvent, pointerId: number) => {
+
+            if(this.pointerIdPressingThisPad != pointerId) return;
+
             this.deactivatePad();
         });
     }
@@ -187,7 +195,7 @@ export class Pad extends BaseObject
 
     public setKey(key: string)
     {
-        const keyBoard = Gameface.Instance.input.sceneInput.keyboard;
+        const keyBoard = Gameface.Instance.input.input.keyboard;
 
         if(!keyBoard) throw "Keyboard is null";
 

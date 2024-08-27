@@ -21,7 +21,7 @@ export class HitAccuracy extends BaseObject
         [eNoteHitGood.HIT_GOOD, { text: "GOOD", color: 0x74BF13 }],
         [eNoteHitGood.HIT_OK, { text: "OK", color: 0x808080 }],
         [eNoteHitGood.HIT_BAD, { text: "BAD", color: 0X808080 }],
-        [eNoteHitGood.HIT_NOT_ON_TIME, { text: "BRUH", color: 0X808080 }],
+        [eNoteHitGood.HIT_NOT_ON_TIME, { text: "OFF-TIME", color: 0X808080 }],
     ]);
 
     constructor()

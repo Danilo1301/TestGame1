@@ -54,7 +54,7 @@ export class Ground
 
     public update()
     {
-        const time = GameScene.Instance.soundPlayer.getAudioCurrentTime();
+        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
         const distance = GameScene.Instance.notes.getDistanceFromMs(time);
 
         for(var i = 0; i < this.boxes.length; i++)

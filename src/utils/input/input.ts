@@ -7,15 +7,16 @@ export class Input extends BaseObject
     public static Instance: Input;
     public static events = new Phaser.Events.EventEmitter();
     public static mousePosition = new Phaser.Math.Vector2();
+    public static get pointerDown() { return this.Instance._pointersDown.length > 0; };
+    public static previousPointerThatWentUp = 0;
+    public static previousPointerThatWentDown = 0;
 
     public get scene() { return this._scene!; }
+    public get input() { return this.scene.input; }
 
     private _scene?: Phaser.Scene;
-
     private _keysPressed: Map<string, boolean> = new Map<string, boolean>();
-    private _mouseDown: boolean = false;
-
-    public get sceneInput() { return this.scene.input; }
+    private _pointersDown: number[] = [];
 
     constructor()
     {
@@ -30,7 +31,7 @@ export class Input extends BaseObject
 
         const input = scene.input;
         const keyboard = input.keyboard;
-        
+
         if(!keyboard)
         {
             throw "Keyboard is null!";
@@ -96,20 +97,50 @@ export class Input extends BaseObject
 
     private onPointerDown(pointer: PointerEvent)
     {
-        if(this._mouseDown) return;
+        console.log("Pointer down", pointer);
 
-        this._mouseDown = true;
+        const activePointers = this.getActivePointers();
+        for(const pointerId of activePointers)
+        {
+            if(!this._pointersDown.includes(pointerId))
+            {
+                this._pointersDown.push(pointerId);
+                
+                Input.previousPointerThatWentDown = pointerId;
+            }
+        }
+        
+        console.log(`${Input.previousPointerThatWentDown} is down`);
+        Input.events.emit('pointerdown', pointer, Input.previousPointerThatWentDown);
+    }
 
-        Input.events.emit('pointerdown', pointer);
+    private getActivePointers()
+    {
+        let activePointers: number[] = [];
+        if(this.input.activePointer.isDown || this.input.pointer1?.isDown) activePointers.push(1);
+        if(this.input.pointer2?.isDown) activePointers.push(2);
+
+        return activePointers;
     }
 
     private onPointerUp(pointer: PointerEvent)
     {
-        if(!this._mouseDown) return;
-
-        this._mouseDown = false;
+        console.log("Pointer up", pointer);
         
-        Input.events.emit('pointerup', pointer);
+        const activePointers = this.getActivePointers();
+        for(const pointerId of this._pointersDown)
+        {
+            if(!activePointers.includes(pointerId))
+            {
+                this._pointersDown.splice(this._pointersDown.indexOf(pointerId), 1);
+                Input.previousPointerThatWentUp = pointerId;
+            }
+        }
+        
+        
+        console.log(`${Input.previousPointerThatWentUp} is up`);
+        if(activePointers.length == 0) console.log("pointers are no longer down");
+        Input.events.emit('pointerup', pointer, Input.previousPointerThatWentUp);
     }
 
     public static isPointInsideRect(pos: Phaser.Math.Vector2, rectPos: Phaser.Math.Vector2, rectSize: Phaser.Math.Vector2)

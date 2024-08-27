@@ -80,7 +80,6 @@ export class Note extends BaseObject
                 if(!this.missed)
                 {
                     this.missed = true;
-                    console.log("break this stupid combo")
 
                     GameScene.Instance.breakCombo();
                 }

@@ -243,7 +243,7 @@ export class GameScene extends Phaser.Scene
         if(padDragging)
         {
             const start = padDragging.startedDragAtTime;
-            const time = this.soundPlayer.getAudioCurrentTime();
+            const time = this.soundPlayer.getCurrentSoundPosition();
 
             console.log("start", start);
             console.log("time", time);

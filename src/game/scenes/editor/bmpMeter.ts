@@ -2,6 +2,7 @@ import { AudioManager } from "../../../utils/audioManager/audioManager";
 import { Interval } from "../../../utils/interval";
 import { BPMChange } from "../../constants/songs";
 import { GameScene } from "../gameScene/gameScene";
+import { SoundPlayer } from "../gameScene/soundPlayer";
 import { BPMBar } from "./bpmBar";
 
 export class BPMKeyCounter {
@@ -84,7 +85,7 @@ export class BPMMeter
     public update()
     {
         const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-        const bpm = this.getBPMOfTime(time);
+        //const bpm = this.getBPMOfTime(time);
 
         //console.log(`time=${time.toFixed(1)} bpm=${bpm}`)
 
@@ -263,7 +264,7 @@ export class BPMMeter
     {
         const perBeat = 60000/bpm;
 
-        let currentTime = GameScene.Instance.soundPlayer.getAudioCurrentTime();
+        let currentTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
         currentTime += offset;
 
         const beat = Math.floor(currentTime / perBeat);

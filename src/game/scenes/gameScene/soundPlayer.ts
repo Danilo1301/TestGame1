@@ -4,7 +4,8 @@ import { GameScene } from "./gameScene";
 
 export class SoundPlayer
 {
-    public soundDelay: number = 2000;
+    //public soundDelay: number = 2000; // ?
+    public static audioTimeDelay: number = 100; // delay to fix difference between Unity editor and the game
     public autoFinishWhenNoMoreNotes = true;
     
     public get song() { return this._song; };
@@ -51,7 +52,12 @@ export class SoundPlayer
         return this._running;
     }
 
-    public getAudioCurrentTime()
+    public getCurrentSoundPosition()
+    {
+        return this._currentSoundPosition + SoundPlayer.audioTimeDelay;
+    }
+
+    public getRealAudioCurrentTime()
     {
         if(!this._running) return 0;
 
@@ -82,12 +88,12 @@ export class SoundPlayer
     {
         if(!this._running) return;
 
-        this._currentSoundPosition = this.getAudioCurrentTime();
+        this._currentSoundPosition = this.getRealAudioCurrentTime();
 
         if(this.autoFinishWhenNoMoreNotes)
         {
             //finish game
-            const time = this.getAudioCurrentTime();
+            const time = this.getRealAudioCurrentTime();
             //console.log("time:", time);
 
             const finishTime = this.getFinishTime();
@@ -117,11 +123,6 @@ export class SoundPlayer
         if(soundFinishTime < finishTime) finishTime = soundFinishTime;
 
         return finishTime;
-    }
-
-    public getCurrentSoundPosition()
-    {
-        return this._currentSoundPosition;
     }
     
     public getElapsedTime()

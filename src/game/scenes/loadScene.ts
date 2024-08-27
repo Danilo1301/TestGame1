@@ -38,6 +38,8 @@ export class LoadScene extends Phaser.Scene
             asset.loadState = LoadState.LOADED;
 
             console.log("filecomplete", asset);
+
+            self.printLoadState();
         });
 
         const gamesize = Gameface.Instance.getGameSize();
@@ -59,20 +61,30 @@ export class LoadScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
-        let totalAssets = 0;
-        let loadedAssets = 0;
-        for(const loadAsset of this._loadAssets)
-        {
-            totalAssets++;
-            if(loadAsset.asset.loadState == LoadState.LOADED) loadedAssets++;
-        }
+        let totalAssets = this.getNumberOfAssets();
+        let loadedAssets = this.getNumberOfLoadedAssets();
 
         this.progressBar.setProgress(loadedAssets / totalAssets);
     }
 
+    public getNumberOfLoadedAssets()
+    {
+        let loadedAssets = 0;
+        for(const loadAsset of this._loadAssets)
+        {
+            if(loadAsset.asset.loadState == LoadState.LOADED) loadedAssets++;
+        }
+        return loadedAssets;
+    }
+
+    public getNumberOfAssets()
+    {
+        return this._loadAssets.length;
+    }
+
     public loadAsset(asset: Asset)
     {
-        console.log(`[loader] add load image '${asset.key}'`);
+        console.log(`[LoadScene] add loadAsset image '${asset.key}'`);
 
         const loadAsset: LoadAsset = {
             text: `Loading image ${asset.key}`,
@@ -81,14 +93,34 @@ export class LoadScene extends Phaser.Scene
         this._loadAssets.push(loadAsset);
     }
 
+    private printLoadState()
+    {
+        let totalAssets = this.getNumberOfAssets();
+        let loadedAssets = this.getNumberOfLoadedAssets();
+
+        console.log(`Loaded assets: ${loadedAssets} / ${totalAssets}`)
+    }
+
     public async startLoadingAssets()
     {
-        return new Promise<void>((resolve) => {
+        return new Promise<void>(async (resolve) => {
 
             const load = this.load;
 
+            //
+
+            console.log("loading tasks before assets...");
+                
+            await this.loadAllTasks(true);
+
+            console.log("loading assets...");
+
+            //
+
             for (const loadAsset of this._loadAssets)
             {
+                if(loadAsset.asset.loadState == LoadState.LOADED) continue;
+
                 const key = loadAsset.asset.key;
                 const path = loadAsset.asset.path;
 
@@ -99,16 +131,63 @@ export class LoadScene extends Phaser.Scene
                 if(loadAsset.asset.type == AssetType.ATLAS) load.atlas(key, `${path}.png`, `${path}.json`);
             }
 
+            //
+
             load.once('complete', async () => {
 
                 console.log("load completed");
+
+                for(const loadAsset of this._loadAssets)
+                {
+                    if(loadAsset.asset.loadState == LoadState.LOADED) continue;
+
+                    console.log(loadAsset);
+
+                }
                 console.log("loading audios...");
                 
                 await AudioManager.loadAllAudios();
+
+                console.log("loading tasks...");
+                
+                await this.loadAllTasks(false);
 
                 resolve();
             });
             load.start();
         });
+    }
+
+    private async loadAllTasks(beforeLoad: boolean)
+    {
+        for (const loadAsset of this._loadAssets)
+        {
+            if(loadAsset.asset.loadState == LoadState.LOADED) continue;
+            
+            if(beforeLoad)
+            {
+                if(loadAsset.asset.type != AssetType.TASK_BEFORE_LOAD) continue;
+            } else {
+                if(loadAsset.asset.type != AssetType.TASK_AFTER_LOAD) continue;
+            }
+
+            this.printLoadState();
+
+            loadAsset.asset.loadState = LoadState.LOADING;
+
+            const key = loadAsset.asset.key;
+            const fn = loadAsset.asset.fn;
+
+            console.log(`Awaiting task ${key}`);
+
+            if(fn)
+                await fn();
+
+            console.log(`Task ${key} finished`);
+
+            loadAsset.asset.loadState = LoadState.LOADED;
+
+            this.printLoadState();
+        }
     }
 }

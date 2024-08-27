@@ -5,6 +5,7 @@ import { LoadScene } from "../../game/scenes/loadScene";
 import { Debug } from "../debug/debug";
 import { atlasAssets, audioAssets, imageAssets } from "../../game/constants/assets";
 import { AudioManager } from "../audioManager/audioManager";
+import { Song, songIds, songs } from "../../game/constants/songs";
 
 export enum LoadState {
     NOT_LOADED,
@@ -17,7 +18,8 @@ export enum AssetType {
     AUDIO,
     FONT,
     ATLAS,
-    TASK,
+    TASK_BEFORE_LOAD,
+    TASK_AFTER_LOAD,
 }
 
 export interface Asset {
@@ -25,6 +27,7 @@ export interface Asset {
     path: string
     loadState: LoadState
     type: AssetType
+    fn?: Function
 }
 
 export class AssetLoad
@@ -73,6 +76,21 @@ export class AssetLoad
         this._assets.set(key, asset);
     }
 
+    public static addTask(key: string, loadBefore: boolean, fn: Function)
+    {
+        console.log(`Add task ${key} to load`);
+
+        const asset: Asset = {
+            key: key,
+            path: "",
+            loadState: LoadState.NOT_LOADED,
+            type: loadBefore ? AssetType.TASK_BEFORE_LOAD : AssetType.TASK_AFTER_LOAD,
+            fn: fn
+        }
+
+        this._assets.set(key, asset);
+    }
+
     public static addAssets()
     {
         for(const asset of imageAssets)
@@ -89,6 +107,41 @@ export class AssetLoad
         {
             this.addAudio(asset.key, asset.path);
             AudioManager.addAudio(asset.key, asset.path);
+        }
+
+        for(const songId of songIds)
+        {
+            this.addTask(`load_song_${songId}`, true, async () => {
+                return new Promise<void>((resolve)=> {
+                    
+                    // URL do endpoint de onde os dados JSON serão buscados
+                    const url = `/assets/songs/${songId}.json`;
+
+                    fetch(url)
+                    .then(response => {
+                        // Verifica se a resposta é bem-sucedida (status 200)
+                        if (!response.ok) {
+                            resolve();
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then((json: Song) => {
+                        // Imprime os dados JSON recebidos no console
+                        console.log('Data received:', json);
+
+                        songs.unshift(json);
+
+                        resolve();
+                    })
+                    .catch(error => {
+                        // Imprime erros de rede ou de parsing no console
+                        console.error('Error fetching data:', error);
+
+                        resolve();
+                    });
+                });
+            });
         }
     }
 

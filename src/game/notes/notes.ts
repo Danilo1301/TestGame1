@@ -101,7 +101,7 @@ export class Notes extends BaseObject
     {
         const delta = this.delta;
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = this.soundPlayer.soundDelay;
+        const timeToAchieve = 2000;
 
         const amount = distanceToMove / timeToAchieve * delta;
 
@@ -111,7 +111,7 @@ export class Notes extends BaseObject
     public getDistanceFromMs(ms: number)
     {
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = this.soundPlayer.soundDelay;
+        const timeToAchieve = 2000;
 
         const mettersPerMs = distanceToMove/timeToAchieve;
 
