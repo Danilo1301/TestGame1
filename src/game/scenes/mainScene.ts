@@ -1,6 +1,7 @@
 import { AudioManager } from "../../utils/audioManager/audioManager";
 import { Button } from "../../utils/ui/button";
 import { Options } from "../../utils/ui/options";
+import { getIsMobile } from "../constants/config";
 import { Gameface } from "../gameface/gameface";
 import { Hud } from "../hud/hud";
 
@@ -55,8 +56,11 @@ export class MainScene extends Phaser.Scene
         this.testText.setColor('#00ff00');
         this.testText.setOrigin(0);
         this.testText.setStroke('#000000', 4);
+        this.testText.setVisible(false); //visible false
 
-        const button = Hud.addButton("Fullscreen", 30, 120, 50, 50, "button");
+        const fullscreenButtonY = getIsMobile() ? 300 : 120;
+
+        const button = Hud.addButton("Fullscreen", 30, fullscreenButtonY, 50, 50, "button");
         button.onClick = () => {
             Gameface.Instance.toggleFullscreen();
         };
@@ -67,6 +71,7 @@ export class MainScene extends Phaser.Scene
     {
         this.fpsText.setText(`${this.game.loop.actualFps.toFixed(2)} FPS`);
 
+        /*
         this.testText.setText([
             'activePointer.isDown: ' + this.input.activePointer?.isDown,
             'pointer1.isDown: ' + this.input.pointer1?.isDown,
@@ -74,6 +79,7 @@ export class MainScene extends Phaser.Scene
             'pointer3.isDown: ' + this.input.pointer3?.isDown,
             'pointer4.isDown: ' + this.input.pointer4?.isDown
         ]);
+        */
     }
 
     public createPlayButton()

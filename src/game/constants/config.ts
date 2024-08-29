@@ -1,18 +1,33 @@
 import Phaser from "phaser";
+import { isMobile } from "../../utils/utils";
+
+export const gameSettings = {
+    comboAward: 20
+}
+
+export const getIsMobile = () => {
+    if(location.href.includes("#mobile")) return true;
+    return isMobile.any() != null;
+};
 
 //export const gameSize: Phaser.Math.Vector2 = new Phaser.Math.Vector2(900, 600);
-export const gameSize: Phaser.Math.Vector2 = new Phaser.Math.Vector2(1280, 720);
+export const gameSizeDesktop: Phaser.Math.Vector2 = new Phaser.Math.Vector2(1280, 720);
+export const gameSizeMobile: Phaser.Math.Vector2 = new Phaser.Math.Vector2(720, 1280);
+
+export const getGameSize = () => {
+    return getIsMobile() ? gameSizeMobile : gameSizeDesktop;
+};
 
 export const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.WEBGL,
     transparent: true,
-    width: gameSize.x,
-    height: gameSize.y,
+    width: getGameSize().x,
+    height: getGameSize().y,
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: gameSize.x,
-        height: gameSize.y
+        width: getGameSize().x,
+        height: getGameSize().y
     },
     scene: [],
     audio: {

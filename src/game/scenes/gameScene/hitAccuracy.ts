@@ -1,5 +1,6 @@
 import { BaseObject } from "../../../utils/baseObject";
 import { Graph } from "../../../utils/graph";
+import { getIsMobile } from "../../constants/config";
 import { Gameface } from "../../gameface/gameface";
 import { Hud } from "../../hud/hud";
 import { eNoteHitGood } from "../../notes/note";
@@ -37,22 +38,34 @@ export class HitAccuracy extends BaseObject
     {
         const gameSize = Gameface.Instance.getGameSize();
 
-        const text = scene.add.text(gameSize.x / 2, 100, 'HIT_ACCURACY').setFontFamily('Arial');
-        this.text = text;
-        Hud.addToHudLayer(text);
-        
+        const container = scene.add.container();
+
+        if(getIsMobile())
+        {
+            container.setPosition(gameSize.x / 2, gameSize.y / 2 + 100);
+        } else {
+            container.setPosition(gameSize.x / 2, 300);
+        }
+
+        Hud.addToHudLayer(container);
+
+        const text = scene.add.text(0, 0, 'HIT_ACCURACY').setFontFamily('Arial');
         text.setFontSize(40);
         text.setColor('#ffffff');
         text.setOrigin(0.5);
         text.setStroke('#000000', 8);
+        container.add(text);
+        this.text = text;
 
-        const comboText = scene.add.text(gameSize.x / 2, 150, 'SCORE').setFontFamily('Arial');
+        const comboText = scene.add.text(0, 50, 'SCORE').setFontFamily('Arial');
         comboText.setFontSize(40);
         comboText.setColor('#ffffff');
         comboText.setOrigin(0.5);
         comboText.setStroke('#000000', 8);
+        container.add(comboText);
         this.comboText = comboText;
-        Hud.addToHudLayer(comboText);
+
+        window.game.hitAccuracy = this;
     }
 
     public update(delta: number)

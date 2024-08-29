@@ -15,6 +15,7 @@ import { GuitarHud } from "./guitarHud";
 import { InfoText } from "./infoText";
 import { AudioManager } from "../../../utils/audioManager/audioManager";
 import { Pad } from "../../pads/pad";
+import { gameSettings, getIsMobile } from "../../constants/config";
 
 export class GameScene extends Phaser.Scene
 {
@@ -35,7 +36,7 @@ export class GameScene extends Phaser.Scene
 
     public score: number = 0;
     public combo: number = 0;
-    public money: number = 412.75;
+    public money: number = 10.00;
     public prevHitSongNote?: SongNote;
 
     public get soundPlayer() { return this._soundPlayer; }
@@ -138,14 +139,12 @@ export class GameScene extends Phaser.Scene
 
         this.ground.create();
         this.hitAccuracy.create(this);
-        this.infoText.create(this);
         this.gameProgressBar.create(this);
+        this.infoText.create(this);
 
         this.createBackground();
 
         this.createPads();
-
-        var sprite = this.add.sprite(50, 50, "note_sheet", "note_color1.png");
 
         //top right container
         const gameSize = Gameface.Instance.getGameSize();
@@ -170,13 +169,18 @@ export class GameScene extends Phaser.Scene
         x = 1;
         y = 1;
 
-        const background = this.add.image(0, 0, "background");
+        const backgroundId = 1;
+        const backgroundTextureKey = `background${backgroundId}` + (getIsMobile() ? '_mobile' : '');
+
+        const background = this.add.image(0, 0, backgroundTextureKey);
         background.setOrigin(0.5);
         background.setPosition(gameSize.x/2, gameSize.y/2);
         background.setScale(x, y);
         MainScene.Instance.layerBackground.add(background);
 
-        const shape = this.add.image(0, 0, "mask").setVisible(false);
+        const maskTextureKey = getIsMobile() ? `mask_mobile` : `mask`;
+
+        const shape = this.add.image(0, 0, maskTextureKey).setVisible(false);
         shape.setOrigin(0.5);
         shape.setPosition(gameSize.x/2, gameSize.y/2);
         shape.setScale(x, y);
@@ -233,21 +237,23 @@ export class GameScene extends Phaser.Scene
         this.soundPlayer.update(delta);
         this.ground.update();
         this.notes.update(delta);
-        this.pads.update();
+        this.pads.update(delta);
         this.hitAccuracy.update(delta);
         this.infoText.update(delta);
         this.gameProgressBar.update(delta);
         this._guitarHud.update();
 
+        /*
         const padDragging = this.pads.getPadDragging();
         if(padDragging)
         {
             const start = padDragging.startedDragAtTime;
             const time = this.soundPlayer.getCurrentSoundPosition();
 
-            console.log("start", start);
-            console.log("time", time);
+            //console.log("start", start);
+            //console.log("time", time);
         }
+        */
     }
 
     public onNoteHit(note: Note, hitType: eNoteHitGood, isEndDrag: boolean)
@@ -255,11 +261,33 @@ export class GameScene extends Phaser.Scene
         if(!Gameface.isMobile)
             AudioManager.playAudioPhaserWithVolume("osu_hitsound", 0.1);
         
-        if(GameScene.Instance.prevHitSongNote != note.songNote)
+        if(isEndDrag)
         {
-            GameScene.Instance.prevHitSongNote = note.songNote;
-            GameScene.Instance.combo++;
-            GameScene.Instance.hitAccuracy.setComboText(`${GameScene.Instance.combo}`);
+            if(hitType == eNoteHitGood.HIT_NOT_ON_TIME)
+            {
+                this.breakCombo();
+                return;
+            }
+        }
+
+            
+        if(this.prevHitSongNote != note.songNote)
+        {
+            const notesToReward = gameSettings.comboAward;
+
+            this.prevHitSongNote = note.songNote;
+            this.combo++;
+
+            const nextReward = (Math.floor(this.combo/ notesToReward) * notesToReward) + notesToReward;
+
+            GameScene.Instance.hitAccuracy.setComboText(`${GameScene.Instance.combo} / ${nextReward}`);
+
+            if(this.combo % notesToReward == 0 && this.combo != 0)
+            {
+                this.money += 10;
+
+                this.infoText.showRandomHitMessage();
+            }
         }
 
         GameScene.Instance.hitAccuracy.setHitType(hitType);
@@ -270,8 +298,12 @@ export class GameScene extends Phaser.Scene
 
     public breakCombo()
     {
+        this.money -= 1;
+
         this.combo = 0;
         GameScene.Instance.hitAccuracy.setComboText(`0`);
+
+        this.infoText.showRandomMissMessage();
     }
 
     public static saveImage()

@@ -42,8 +42,8 @@ export class SongSelectionScene extends Phaser.Scene
         };
 
         const multiplayerOptions = new Options(this, 300);
-        multiplayerOptions.addOption("Multiplayer", 1);
         multiplayerOptions.addOption("Single-player", 0);
+        multiplayerOptions.addOption("Multiplayer", 1);
         multiplayerOptions.container.setPosition(800, 50);
         this.multiplayerOptions = multiplayerOptions;
 

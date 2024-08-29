@@ -10,13 +10,13 @@ import { AudioManager } from "../../utils/audioManager/audioManager";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { PreloadScene } from "../scenes/preloadScene";
-import { isMobile } from "../../utils/utils";
+import { getIsMobile } from "../constants/config";
 
 export class Gameface extends BaseObject
 {
     public static Instance: Gameface;
     public static isLowPerformance: boolean = true;
-    public static isMobile: boolean = false;
+    public static isMobile: boolean = getIsMobile();
 
     public get phaser() { return this._phaser!; }
     public get sceneManager() { return this._sceneManager; }
@@ -40,11 +40,11 @@ export class Gameface extends BaseObject
     {
         this.log("start");
 
+        if(Gameface.isMobile) this.log("Is mobile");
+
         this._phaser = await PhaserLoad.loadAsync();
 
         this.log(this.phaser);
-
-        if(isMobile.any()) Gameface.isMobile = true;
 
         await this.waitForPreloadScene();
 
@@ -60,7 +60,7 @@ export class Gameface extends BaseObject
         
         await this.fuckingWaitForFirstClick();
 
-        //this.enterFullscreen();
+        if(getIsMobile()) this.enterFullscreen();
 
         const openEditor = false;
 
@@ -97,8 +97,8 @@ export class Gameface extends BaseObject
         if (elem.requestFullscreen) {
             elem.requestFullscreen();
 
-            const orientation: any = window.screen.orientation;
-            orientation.lock("landscape");
+            //const orientation: any = window.screen.orientation;
+            //orientation.lock("landscape");
         }
     }
 

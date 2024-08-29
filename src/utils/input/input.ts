@@ -97,7 +97,7 @@ export class Input extends BaseObject
 
     private onPointerDown(pointer: PointerEvent)
     {
-        console.log("Pointer down", pointer);
+        //console.log("Pointer down", pointer);
 
         const activePointers = this.getActivePointers();
         for(const pointerId of activePointers)
@@ -125,7 +125,7 @@ export class Input extends BaseObject
 
     private onPointerUp(pointer: PointerEvent)
     {
-        console.log("Pointer up", pointer);
+        //console.log("Pointer up", pointer);
         
         const activePointers = this.getActivePointers();
         for(const pointerId of this._pointersDown)

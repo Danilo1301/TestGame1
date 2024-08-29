@@ -8,6 +8,7 @@ import { eNoteHitGood, Note } from "../notes/note";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
+import { PadHitText } from "./padHitText";
 
 export class Pad extends BaseObject
 {
@@ -17,6 +18,8 @@ export class Pad extends BaseObject
 
     public object: Phaser3DObject;
     public position: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+
+    public padHitText: PadHitText;
 
     public draggingNote?: Note;
     public startedDragAtTime: number = 0;
@@ -49,6 +52,9 @@ export class Pad extends BaseObject
         this.spriteColor = scene.add.sprite(0, 0, 'pad_sheet', 'pad_color2.png');    
         this.spriteColor.setScale(2.2);
         this.container.add(this.spriteColor);
+
+        this.padHitText = new PadHitText(scene);
+        this.container.add(this.padHitText.container);
 
         const pad = this;
         
@@ -120,6 +126,8 @@ export class Pad extends BaseObject
 
     public hitNote(note: Note)
     {
+        this.padHitText.show();
+
         note.setAsHitted();
         
         if(note.songNote.dragTime > 0)
@@ -214,15 +222,19 @@ export class Pad extends BaseObject
         });
     }
 
-    public update()
+    public update(delta: number)
     {
+        this.padHitText.update(delta);
+
         const active = this._active;
 
+        // set position
         const screenPosition = ThreeScene.projectToScreen(this.object.object.position);
         this.position.set(screenPosition.x, screenPosition.y);
 
         this.container.setPosition(this.position.x, this.position.y);
 
+        //set colors
         if(this.spriteColor)
         {
             this.spriteColor.tint = active ? this.color : 0x777777;

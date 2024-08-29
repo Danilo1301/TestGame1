@@ -5,6 +5,7 @@ import { Gameface } from '../../game/gameface/gameface';
 import { Phaser3DObject } from './phaser3dObject';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { getIsMobile } from '../../game/constants/config';
 
 export class ThreeScene extends Scene3D
 {
@@ -34,8 +35,9 @@ export class ThreeScene extends Scene3D
         camera.fov = 60;
         
         const topView = false;
+        const isMobile = getIsMobile();
         if(topView)
-        {
+            {
             camera.position.set(0, 10, 6);
             camera.lookAt(0, 0, 6);
         } else {
@@ -45,9 +47,18 @@ export class ThreeScene extends Scene3D
             //camera.lookAt(0, 0, 2.5);
             //camera.updateProjectionMatrix();
 
-            camera.position.set(0, 2, 7.5);
-            camera.lookAt(0, 0, 3.5);
-            camera.updateProjectionMatrix();
+            if(isMobile)
+            {
+                camera.fov = 60;
+                camera.position.set(0, 3.5, 8.5);
+                camera.lookAt(0, 0, 1.5);
+                camera.updateProjectionMatrix();
+            } else {
+                camera.fov = 60;
+                camera.position.set(0, 2, 7.5);
+                camera.lookAt(0, 0, 3.5);
+                camera.updateProjectionMatrix();
+            }
         }
 
      

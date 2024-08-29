@@ -7,6 +7,8 @@ import { eNoteHitGood, Note } from "./note";
 
 export class Notes extends BaseObject
 {
+    public static noteTimeToAchieve = 1000;
+
     public delta: number = 0;
 
     public get notes() { return this._notes; };
@@ -101,7 +103,7 @@ export class Notes extends BaseObject
     {
         const delta = this.delta;
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = 2000;
+        const timeToAchieve = Notes.noteTimeToAchieve;
 
         const amount = distanceToMove / timeToAchieve * delta;
 
@@ -111,7 +113,7 @@ export class Notes extends BaseObject
     public getDistanceFromMs(ms: number)
     {
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = 2000;
+        const timeToAchieve = Notes.noteTimeToAchieve;
 
         const mettersPerMs = distanceToMove/timeToAchieve;
 

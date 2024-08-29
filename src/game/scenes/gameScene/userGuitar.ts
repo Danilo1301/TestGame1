@@ -106,20 +106,16 @@ export class UserGuitar extends BaseObject
         y += 30;
 
         //money
-        const money = scene.add.text(0, 0, 'R$ 245,12').setFontFamily('Arial');
-        money.setFontSize(28);
+        const money = scene.add.text(0, 0, 'R$ 0,00').setFontFamily('Arial');
+        money.setFontSize(40);
         money.setColor('#00FF00');
-        money.setOrigin(0.5);
+        money.setOrigin(1, 0.5);
         money.setStroke('#000000', 4);
-        money.setPosition(-180, y);
+        money.setPosition(70, 110);
         container.add(money);
         this.moneyText = money;
 
-        (window as any)["progressBar"] = progressBar;
-        (window as any)["accuracy"] = accuracy;
-        (window as any)["combo"] = combo;
-        (window as any)["money"] = money;
-        (window as any)["nameText"] = name;
+        window.game.money = money;
     }
 
     public update()

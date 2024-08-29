@@ -1,5 +1,6 @@
 import { BaseObject } from "../../../utils/baseObject";
 import { Graph } from "../../../utils/graph";
+import { getIsMobile } from "../../constants/config";
 import { Gameface } from "../../gameface/gameface";
 import { Hud } from "../../hud/hud";
 import { eNoteHitGood } from "../../notes/note";
@@ -22,7 +23,14 @@ export class GameProgressBar extends BaseObject
         const gameSize = Gameface.Instance.getGameSize();
 
         const container = scene.add.container(0, 0);
-        container.setPosition(150, gameSize.y - 250);
+
+        if(getIsMobile())
+        {
+            container.setPosition(110, 150)
+        } else {
+            container.setPosition(150, gameSize.y - 250);
+        }
+
         Hud.addToHudLayer(container);
 
         const bg = scene.add.image(0, 0, "progress_bg");

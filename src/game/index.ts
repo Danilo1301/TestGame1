@@ -17,6 +17,8 @@ async function main()
 
 window.addEventListener('load', () => main());
 
+window.game = {};
+
 const w: any = window;
 w["gameface"] = gameface;
 w["Debug"] = Debug;

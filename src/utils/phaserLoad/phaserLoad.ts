@@ -1,4 +1,4 @@
-//import * as NineSlicePlugin from 'phaser3-nineslice'
+import * as NineSlicePlugin from 'phaser3-nineslice'
 import { Debug } from "../debug/debug";
 import { config } from "../../game/constants/config";
 import { enable3d } from "@enable3d/phaser-extension";
@@ -37,7 +37,7 @@ export class PhaserLoad {
             const cfg = config;
             cfg.plugins = {
                 global: [
-                    //NineSlicePlugin.Plugin.DefaultCfg
+                    NineSlicePlugin.Plugin.DefaultCfg
                 ]
             }
 

@@ -41,11 +41,11 @@ export class Pads extends BaseObject
         return pad;
     }
 
-    public update()
+    public update(delta: number)
     {
         for(const pad of this._pads)
         {
-            pad.update();
+            pad.update(delta);
         }
     }
 
