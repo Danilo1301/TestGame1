@@ -129,7 +129,7 @@ export class Notes extends BaseObject
 
         const goodDistance = distanceFromMs / 2;
 
-        console.log(`check if ${distance.toFixed(2)} <= ${goodDistance.toFixed(2)}`)
+        //console.log(`check if ${distance.toFixed(2)} <= ${goodDistance.toFixed(2)}`)
 
         if(distance <= goodDistance) return true;
 

@@ -16,7 +16,19 @@ export const imageAssets: AssetItem[] = [
     {key: "guitar_slot", path: "guitar_slot.png"},
     {key: "guitar_icon1", path: "guitar_icon1.png"},
     {key: "button", path: "button.png"},
-    {key: "grey_panel2", path: "uipack/grey_panel2.png"}
+    {key: "grey_panel2", path: "uipack/grey_panel2.png"},
+    {key: "hud/bg1", path: "hud/bg1.png"},
+    {key: "hud/bg2", path: "hud/bg2.png"},
+    {key: "hud/money", path: "hud/money.png"},
+    {key: "guitars/guitar1", path: "guitars/guitar1.png"},
+
+    {key: "progress_bar", path: "progress_bar.png"},
+    {key: "progress_bar2", path: "progress_bar2.png"},
+    {key: "progress_bar_mask", path: "progress_bar_mask.png"},
+    {key: "progress_bar_bg", path: "progress_bar_bg.png"},
+    {key: "progress_bar_bg2", path: "progress_bar_bg2.png"},
+
+    {key: "song1_image", path: "songs/song1.png"} //test
 ];
 
 export const audioAssets: AssetItem[] = [

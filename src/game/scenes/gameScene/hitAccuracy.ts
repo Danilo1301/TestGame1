@@ -107,8 +107,6 @@ export class HitAccuracy extends BaseObject
     {
         const hexString = color.toString(16);
 
-        console.log(hexString);
-
         this.text.setColor(`#${hexString}`);
     }
 

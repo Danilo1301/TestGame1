@@ -36,8 +36,9 @@ export const isMobile = {
     }
 };
 
-export function msToTime(duration: number) {
-    var milliseconds = Math.floor((duration % 1000) / 100);
+export function msToTime(duration: number)
+{
+    //var milliseconds = Math.floor((duration % 1000) / 100);
 
     var seconds = Math.floor((duration / 1000) % 60);
     var minutes = Math.floor((duration / (1000 * 60)) % 60);
@@ -49,5 +50,32 @@ export function msToTime(duration: number) {
   
     //return hoursStr + ":" + minutesStr + ":" + secondsStr + "." + milliseconds;
     return hoursStr + ":" + minutesStr + ":" + secondsStr;
-  }
-  console.log(msToTime(300000))
+}
+
+export function msToMinutes(duration: number)
+{
+    var seconds = Math.floor((duration / 1000) % 60);
+    var minutes = Math.floor((duration / (1000 * 60)) % 60);
+  
+    var minutesStr = (minutes < 10) ? "0" + minutes : minutes;
+    var secondsStr = (seconds < 10) ? "0" + seconds : seconds;
+  
+    //return hoursStr + ":" + minutesStr + ":" + secondsStr + "." + milliseconds;
+    return minutesStr + ":" + secondsStr;
+}
+  
+
+/**
+ * Returns a number whose value is limited to the given range.
+ *
+ * Example: limit the output of this computation to between 0 and 255
+ * (x * 255).clamp(0, 255)
+ *
+ * @param {Number} min The lower boundary of the output range
+ * @param {Number} max The upper boundary of the output range
+ * @returns A number in the range [min, max]
+ * @type Number
+ */
+export function clamp(number: number, min: number, max: number) {
+    return Math.min(Math.max(number, min), max);
+};

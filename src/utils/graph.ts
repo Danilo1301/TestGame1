@@ -110,4 +110,9 @@ export class Graph {
         }
         return time;
     }
+
+    public setTimeToEnd()
+    {
+        this.currentTime = this.getTotalTime();
+    }
 }

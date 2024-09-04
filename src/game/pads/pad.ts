@@ -69,7 +69,7 @@ export class Pad extends BaseObject
 
             if(distance < 70)
             {
-                console.log(distance)
+                //console.log(distance)
                 this.pointerIdPressingThisPad = pointerId;
                 this.activatePad();
             }
@@ -91,7 +91,7 @@ export class Pad extends BaseObject
 
         const note = GameScene.Instance.notes.getClosestNoteForPad(this.getIndex());
         
-        console.log(note);
+        //console.log(note);
         
         if(note)
         {

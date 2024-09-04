@@ -1,7 +1,7 @@
 import { AudioManager } from "../../utils/audioManager/audioManager";
 import { Button } from "../../utils/ui/button";
 import { Options } from "../../utils/ui/options";
-import { getIsMobile } from "../constants/config";
+import { gameSettings, getIsMobile } from "../constants/config";
 import { Gameface } from "../gameface/gameface";
 import { Hud } from "../hud/hud";
 
@@ -50,6 +50,7 @@ export class MainScene extends Phaser.Scene
         this.fpsText.setOrigin(0);
         this.fpsText.setStroke('#000000', 4);
         this.layerHud.add(this.fpsText);
+        this.fpsText.setVisible(gameSettings.showFPS);
 
         this.testText = this.add.text(5, 30, 'TEST').setFontFamily('Arial');
         this.testText.setFontSize(20);
@@ -69,7 +70,8 @@ export class MainScene extends Phaser.Scene
 
     public update(time: number, delta: number)
     {
-        this.fpsText.setText(`${this.game.loop.actualFps.toFixed(2)} FPS`);
+        if(gameSettings.showFPS)
+            this.fpsText.setText(`${this.game.loop.actualFps.toFixed(2)} FPS`);
 
         /*
         this.testText.setText([

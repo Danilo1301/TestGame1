@@ -6,6 +6,10 @@ import { Hud } from "../../hud/hud";
 import { eNoteHitGood } from "../../notes/note";
 import { GameScene } from "./gameScene";
 
+/*
+* it's not beeing used
+*/
+
 export class GameProgressBar extends BaseObject
 {
     public container!: Phaser.GameObjects.Container;

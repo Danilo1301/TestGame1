@@ -2,6 +2,11 @@ import { ExtendedObject3D } from "@enable3d/phaser-extension";
 import { BaseObject } from "../../../utils/baseObject";
 import { ProgressBar } from "../../../utils/ui/progressBar";
 import { GameScene } from "./gameScene";
+import { MoneyText } from "./moneyText";
+
+/*
+this is not beeing used anymore
+*/
 
 export interface UserGuitarData {
     name: string
@@ -29,7 +34,7 @@ export class UserGuitar extends BaseObject
     public nameText: Phaser.GameObjects.Text;
     public comboText: Phaser.GameObjects.Text;
     public accuracyText: Phaser.GameObjects.Text;
-    public moneyText: Phaser.GameObjects.Text;
+    public moneyText: MoneyText;
 
     constructor(scene: Phaser.Scene)
     {
@@ -106,19 +111,15 @@ export class UserGuitar extends BaseObject
         y += 30;
 
         //money
-        const money = scene.add.text(0, 0, 'R$ 0,00').setFontFamily('Arial');
-        money.setFontSize(40);
-        money.setColor('#00FF00');
-        money.setOrigin(1, 0.5);
-        money.setStroke('#000000', 4);
-        money.setPosition(70, 110);
-        container.add(money);
-        this.moneyText = money;
+        const moneyText = new MoneyText(scene);
+        moneyText.container.setPosition(70, 110);
+        container.add(moneyText.container);
+        this.moneyText = moneyText;
 
-        window.game.money = money;
+        window.game.moneyText = moneyText;
     }
 
-    public update()
+    public update(delta: number)
     {
         this.nameText.setText(this.data.name);
 
@@ -145,6 +146,7 @@ export class UserGuitar extends BaseObject
 
         //
 
-        this.moneyText.setVisible(this.showMoney);
+        this.moneyText.update(delta);
+        this.moneyText.container.setVisible(this.showMoney);
     }
 }
