@@ -19,6 +19,7 @@ export const imageAssets: AssetItem[] = [
     {key: "grey_panel2", path: "uipack/grey_panel2.png"},
     {key: "hud/bg1", path: "hud/bg1.png"},
     {key: "hud/bg2", path: "hud/bg2.png"},
+    {key: "hud/bg3", path: "hud/bg3.png"},
     {key: "hud/money", path: "hud/money.png"},
     {key: "guitars/guitar1", path: "guitars/guitar1.png"},
 

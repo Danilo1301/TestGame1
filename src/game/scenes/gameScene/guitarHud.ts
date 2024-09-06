@@ -15,6 +15,8 @@ export class GuitarHud extends BaseObject
 {
     public moneyText!: MoneyText;
     public songDurationText!: Phaser.GameObjects.Text;
+    public accuracyText!: Phaser.GameObjects.Text;
+    public scoreText!: Phaser.GameObjects.Text;
 
     public songProgressBar!: MaskProgressBar;
     public accProgressBar!: MaskProgressBar;
@@ -111,25 +113,67 @@ export class GuitarHud extends BaseObject
         //acc
 
         const accPosition = new Phaser.Math.Vector2(
-            50,
+            35,
             gameSize.y/2
         );
         let accSize = gameSize.y - 100;
         if(getIsMobile())
         {
-            accPosition.set(50, gameSize.y/2 - 250);
+            accPosition.set(35, gameSize.y/2 - 250);
             accSize -= 450;
         }
 
-        const accBg = scene.add.image(accPosition.x, accPosition.y, "progress_bar_bg");
-        accBg.setAngle(-90);
-        accBg.setDisplaySize(accSize + 4, 30 + 4);
-        Hud.addToHudLayer(accBg);
+        const accBarBg = scene.add.image(accPosition.x, accPosition.y, "progress_bar_bg");
+        accBarBg.setAngle(-90);
+        accBarBg.setDisplaySize(accSize + 4, 30 + 4);
+        Hud.addToHudLayer(accBarBg);
         
         const accProgressBar = new MaskProgressBar(scene, accSize, 30, "progress_bar", true);
         accProgressBar.container.setPosition(accPosition.x, accPosition.y);
         Hud.addToHudLayer(accProgressBar.container);
         this.accProgressBar = accProgressBar;
+
+        //
+
+        const accContainerPosition = new Phaser.Math.Vector2(
+            accPosition.x + 20,
+            accPosition.y + accSize/2 - 100
+        );
+
+        if(getIsMobile())
+        {
+            accContainerPosition.y = 50;
+        }
+
+        const accContainer = scene.add.container();
+        accContainer.setPosition(accContainerPosition.x, accContainerPosition.y);
+        Hud.addToHudLayer(accContainer);
+
+        const accBg = scene.add.image(0, 0, "hud/bg3");
+        accBg.setOrigin(0, 0.5);
+        accBg.setScale(0.7);
+        accContainer.add(accBg);
+
+        const accAcertos = scene.add.text(0, 10, '97% de Acertos');
+        accAcertos.setFontFamily('Arial');
+        accAcertos.setFontStyle("bold");
+        accAcertos.setFontSize(25);
+        accAcertos.setColor("#ffffff");
+        accAcertos.setOrigin(0, 0.5);
+        accAcertos.setStroke('#000000', 4);
+        accContainer.add(accAcertos);
+        this.accuracyText = accAcertos;
+        //this.songDurationText = accAcertos;
+
+        const accPontos = scene.add.text(0, 35, 'Pontos: 124524');
+        accPontos.setFontFamily('Arial');
+        accPontos.setFontStyle("bold");
+        accPontos.setFontSize(16);
+        accPontos.setColor("#ffffff");
+        accPontos.setOrigin(0, 0.5);
+        accPontos.setStroke('#000000', 4);
+        accContainer.add(accPontos);
+        this.scoreText = accPontos;
 
         //
 
@@ -191,8 +235,20 @@ export class GuitarHud extends BaseObject
 
         // --------
 
-     
         this.songDurationText.setText(msToMinutes(time) + " / " + msToMinutes(maxTime));
+
+        // --------
+
+        let accRatio = hittedNotes / totalNotes;
+        if(Number.isNaN(accRatio)) accRatio = 1;
+
+        this.accuracyText.setText(`Acertos: ${(accRatio*100).toFixed(0)}%`);
+
+        // --------
+
+        const score = GameScene.Instance.score;
+
+        this.scoreText.setText(`Pontos: ${score}`);
     }
 
     /*
