@@ -81,6 +81,7 @@ export class NoteData {
 
 export class PadData {
     public index: number;
+    public draggingNote?: NoteData;
 
     constructor(index: number)
     {
@@ -90,7 +91,10 @@ export class PadData {
 
 export enum eGameLogicEvents {
     EVENT_NOTE_HIT = "EVENT_NOTE_HIT",
-    EVENT_BREAK_COMBO = "EVENT_BREAK_COMBO"
+    EVENT_BREAK_COMBO = "EVENT_BREAK_COMBO",
+    EVENT_COMBO_REWARD = "EVENT_COMBO_REWARD",
+    EVENT_PAD_BEGIN_DRAG = "EVENT_PAD_BEGIN_DRAG",
+    EVENT_PAD_END_DRAG = "EVENT_PAD_END_DRAG"
 }
 
 const scoreMap = new Map<eNoteHitGood, number>([
@@ -166,15 +170,12 @@ export class GameLogic extends BaseObject {
 
     }
 
-    public processPadDown(padIndex: number, songTime: number)
+    public processPadDown(padIndex: number)
     {
-        this.songTime = songTime;
-
         this.log("pad down", padIndex);
 
         const note = this.getClosestNoteForPad(padIndex);
-        console.log(note);
-
+   
         if(note)
         {
             if(!note.hitted)
@@ -183,27 +184,30 @@ export class GameLogic extends BaseObject {
                 const noteTime = note.songNote.time;
                 const distanceInMs = noteTime - time;
 
-                const hitType = this.getHowGoodNoteIs(distanceInMs);
-
-                console.log(hitType)
-
-                if(hitType != undefined)
+                if(distanceInMs < 500)
                 {
-                    const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
-        
-                    if(countAsHit)
+                    const hitType = this.getHowGoodNoteIs(distanceInMs);
+
+                    console.log(hitType, note);
+
+                    if(hitType != undefined)
                     {
-                        this.log("note hit");
-
-                        this.onNoteHit(note, hitType);
+                        const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
             
-                    } else {
-                        //this.events.emit(eGameLogicEvents.EVENT_NOTE_BREAK_COMBO, note, hitType);
+                        if(countAsHit)
+                        {
+                            this.onNoteHit(note, hitType, false);
+                
+                        } else {
+                            
+                            this.breakCombo();
+                                //this.events.emit(eGameLogicEvents.EVENT_NOTE_BREAK_COMBO, note, hitType);
+                                //GameScene.Instance.breakCombo();
+                            
+                        }
 
-                        //GameScene.Instance.breakCombo();
+                        return {hitType: hitType, note: note};
                     }
-
-                    return {hitType: hitType, note: note};
                 }
             }
         }
@@ -211,15 +215,55 @@ export class GameLogic extends BaseObject {
         return undefined;
     }
 
+    public processPadUp(padIndex: number)
+    {
+        const pad = this.pads[padIndex];
+
+        if(!pad.draggingNote) return;
+
+        const note = pad.draggingNote;
+        
+        const time = this.songTime;
+
+        const end = note.songNote.time + note.songNote.dragTime;
+
+        console.log(`start: ${note.songNote.time}`);
+        console.log(`end: ${note.songNote.time + note.songNote.dragTime}`);
+        console.log(`current: ${time}`);
+
+        const distanceInMs = end - time;
+        console.log(`distance: (${distanceInMs}ms)`);
+
+        const hitType = this.getHowGoodNoteIs(distanceInMs);
+        //const distance = GameScene.Instance.notes.getDistanceFromMs(distanceInMs);
+
+        //const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
+
+        pad.draggingNote = undefined;
+
+        this.events.emit(eGameLogicEvents.EVENT_PAD_END_DRAG, note.padIndex);
+
+        this.onNoteHit(note, hitType, true);
+    }
+
     private _prevHitSongNote?: NoteData;
 
-    private onNoteHit(note: NoteData, hitType: eNoteHitGood)
+    private onNoteHit(note: NoteData, hitType: eNoteHitGood, isEndDrag: boolean)
     {
-        this.log("on note hit")
+        this.log("onNoteHit")
+
+        if(isEndDrag)
+        {
+            if(hitType == eNoteHitGood.HIT_NOT_ON_TIME)
+            {
+                this.breakCombo();
+                return;
+            }
+        }
 
         note.hitted = true;
 
-        if(this._prevHitSongNote != note)
+        if(this._prevHitSongNote?.songNote != note.songNote)
         {
             this._prevHitSongNote = note;
             this.combo++;
@@ -242,7 +286,7 @@ export class GameLogic extends BaseObject {
                 this.money += this.accumulatedMoney;
                 this.accumulatedMoney = 0;
 
-                //this.infoText.showRandomHitMessage();
+                this.events.emit(eGameLogicEvents.EVENT_COMBO_REWARD, note, hitType);
             }
         }
 
@@ -250,12 +294,26 @@ export class GameLogic extends BaseObject {
         if(addScore) this.score += addScore;
 
         this.events.emit(eGameLogicEvents.EVENT_NOTE_HIT, note, hitType);
+
+        if(note.songNote.dragTime > 0)
+        {
+            const pad = this.pads[note.padIndex];
+            pad.draggingNote = note;
+
+            this.events.emit(eGameLogicEvents.EVENT_PAD_BEGIN_DRAG, note.padIndex, note);
+
+            //this.startDrag(note);
+        }
     }
 
     public breakCombo()
     {
+        this.log("breakCombo")
+
         this.events.emit(eGameLogicEvents.EVENT_BREAK_COMBO);
         this.combo = 0;
+        this.accumulatedMoney = 0;
+        this.money -= 1;
     }
 
     public getHowGoodNoteIs(ms: number)
@@ -284,7 +342,7 @@ export class GameLogic extends BaseObject {
         let closestDistance = Infinity;
         let closestNote: NoteData | undefined = undefined;
 
-        const pad = this.pads[padIndex];
+        //const pad = this.pads[padIndex];
 
         for(const note of this.notes)
         {

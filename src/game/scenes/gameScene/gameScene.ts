@@ -91,6 +91,38 @@ export class GameScene extends Phaser.Scene
         this.events.on("pad_begin_drag", () => {
             
         });
+
+        const gameLogic = Gameface.Instance.gameLogic;
+        gameLogic.events.on(eGameLogicEvents.EVENT_NOTE_HIT, (noteData: NoteData, hitType: eNoteHitGood) => {
+
+            const note = this.notes.getNoteByNoteData(noteData);
+
+            if(!note)
+            {
+                throw "GameScene: note not found wtf";
+            }
+
+            this.onNoteHit(note, hitType);
+        })
+
+        gameLogic.events.on(eGameLogicEvents.EVENT_BREAK_COMBO, () => {
+            this.breakCombo();
+        })
+
+        gameLogic.events.on(eGameLogicEvents.EVENT_COMBO_REWARD, () => {
+            this.infoText.showRandomHitMessage();
+        })
+
+        gameLogic.events.on(eGameLogicEvents.EVENT_PAD_BEGIN_DRAG, (padIndex: number, noteData: NoteData) => {
+            const pad = this.pads.getPad(padIndex)!;
+            const note = this.notes.getNoteByNoteData(noteData);
+            pad.startDrag(note);
+        })
+
+        gameLogic.events.on(eGameLogicEvents.EVENT_PAD_END_DRAG, (padIndex: number) => {
+            const pad = this.pads.getPad(padIndex)!;
+            pad.stopDrag();
+        })
     }
 
     public setupAnims()
@@ -153,25 +185,6 @@ export class GameScene extends Phaser.Scene
 
         this.hitAccuracy.create(this);
         this.infoText.create(this);
-
-        const gameLogic = Gameface.Instance.gameLogic;
-        gameLogic.events.on(eGameLogicEvents.EVENT_NOTE_HIT, (noteData: NoteData, hitType: eNoteHitGood) => {
-
-            const note = this.notes.getNoteByNoteData(noteData);
-
-            if(!note)
-            {
-                throw "GameScene: note not found wtf";
-            }
-
-            this.onNoteHit(note, hitType, false);
-        })
-
-        //GameScene.Instance.onNoteHit(note, hitType, false);
-                        
-                        //if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
-                        
-                        //this.hitNote(note);
     }
 
     private createBackground()
@@ -212,17 +225,21 @@ export class GameScene extends Phaser.Scene
     {
         //add pads
         const distance = 0.5;
-        const numOfPads = 5;
 
-        for(let i = 0; i < numOfPads; i++)
+        const numOfPads = Gameface.Instance.gameLogic.pads.length;
+
+        let i = 0;
+        for(const padData of Gameface.Instance.gameLogic.pads)
         {
             const totalDistance = (numOfPads-1) * distance;
             const x = i * distance - totalDistance/2;
             const z = this.ground.plankSize / 2;
 
-            const pad = this.pads.addPad(x, this.pads.padHeight, z);
+            const pad = this.pads.addPad(x, this.pads.padHeight, z, padData);
             pad.setKey(this.padKeys[i]);
             pad.color = this.padColors[i];
+
+            i++;
         }
     }
 
@@ -277,22 +294,11 @@ export class GameScene extends Phaser.Scene
         this._guitarHud.update(delta);
     }
 
-    public onNoteHit(note: Note, hitType: eNoteHitGood, isEndDrag: boolean)
+    public onNoteHit(note: Note, hitType: eNoteHitGood)
     {
         if(gameSettings.playHitSound)
             AudioManager.playAudioPhaserWithVolume("osu_hitsound", 0.1);
         
-        console.log("isEndDrag: ", isEndDrag)
-
-        if(isEndDrag)
-        {
-            if(hitType == eNoteHitGood.HIT_NOT_ON_TIME)
-            {
-                this.breakCombo();
-                return;
-            }
-        }
-
         GameScene.Instance.hitAccuracy.setHitType(hitType);
 
         const notesToReward = gameSettings.comboAward;
@@ -303,13 +309,9 @@ export class GameScene extends Phaser.Scene
 
     public breakCombo()
     {
-        console.log("whos calling me")
-
-        //this.combo = 0;
+        GameScene.Instance.hitAccuracy.visibleTime = 0;
         GameScene.Instance.hitAccuracy.setComboText(`0`);
 
-        //this.accumulatedMoney = 0;
-        //this.money -= 1;
         this.infoText.showRandomMissMessage();
         this.guitarHud.moneyText.shake();
     }

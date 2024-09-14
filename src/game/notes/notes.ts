@@ -83,7 +83,7 @@ export class Notes extends BaseObject
     {
         for(const note of this.notes)
         {
-            if(note.noteData == note.noteData) return note;
+            if(note.noteData == noteData) return note;
         }
         throw `Notes: Could not find note by note data`;
     }

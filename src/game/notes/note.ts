@@ -68,9 +68,7 @@ export class Note extends BaseObject
                 {
                     this.noteData.missed = true;
 
-                    console.error("breaking cmbo?")
-
-                    GameScene.Instance.breakCombo();
+                    Gameface.Instance.gameLogic.breakCombo();
                 }
             }
         }

@@ -4,7 +4,7 @@ import { Input } from "../../utils/input/input";
 import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
-import { eNoteHitGood } from "../gameface/gameLogic";
+import { eNoteHitGood, PadData } from "../gameface/gameLogic";
 import { Note } from "../notes/note";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
@@ -13,6 +13,8 @@ import { PadHitText } from "./padHitText";
 
 export class Pad extends BaseObject
 {
+    public padData: PadData;
+
     public container!: Phaser.GameObjects.Container;
     public sprite?: Phaser.GameObjects.Sprite;
     public spriteColor?: Phaser.GameObjects.Sprite;
@@ -33,9 +35,11 @@ export class Pad extends BaseObject
 
     public pointerIdPressingThisPad: number = 0;
 
-    constructor(object: Phaser3DObject)
+    constructor(padData: PadData, object: Phaser3DObject)
     {
         super();
+
+        this.padData = padData;
 
         this.object = object;
         //this.object.debugText.createDebugText();
@@ -91,35 +95,36 @@ export class Pad extends BaseObject
         this.spriteColor?.anims.play('pad_color_raise');    
 
         const index = this.getIndex();
-        const songTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
 
-        const padDownData = Gameface.Instance.gameLogic.processPadDown(index, songTime);
+        const padDownData = Gameface.Instance.gameLogic.processPadDown(index);
 
         console.log(padDownData)
 
         if(padDownData != undefined)
         {
+            console.warn("data", padDownData)
+
             const hitType = padDownData.hitType;
-        const noteData = padDownData.note;
+            const noteData = padDownData.note;
 
             const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
     
-                    if(countAsHit)
-                    {
-                        //GameScene.Instance.onNoteHit(note, hitType, false);
-                        
-                        if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
-                        
-                        const note = GameScene.Instance.notes.getNoteByNoteData(noteData);
+            if(countAsHit)
+            {
+                console.warn("cout as hit")
 
-                        this.hitNote(note);
-    
-                    } else {
-                        //GameScene.Instance.breakCombo();
-                    }
+                //GameScene.Instance.onNoteHit(note, hitType, false);
+                
+                if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
+                
+                const note = GameScene.Instance.notes.getNoteByNoteData(noteData);
 
+                console.warn("hit")
+
+                this.hitNote(note);
+
+            }
         }
-
 
         GameScene.Instance.events.emit("pad_down", this);
     }
@@ -128,14 +133,22 @@ export class Pad extends BaseObject
     {
         this.padHitText.show();
         
+        console.warn(`${Gameface.Instance.gameLogic.songTime} ${note.songNote.time}`)
+
+        console.warn("drag time", note.songNote.dragTime)
+        console.warn("full time", note.songNote)
+
         if(note.songNote.dragTime > 0)
         {
-            this.startDrag(note);
+            //moved to gamelogic
+            //this.startDrag(note);
         }
     }
 
     public startDrag(note: Note)
     {
+        console.warn("start drag")
+
         note.startBeeingDragged(this);
 
         this.draggingNote = note;
@@ -150,26 +163,6 @@ export class Pad extends BaseObject
         const note = this.draggingNote;
 
         if(!note) return;
-        
-        /*
-        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-
-        const end = note.songNote.time + note.songNote.dragTime;
-
-        console.log(`start: ${note.songNote.time}`);
-        console.log(`end: ${note.songNote.time + note.songNote.dragTime}`);
-        console.log(`current: ${time}`);
-
-        const distanceInMs = Math.abs(end - time);
-        //const distance = GameScene.Instance.notes.getDistanceFromMs(distanceInMs);
-
-        console.log(`distance: (${distanceInMs}ms)`);
-
-        const hitType = GameScene.Instance.notes.getHowGoodNoteIs(distanceInMs);
-        //const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
-
-    
-        */
 
         note.stopBeeingDragged();
         
@@ -178,7 +171,7 @@ export class Pad extends BaseObject
         
         //GameScene.Instance.onNoteHit(note, hitType, true);
 
-        GameScene.Instance.events.emit("pad_end_drag", this, note);
+        //GameScene.Instance.events.emit("pad_end_drag", this, note);
     }
 
     public deactivatePad()
@@ -188,6 +181,8 @@ export class Pad extends BaseObject
         this._active = false;
 
         this.spriteColor?.anims.playReverse('pad_color_raise');
+
+        Gameface.Instance.gameLogic.processPadUp(this.getIndex());
 
         this.stopDrag();
     }

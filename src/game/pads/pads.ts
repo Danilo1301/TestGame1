@@ -1,5 +1,6 @@
 import { BaseObject } from "../../utils/baseObject";
 import { ThreeScene } from "../../utils/three/threeScene";
+import { PadData } from "../gameface/gameLogic";
 import { Pad } from "./pad";
 
 
@@ -13,7 +14,7 @@ export class Pads extends BaseObject
 
     private _pads: Pad[] = [];
     
-    public addPad(x: number, y: number, z: number)
+    public addPad(x: number, y: number, z: number, padData: PadData)
     {
         const scene = ThreeScene.Instance;
 
@@ -22,7 +23,7 @@ export class Pads extends BaseObject
         object.name = "Pad " + this._pads.length;
         box.position.set(x, y, z);
 
-        const pad = new Pad(object);
+        const pad = new Pad(padData, object);
         this._pads.push(pad);
 
         return pad;

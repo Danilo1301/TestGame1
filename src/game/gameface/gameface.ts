@@ -51,6 +51,8 @@ export class Gameface extends BaseObject
         this._network = new Network();
         this._gameLogic = new GameLogic();
         this._songManager = new SongManager();
+
+        this._gameLogic.createPads();
     }
 
     public async start()
