@@ -1,6 +1,7 @@
 import { BaseObject } from "../../utils/baseObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { randomIntFromInterval } from "../../utils/utils";
+import { gameSettings } from "../constants/gameSettings";
 import { SongNote } from "../constants/songs";
 import { NoteData } from "../gameface/gameLogic";
 import { GameScene } from "../scenes/gameScene/gameScene";
@@ -8,7 +9,7 @@ import { Note } from "./note";
 
 export class Notes extends BaseObject
 {
-    public static noteTimeToAchieve = 1000;
+    public static noteTimeToAchieve = gameSettings.noteTimeToAchieve;
 
     public delta: number = 0;
 
