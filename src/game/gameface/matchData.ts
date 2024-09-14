@@ -2,7 +2,8 @@ export enum eMatchStatus {
     NONE = "NONE",
     STARTED = "STARTED",
     FINISHED = "FINISHED",
-    ERROR = "ERROR"
+    ERROR = "ERROR",
+    DISCONNECTED = "DISCONNECTED"
 };
 
 export interface MatchData {

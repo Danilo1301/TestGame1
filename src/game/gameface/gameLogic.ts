@@ -128,9 +128,10 @@ export class GameLogic extends BaseObject {
         betValue: 0
     }
 
-    public create()
+    public createAll()
     {
         this.createNotes();
+        this.createPads();
     }
 
     public createPads()
@@ -172,7 +173,7 @@ export class GameLogic extends BaseObject {
 
     public processPadDown(padIndex: number)
     {
-        this.log("pad down", padIndex);
+        //this.log("pad down", padIndex);
 
         const note = this.getClosestNoteForPad(padIndex);
    
@@ -188,26 +189,18 @@ export class GameLogic extends BaseObject {
                 {
                     const hitType = this.getHowGoodNoteIs(distanceInMs);
 
-                    console.log(hitType, note);
+                    this.log(`note hit at ${time}, distanceInMs=${distanceInMs}`);
 
-                    if(hitType != undefined)
+                    const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
+        
+                    if(countAsHit)
                     {
-                        const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
-            
-                        if(countAsHit)
-                        {
-                            this.onNoteHit(note, hitType, false);
-                
-                        } else {
-                            
-                            this.breakCombo();
-                                //this.events.emit(eGameLogicEvents.EVENT_NOTE_BREAK_COMBO, note, hitType);
-                                //GameScene.Instance.breakCombo();
-                            
-                        }
-
-                        return {hitType: hitType, note: note};
+                        this.onNoteHit(note, hitType, false);
+                    } else {
+                        this.breakCombo();
                     }
+
+                    return {hitType: hitType, note: note};
                 }
             }
         }
@@ -227,12 +220,12 @@ export class GameLogic extends BaseObject {
 
         const end = note.songNote.time + note.songNote.dragTime;
 
-        console.log(`start: ${note.songNote.time}`);
-        console.log(`end: ${note.songNote.time + note.songNote.dragTime}`);
-        console.log(`current: ${time}`);
+        //console.log(`start: ${note.songNote.time}`);
+        //console.log(`end: ${note.songNote.time + note.songNote.dragTime}`);
+        //console.log(`current: ${time}`);
 
         const distanceInMs = end - time;
-        console.log(`distance: (${distanceInMs}ms)`);
+        //console.log(`distance: (${distanceInMs}ms)`);
 
         const hitType = this.getHowGoodNoteIs(distanceInMs);
         //const distance = GameScene.Instance.notes.getDistanceFromMs(distanceInMs);
@@ -250,13 +243,16 @@ export class GameLogic extends BaseObject {
 
     private onNoteHit(note: NoteData, hitType: eNoteHitGood, isEndDrag: boolean)
     {
-        this.log("onNoteHit")
+        //this.log("onNoteHit ", note, isEndDrag);
 
         if(isEndDrag)
         {
             if(hitType == eNoteHitGood.HIT_NOT_ON_TIME)
             {
+                this.log("drag released off timing, breaking combo");
+
                 this.breakCombo();
+
                 return;
             }
         }
@@ -287,6 +283,8 @@ export class GameLogic extends BaseObject {
                 this.accumulatedMoney = 0;
 
                 this.events.emit(eGameLogicEvents.EVENT_COMBO_REWARD, note, hitType);
+
+                this.log("Combo REWARD!");
             }
         }
 
@@ -295,20 +293,23 @@ export class GameLogic extends BaseObject {
 
         this.events.emit(eGameLogicEvents.EVENT_NOTE_HIT, note, hitType);
 
-        if(note.songNote.dragTime > 0)
+        if(!isEndDrag)
         {
-            const pad = this.pads[note.padIndex];
-            pad.draggingNote = note;
+            if(note.songNote.dragTime > 0)
+            {
+                const pad = this.pads[note.padIndex];
+                pad.draggingNote = note;
 
-            this.events.emit(eGameLogicEvents.EVENT_PAD_BEGIN_DRAG, note.padIndex, note);
+                this.events.emit(eGameLogicEvents.EVENT_PAD_BEGIN_DRAG, note.padIndex, note);
 
-            //this.startDrag(note);
+                //this.startDrag(note);
+            }
         }
     }
 
     public breakCombo()
     {
-        this.log("breakCombo")
+        //this.log("breakCombo")
 
         this.events.emit(eGameLogicEvents.EVENT_BREAK_COMBO);
         this.combo = 0;
@@ -318,7 +319,7 @@ export class GameLogic extends BaseObject {
 
     public getHowGoodNoteIs(ms: number)
     {
-        this.log("how good is", ms);
+        //this.log("how good is", ms);
 
         const makeInterval = (ms: number) =>
         {
@@ -342,20 +343,17 @@ export class GameLogic extends BaseObject {
         let closestDistance = Infinity;
         let closestNote: NoteData | undefined = undefined;
 
-        //const pad = this.pads[padIndex];
-
         for(const note of this.notes)
         {
             if(!note.isInGameField()) continue;
 
             if(note.padIndex != padIndex) continue;
-            //if(!note.canMove) continue;
+            if(note.hitted) continue;
+            if(note.missed) continue;
 
             const time = this.songTime;
 
             const distance = note.songNote.time - time;
-
-            //if(distance > 1.0) continue;
 
             if(distance < closestDistance)
             {
@@ -365,5 +363,10 @@ export class GameLogic extends BaseObject {
         }
 
         return closestNote;
+    }
+
+    public printBalanceInfo()
+    {
+        this.log(`balance: ${this.money} (+${this.accumulatedMoney})`)
     }
 }

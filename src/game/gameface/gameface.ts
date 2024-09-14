@@ -168,25 +168,35 @@ export class Gameface extends BaseObject
     public onSongStart()
     {
         this.gameLogic.matchData.status = eMatchStatus.STARTED;
-        this.sendMatchStatusChange();
+        this.sendMatchStatusChange("song started");
     }
 
     public onSongEnd()
     {
         this.gameLogic.matchData.status = eMatchStatus.FINISHED;
-        this.sendMatchStatusChange();
+        this.sendMatchStatusChange("song ended");
     }
 
     public onSongError(error: any)
     {
         this.gameLogic.matchData.status = eMatchStatus.ERROR;
-        this.sendMatchStatusChange();
+
+        let message = "unknown"; // error under useUnknownInCatchVariables 
+
+        if (typeof error === "string") {
+            message = error // works, `e` narrowed to string
+        } else if (error instanceof Error) {
+            message = error.message // works, `e` narrowed to Error
+        }
+
+        this.sendMatchStatusChange("song error: " + message);
     }
 
-    public sendMatchStatusChange()
+    public sendMatchStatusChange(message: string)
     {
         this.network.send<IPacketData_MatchStatusChange>(PACKET_TYPE.PACKET_MATCH_STATUS_CHANGE, {
-            newStatus: this.gameLogic.matchData.status
+            newStatus: this.gameLogic.matchData.status,
+            message: message
         })
     }
 

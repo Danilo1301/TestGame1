@@ -1,8 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { BaseObject } from "../../utils/baseObject";
-import { IPacket, IPacketData, IPacketData_Event, IPacketData_MatchData, PACKET_TYPE } from "./packet";
-import { Gameface } from "../gameface/gameface";
-import { eGameEventType } from "./eGameEventType";
+import { IPacket, IPacketData, PACKET_TYPE } from "./packet";
 import { PacketListener } from "./packetListener";
 
 export class Network extends BaseObject
@@ -65,22 +63,6 @@ export class Network extends BaseObject
                 resolve();
             });
         }));
-    }
-
-    public sendErrorEvent(e: any)
-    {
-        let message = "unknown"; // error under useUnknownInCatchVariables 
-
-        if (typeof e === "string") {
-            message = e // works, `e` narrowed to string
-        } else if (e instanceof Error) {
-            message = e.message // works, `e` narrowed to Error
-        }
-
-        this.send<IPacketData_Event>(PACKET_TYPE.PACKET_EVENT, {
-            eventId: eGameEventType.EVENT_ERROR,
-            data: {message: message}
-        });
     }
 
     public connect(callback?: Function)

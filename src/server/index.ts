@@ -4,7 +4,7 @@ import socketio from 'socket.io';
 import path from 'path';
 import { resolve } from 'path';
 import { config } from 'dotenv';
-import { IPacket, IPacketData, IPacketData_DataToStartGame, IPacketData_Event, IPacketData_MatchData, PACKET_TYPE } from '../game/network/packet';
+import { IPacket, IPacketData, IPacketData_DataToStartGame, IPacketData_MatchStatusChange, IPacketData_PadDownOrUp, PACKET_TYPE } from '../game/network/packet';
 import { eGameEventType } from '../game/network/eGameEventType';
 import { eMatchStatus, MatchData } from '../game/gameface/matchData';
 import axios from 'axios';
@@ -93,79 +93,62 @@ const setupSocketServer = () => {
         const data = packet.data as IPacketData_DataToStartGame;
 
         playerData.gameLogic.matchData = data.matchData;
+        playerData.gameLogic.money = data.matchData.betValue;
 
         //const songId = data.matchData.songId;
         const songId = "song1";
 
         await songManager.loadSong(songId);
         playerData.gameLogic.song = songManager.getSong(songId);
-        playerData.gameLogic.createNotes();
+        playerData.gameLogic.createAll();
 
         send(PACKET_TYPE.PACKET_MATCH_CONFIRM_START_GAME, {});
       }
 
-      if(packet.type == PACKET_TYPE.PACKET_EVENT)
+      if(packet.type == PACKET_TYPE.PACKET_MATCH_STATUS_CHANGE)
       {
-        const data = packet.data as IPacketData_Event;
-  
-        /*
-        switch(data.eventId)
+        const data = packet.data as IPacketData_MatchStatusChange;
+
+        console.log(data);
+
+        playerData.gameLogic.matchData.status = data.newStatus;
+
+        if(data.newStatus != eMatchStatus.NONE)
         {
-          case eGameEventType.EVENT_START:
-            console.log("Client started song", data.data);
-  
-            playerData.state = GameState.RUNNING;
-            break;
-          case eGameEventType.EVENT_ERROR:
-            console.log("Client ran into an error", data);
-  
-            playerData.state = GameState.STOPPED;
-            break;
-          case eGameEventType.EVENT_FINISH:
-            console.log("Client finished song", data.data);
-  
-            playerData.status = GameState.STOPPED;
-            break;
+          updateMatchStatus(playerData, data.message);
         }
-        */
-  
-        console.log(Array.from(players.values()))
       }
-  
-      if(packet.type == PACKET_TYPE.PACKET_MATCH_DATA)
+
+      if(packet.type == PACKET_TYPE.PACKET_PAD_DOWN_OR_UP)
       {
-        const data = packet.data as IPacketData_MatchData;
-  
-        console.log("match data", data);
-  
-        /*
-        playerData.matchId = data.matchData.matchId;
-        playerData.betValue = data.matchData.betValue;
-        playerData.songId = data.matchData.songId;
-        playerData.status = data.matchData.status;
-        playerData.userId = data.matchData.userId;
-  
-        console.log(playerData);
-  
-        if(playerData.status == eMatchStatus.FINISHED)
+        const data = packet.data as IPacketData_PadDownOrUp;
+        const padIndex = data.index;
+
+        playerData.gameLogic.songTime = data.time;
+        if(data.down)
         {
-          updateMatchStatus(playerData, "player finished song");
+          playerData.gameLogic.processPadDown(padIndex);
+        } else {
+          playerData.gameLogic.processPadUp(padIndex);
         }
-  
-        if(playerData.status == eMatchStatus.ERROR)
-        {
-          updateMatchStatus(playerData, "player's game crashed");
-        }
-        */
+        playerData.gameLogic.printBalanceInfo();
+      }
+
+      if(packet.type == PACKET_TYPE.PACKET_NOTE_MISS)
+      {
+        playerData.gameLogic.breakCombo();
+        playerData.gameLogic.printBalanceInfo();
       }
     });
   
     socket.on("disconnect", () => {
       console.log("socket disconnected");
-      //console.log("balance: " + playerData.betValue);
-  
-      //updateMatchStatus(playerData, "player disconnected");
-  
+
+      playerData.gameLogic.matchData.status = eMatchStatus.DISCONNECTED;
+      playerData.gameLogic.printBalanceInfo();
+
+      updateMatchStatus(playerData, "player disconnected");
+      
       players.delete(socket.id);
   
       console.log(`There are ${players.size} players playing`)
@@ -201,14 +184,15 @@ const updateMatchStatus = async (playerData: PlayerData, message: string) =>
   console.log("updateMatch", url, data);
 
   try {
-      const response = await axios.put(url, data, {
-      headers: {
-          'accept': '*/*',
-          'Content-Type': 'application/json'
-      }
-      });
-      console.log('Response:', response.data);
+    const response = await axios.put(url, data, {
+    headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json'
+    }
+    });
+    console.log('Response:', response.data);
   } catch (error) {
-      console.error('Error:', error);
+    const code = (error as any).code;
+    console.error('Error code:', code);
   }
 };

@@ -5,6 +5,7 @@ import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
 import { eNoteHitGood, PadData } from "../gameface/gameLogic";
+import { IPacketData_PadDownOrUp, PACKET_TYPE } from "../network/packet";
 import { Note } from "../notes/note";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
@@ -98,12 +99,14 @@ export class Pad extends BaseObject
 
         const padDownData = Gameface.Instance.gameLogic.processPadDown(index);
 
-        console.log(padDownData)
+        Gameface.Instance.network.send<IPacketData_PadDownOrUp>(PACKET_TYPE.PACKET_PAD_DOWN_OR_UP, {
+            down: true,
+            index: this.getIndex(),
+            time: Gameface.Instance.gameLogic.songTime
+        })
 
         if(padDownData != undefined)
         {
-            console.warn("data", padDownData)
-
             const hitType = padDownData.hitType;
             const noteData = padDownData.note;
 
@@ -111,18 +114,13 @@ export class Pad extends BaseObject
     
             if(countAsHit)
             {
-                console.warn("cout as hit")
-
                 //GameScene.Instance.onNoteHit(note, hitType, false);
                 
                 if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
                 
                 const note = GameScene.Instance.notes.getNoteByNoteData(noteData);
 
-                console.warn("hit")
-
                 this.hitNote(note);
-
             }
         }
 
@@ -132,11 +130,6 @@ export class Pad extends BaseObject
     public hitNote(note: Note)
     {
         this.padHitText.show();
-        
-        console.warn(`${Gameface.Instance.gameLogic.songTime} ${note.songNote.time}`)
-
-        console.warn("drag time", note.songNote.dragTime)
-        console.warn("full time", note.songNote)
 
         if(note.songNote.dragTime > 0)
         {
@@ -160,6 +153,8 @@ export class Pad extends BaseObject
 
     public stopDrag()
     {
+        console.warn("pad.stopDrag");
+
         const note = this.draggingNote;
 
         if(!note) return;
@@ -184,7 +179,13 @@ export class Pad extends BaseObject
 
         Gameface.Instance.gameLogic.processPadUp(this.getIndex());
 
-        this.stopDrag();
+        Gameface.Instance.network.send<IPacketData_PadDownOrUp>(PACKET_TYPE.PACKET_PAD_DOWN_OR_UP, {
+            down: false,
+            index: this.getIndex(),
+            time: Gameface.Instance.gameLogic.songTime
+        })
+
+        //this.stopDrag();
     }
 
     public getPosition()

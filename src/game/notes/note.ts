@@ -12,6 +12,7 @@ import { Button } from "../../utils/ui/button";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { Hud } from "../hud/hud";
 import { NoteData } from "../gameface/gameLogic";
+import { IPacketData, PACKET_TYPE } from "../network/packet";
 
 export class Note extends BaseObject
 {
@@ -68,7 +69,11 @@ export class Note extends BaseObject
                 {
                     this.noteData.missed = true;
 
+                    this.log("missed note; breaking combo");
+
                     Gameface.Instance.gameLogic.breakCombo();
+
+                    Gameface.Instance.network.send<IPacketData>(PACKET_TYPE.PACKET_NOTE_MISS, {});
                 }
             }
         }
