@@ -1,5 +1,6 @@
 import { AudioManager } from "../../../utils/audioManager/audioManager";
 import { Song, SongNote } from "../../constants/songs";
+import { Gameface } from "../../gameface/gameface";
 import { GameScene } from "./gameScene";
 
 export class SoundPlayer
@@ -73,9 +74,13 @@ export class SoundPlayer
     {
         this.destroyNotes();
 
-        for(const songNote of this.song!.notes)
+        const gameLogic = Gameface.Instance.gameLogic;
+
+        for(const noteData of gameLogic.notes)
         {
-            this.createNotesForSongNote(songNote);
+            const note = GameScene.Instance.notes.spawnNote(noteData);
+            const dragSize = GameScene.Instance.notes.getDistanceFromMs(noteData.songNote.dragTime);
+            note.setDragSize(dragSize);
         }
     }
 
@@ -107,6 +112,8 @@ export class SoundPlayer
                 console.log("finish");
 
                 this._running = false;
+
+                Gameface.Instance.onSongEnd();
             }
         }
     }
@@ -131,14 +138,9 @@ export class SoundPlayer
         return now - this._startedTime;
     }
 
-    public createNotesForSongNote(songNote: SongNote)
+    public crashGame()
     {
-        for(const padIndex of songNote.pads)
-        {
-            const note = GameScene.Instance.notes.spawnNoteForPad(padIndex, songNote);
-            const dragSize = GameScene.Instance.notes.getDistanceFromMs(songNote.dragTime);
-            note.setDragSize(dragSize);
-        }
+        this._audio = undefined;
     }
 }
 

@@ -2,8 +2,9 @@ import { BaseObject } from "../../utils/baseObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { randomIntFromInterval } from "../../utils/utils";
 import { SongNote } from "../constants/songs";
+import { NoteData } from "../gameface/gameLogic";
 import { GameScene } from "../scenes/gameScene/gameScene";
-import { eNoteHitGood, Note } from "./note";
+import { Note } from "./note";
 
 export class Notes extends BaseObject
 {
@@ -21,16 +22,15 @@ export class Notes extends BaseObject
         super();
     }
 
-    public spawnNoteForPad(padIndex: number, songNote: SongNote)
+    public spawnNote(noteData: NoteData)
     {
         //const pad = GameScene.Instance.pads.getPad(padIndex);
         //const padPosition = pad.object.object.position;
 
         //const scene = ThreeScene.Instance;
 
-        const note = new Note();
-        note.songNote = songNote;
-        note.padIndex = padIndex;
+        const note = new Note(noteData);
+        note.padIndex = noteData.padIndex;
 
         this._notes.push(note);
 
@@ -43,20 +43,6 @@ export class Notes extends BaseObject
         */
         
         return note;
-    }
-
-    public spawnRandomNoteForPad()
-    {
-        const numOfPads = GameScene.Instance.pads.numOfPads;
-        const padIndex = randomIntFromInterval(0, numOfPads-1);
-
-        const songNote: SongNote = {
-            time: this.soundPlayer.getCurrentSoundPosition() + 2000,
-            pads: [padIndex],
-            dragTime: 0
-        }
-
-        return this.spawnNoteForPad(padIndex, songNote);
     }
 
     public destroyNotes()
@@ -79,7 +65,7 @@ export class Notes extends BaseObject
         {
             note.update();
 
-            if(!note.isInGameField()) continue;
+            if(!note.noteData.isInGameField()) continue;
 
             note.updatePositionRelativeToPad();
             note.updateContainerPosition(); //to fix position not syncing
@@ -91,6 +77,15 @@ export class Notes extends BaseObject
 
             note.destroy();
         }
+    }
+
+    public getNoteByNoteData(noteData: NoteData)
+    {
+        for(const note of this.notes)
+        {
+            if(note.noteData == note.noteData) return note;
+        }
+        throw `Notes: Could not find note by note data`;
     }
 
     public getSpawnNoteDistance()
@@ -136,46 +131,6 @@ export class Notes extends BaseObject
         return false;
     }
 
-    public getHowGoodNoteIs(ms: number)
-    {
-        const distance = this.getDistanceFromMs(ms);
-
-        if(this.isDistanceBetweenMsInterval(distance, 100)) return eNoteHitGood.HIT_PERFECT;
-        if(this.isDistanceBetweenMsInterval(distance, 150)) return eNoteHitGood.HIT_GOOD;
-        //if(this.isDistanceBetweenMsInterval(distance, 120)) return eNoteHitGood.HIT_OK;
-        if(this.isDistanceBetweenMsInterval(distance, 250)) return eNoteHitGood.HIT_BAD;
-
-        return eNoteHitGood.HIT_NOT_ON_TIME;
-    }
-
-    public getClosestNoteForPad(padIndex: number)
-    {
-        let closestDistance = Infinity;
-        let closestNote: Note | undefined = undefined;
-
-        const pad = GameScene.Instance.pads.getPad(padIndex)!;
-
-        for(const note of this._notes)
-        {
-            if(!note.isInGameField()) continue;
-
-            if(note.padIndex != padIndex) continue;
-            //if(!note.canMove) continue;
-
-            const distance = note.getDistanceFromPad(pad);
-
-            //if(distance > 1.0) continue;
-
-            if(distance < closestDistance)
-            {
-                closestNote = note;
-                closestDistance = distance;
-            }
-        }
-
-        return closestNote;
-    }
-
     public getLastNote()
     {
         const notes = this._notes.sort((a, b) => a.songNote.time - b.songNote.time);
@@ -187,11 +142,11 @@ export class Notes extends BaseObject
 
     public getNotesHitted()
     {
-        return this._notes.filter(note => note.hitted);
+        return this._notes.filter(note => note.noteData.hitted);
     }
 
     public getNotesMissed()
     {
-        return this._notes.filter(note => note.missed);
+        return this._notes.filter(note => note.noteData.missed);
     }
 }

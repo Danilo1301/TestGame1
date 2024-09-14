@@ -1,16 +1,6 @@
 import Phaser from "phaser";
-import { isMobile } from "../../utils/utils";
+import { getIsMobile } from "../../utils/utils";
 
-export const getIsMobile = () => {
-    if(location.href.includes("#mobile")) return true;
-    return isMobile.any() != null;
-};
-
-export const gameSettings = {
-    playHitSound: getIsMobile() ? false : false,
-    comboAward: 20,
-    showFPS: true
-}
 
 //export const gameSize: Phaser.Math.Vector2 = new Phaser.Math.Vector2(900, 600);
 export const gameSizeDesktop: Phaser.Math.Vector2 = new Phaser.Math.Vector2(1280, 720);

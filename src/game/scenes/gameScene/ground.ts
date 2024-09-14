@@ -35,7 +35,7 @@ export class Ground
         const groundSize = new THREE.Vector3(3, 0.1, this.plankSize);
 
         //ground
-        const texture = new THREE.TextureLoader().load('assets/guitar2.png');
+        const texture = new THREE.TextureLoader().load('/assets/guitar2.png');
         const material = new THREE.MeshStandardMaterial({ map: texture });
 
         // Cria o cubo com a geometria personalizada e o material

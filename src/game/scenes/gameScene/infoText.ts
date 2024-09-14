@@ -1,7 +1,7 @@
 import { BaseObject } from "../../../utils/baseObject";
 import { Graph } from "../../../utils/graph";
-import { randomIntFromInterval } from "../../../utils/utils";
-import { gameSettings, getIsMobile } from "../../constants/config";
+import { getIsMobile, randomIntFromInterval } from "../../../utils/utils";
+import { gameSettings } from "../../constants/gameSettings";
 import { Gameface } from "../../gameface/gameface";
 import { Hud } from "../../hud/hud";
 

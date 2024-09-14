@@ -1,7 +1,8 @@
 import { AudioManager } from "../../utils/audioManager/audioManager";
 import { Button } from "../../utils/ui/button";
 import { Options } from "../../utils/ui/options";
-import { gameSettings, getIsMobile } from "../constants/config";
+import { getIsMobile } from "../../utils/utils";
+import { gameSettings } from "../constants/gameSettings";
 import { Gameface } from "../gameface/gameface";
 import { Hud } from "../hud/hud";
 

@@ -2,7 +2,7 @@ import { AssetAudio, AudioManager } from "../../../utils/audioManager/audioManag
 import { Input } from "../../../utils/input/input";
 import { Button } from "../../../utils/ui/button";
 import { Options } from "../../../utils/ui/options";
-import { Song, SongNote, songs } from "../../constants/songs";
+import { Song, SongNote } from "../../constants/songs";
 import { Gameface } from "../../gameface/gameface";
 import { AddNote } from "./addNote";
 import { BPMMeter } from "./bmpMeter";

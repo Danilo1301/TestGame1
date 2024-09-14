@@ -11,31 +11,17 @@ import { Input } from "../../utils/input/input";
 import { Button } from "../../utils/ui/button";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { Hud } from "../hud/hud";
-
-export enum eNoteHitGood
-{
-    HIT_PERFECT,
-    HIT_GOOD,
-    HIT_OK,
-    HIT_BAD,
-    HIT_NOT_ON_TIME
-}
+import { NoteData } from "../gameface/gameLogic";
 
 export class Note extends BaseObject
 {
-    public songNote: SongNote = {
-        time: 0,
-        pads: [],
-        dragTime: 0
-    };
+    public noteData: NoteData;
 
-
+    public get songNote() { return this.noteData.songNote; };
 
     //public visible: boolean = true;
     //public noteVisible: boolean = true;
     public destroyed: boolean = false;
-    public hitted: boolean = false;
-    public missed: boolean = false;
 
     public container?: Phaser.GameObjects.Container;
     public sprite?: Phaser.GameObjects.Sprite;
@@ -52,14 +38,15 @@ export class Note extends BaseObject
 
     public moreOptionsNoteButton?: Button;
 
-    constructor()
+    constructor(noteData: NoteData)
     {
         super();
+        this.noteData = noteData;
     }
 
     public update()
     {
-        let inGameField = this.isInGameField();
+        let inGameField = this.noteData.isInGameField();
        
         if(inGameField)
         {
@@ -73,13 +60,15 @@ export class Note extends BaseObject
             }
         }
 
-        if(this.hasPassedEndGameField())
+        if(this.noteData.hasPassedEndGameField())
         {
-            if(!this.hitted)
+            if(!this.noteData.hitted)
             {
-                if(!this.missed)
+                if(!this.noteData.missed)
                 {
-                    this.missed = true;
+                    this.noteData.missed = true;
+
+                    console.error("breaking cmbo?")
 
                     GameScene.Instance.breakCombo();
                 }
@@ -118,7 +107,7 @@ export class Note extends BaseObject
             //this.container.visible = Math.random() * 100 > 10;
 
             let createSprite = true;
-            if(this.hitted) createSprite = false;
+            if(this.noteData.hitted) createSprite = false;
 
             if(createSprite)
             {
@@ -251,71 +240,12 @@ export class Note extends BaseObject
         }
     }
 
-    public hasNotePassedStartOfGameField()
-    {
-        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-        const start = this.songNote.time - 3000;
-
-        if(time >= start)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public isDragPassedEndOfGameField()
-    {
-        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-        const end = this.getTimeOfEndOfGameField();
-
-        if(time > end + this.songNote.dragTime)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public isBeeingDragged()
     {
         return this.draggedByPad != undefined;
     }
 
-    public getTimeOfEndOfGameField()
-    {
-        const end = this.songNote.time + 200;
-        return end;
-    }
-
-    public isInGameField()
-    {
-        if(!this.hasNotePassedStartOfGameField()) return false;
-
-        /*
-        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-
-        const start = this.songNote.time - 1000;
-
-        if(time >= start && !this.hasPassedEndGameField())
-        {
-            return true;
-        }
-        */
-
-
-        if(!this.isDragPassedEndOfGameField()) return true;
-
-        return false;
-    }
-
-    public hasPassedEndGameField()
-    {
-        const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-
-        const end = this.getTimeOfEndOfGameField();
-
-        return time > end;
-    }
+    
 
     public getScale()
     {
@@ -400,25 +330,6 @@ export class Note extends BaseObject
     public setDragSize(size: number)
     {
         this.dragSize = size;
-    }
-
-    public setAsHitted()
-    {
-        this.hitted = true;
-
-        console.log("note hit!");
-
-        /*
-        if(this.songNote.dragTime == 0)
-        {
-            this.visible = false;
-            this.destroy();
-        } else {
-            this.noteVisible = false;
-        }
-        */
-
-        //GameScene.Instance.notes.soundNotes.audio!.playbackRate = 0.5;
     }
 
     public set3DPosition(x: number, y: number, z: number)

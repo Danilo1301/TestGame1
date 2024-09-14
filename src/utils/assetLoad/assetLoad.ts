@@ -5,7 +5,6 @@ import { LoadScene } from "../../game/scenes/loadScene";
 import { Debug } from "../debug/debug";
 import { atlasAssets, audioAssets, imageAssets } from "../../game/constants/assets";
 import { AudioManager } from "../audioManager/audioManager";
-import { Song, songIds, songs } from "../../game/constants/songs";
 
 export enum LoadState {
     NOT_LOADED,
@@ -93,6 +92,37 @@ export class AssetLoad
 
     public static addAssets()
     {
+        this.addTask(`connect_server`, true, async () => {
+            return new Promise<void>(async (resolve) => {
+                
+                console.log("connecting to server");
+
+                await Gameface.Instance.network.connectAndWait();
+
+                resolve();
+            });
+        });
+
+        this.addTask(`load_songs`, true, async () => {
+            return new Promise<void>(async (resolve) => {
+                
+                await Gameface.Instance.beginLoad1();
+
+                console.log("loading songs");
+
+                for(const song of Gameface.Instance.songManager.getSongs())
+                {
+                    const key = song.sound;
+                    const path = `songs/${song.sound}.mp3`;
+        
+                    this.addAudio(key, path);
+                    AudioManager.addAudio(key, path);
+                }
+
+                resolve();
+            });
+        });
+
         for(const asset of imageAssets)
         {
             this.addImage(asset.key, asset.path);
@@ -107,41 +137,6 @@ export class AssetLoad
         {
             this.addAudio(asset.key, asset.path);
             AudioManager.addAudio(asset.key, asset.path);
-        }
-
-        for(const songId of songIds)
-        {
-            this.addTask(`load_song_${songId}`, true, async () => {
-                return new Promise<void>((resolve)=> {
-                    
-                    // URL do endpoint de onde os dados JSON serão buscados
-                    const url = `/assets/songs/${songId}.json`;
-
-                    fetch(url)
-                    .then(response => {
-                        // Verifica se a resposta é bem-sucedida (status 200)
-                        if (!response.ok) {
-                            resolve();
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then((json: Song) => {
-                        // Imprime os dados JSON recebidos no console
-                        console.log('Data received:', json);
-
-                        songs.unshift(json);
-
-                        resolve();
-                    })
-                    .catch(error => {
-                        // Imprime erros de rede ou de parsing no console
-                        console.error('Error fetching data:', error);
-
-                        resolve();
-                    });
-                });
-            });
         }
     }
 
@@ -164,13 +159,7 @@ export class AssetLoad
     }
 
     public static getAssetsUrl() {
-        const serverAddress = "https://guitargame.glitch.me";
-
-        if(location.host.includes('localhost') || location.host.includes(':')) {
-            return `${location.protocol}//${location.host}/assets/`;
-        } 
-
-        return `${serverAddress}/assets/`;
+        return `${location.protocol}//${location.host}/assets/`;
     }
 
     public static getAssetByKey(key: string)

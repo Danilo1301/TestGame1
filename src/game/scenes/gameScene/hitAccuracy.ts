@@ -1,9 +1,9 @@
 import { BaseObject } from "../../../utils/baseObject";
 import { Graph } from "../../../utils/graph";
-import { getIsMobile } from "../../constants/config";
+import { getIsMobile } from "../../../utils/utils";
 import { Gameface } from "../../gameface/gameface";
+import { eNoteHitGood } from "../../gameface/gameLogic";
 import { Hud } from "../../hud/hud";
-import { eNoteHitGood } from "../../notes/note";
 
 interface AccuracyInfo {
     text: string

@@ -8,8 +8,7 @@ import { Hud } from "../../hud/hud";
 import { Gameface } from "../../gameface/gameface";
 import { MoneyText } from "./moneyText";
 import { MaskProgressBar } from "../../../utils/ui/maskProgressBar";
-import { getIsMobile } from "../../constants/config";
-import { clamp, msToMinutes, msToTime } from "../../../utils/utils";
+import { clamp, getIsMobile, msToMinutes, msToTime } from "../../../utils/utils";
 
 export class GuitarHud extends BaseObject
 {

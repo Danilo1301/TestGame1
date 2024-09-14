@@ -4,7 +4,8 @@ import { Input } from "../../utils/input/input";
 import { Phaser3DObject } from "../../utils/three/phaser3dObject";
 import { ThreeScene } from "../../utils/three/threeScene";
 import { Gameface } from "../gameface/gameface";
-import { eNoteHitGood, Note } from "../notes/note";
+import { eNoteHitGood } from "../gameface/gameLogic";
+import { Note } from "../notes/note";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { MainScene } from "../scenes/mainScene";
@@ -89,37 +90,36 @@ export class Pad extends BaseObject
         
         this.spriteColor?.anims.play('pad_color_raise');    
 
-        const note = GameScene.Instance.notes.getClosestNoteForPad(this.getIndex());
-        
-        //console.log(note);
-        
-        if(note)
+        const index = this.getIndex();
+        const songTime = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
+
+        const padDownData = Gameface.Instance.gameLogic.processPadDown(index, songTime);
+
+        console.log(padDownData)
+
+        if(padDownData != undefined)
         {
-            if(!note.hitted)
-            {
-                const notes = GameScene.Instance.notes;
-            
-                const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
-                const noteTime = note.songNote.time;
-                const distanceInMs = Math.abs(time - noteTime);
+            const hitType = padDownData.hitType;
+        const noteData = padDownData.note;
 
-                const hitType = notes.getHowGoodNoteIs(distanceInMs);
+            const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
+    
+                    if(countAsHit)
+                    {
+                        //GameScene.Instance.onNoteHit(note, hitType, false);
+                        
+                        if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
+                        
+                        const note = GameScene.Instance.notes.getNoteByNoteData(noteData);
 
-                const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
+                        this.hitNote(note);
+    
+                    } else {
+                        //GameScene.Instance.breakCombo();
+                    }
 
-                if(countAsHit)
-                {
-                    GameScene.Instance.onNoteHit(note, hitType, false);
-                    
-                    if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
-                    
-                    this.hitNote(note);
-
-                } else {
-                    //GameScene.Instance.breakCombo();
-                }
-            }
         }
+
 
         GameScene.Instance.events.emit("pad_down", this);
     }
@@ -127,8 +127,6 @@ export class Pad extends BaseObject
     public hitNote(note: Note)
     {
         this.padHitText.show();
-
-        note.setAsHitted();
         
         if(note.songNote.dragTime > 0)
         {
@@ -153,6 +151,7 @@ export class Pad extends BaseObject
 
         if(!note) return;
         
+        /*
         const time = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
 
         const end = note.songNote.time + note.songNote.dragTime;
@@ -169,13 +168,16 @@ export class Pad extends BaseObject
         const hitType = GameScene.Instance.notes.getHowGoodNoteIs(distanceInMs);
         //const countAsHit = hitType != eNoteHitGood.HIT_NOT_ON_TIME;
 
-        
+    
+        */
+
         note.stopBeeingDragged();
         
         this.draggingNote = undefined;
         this.startedDragAtTime = 0;
         
-        GameScene.Instance.onNoteHit(note, hitType, true);
+        //GameScene.Instance.onNoteHit(note, hitType, true);
+
         GameScene.Instance.events.emit("pad_end_drag", this, note);
     }
 
@@ -248,6 +250,9 @@ export class Pad extends BaseObject
         //award score
         if(this.draggingNote)
         {
+            console.warn("implement this");
+            
+            /*
             const now = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
             if(now - this._lastTimeAwardedScoreByDragging >= 500)
             {
@@ -255,6 +260,7 @@ export class Pad extends BaseObject
 
                 GameScene.Instance.score += 100;
             }
+            */
         }
     }
 }

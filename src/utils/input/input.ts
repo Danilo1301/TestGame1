@@ -1,3 +1,4 @@
+import Phaser from "phaser";
 import { MainScene } from "../../game/scenes/mainScene";
 import { BaseObject } from "../baseObject";
 import { Debug } from "../debug/debug";

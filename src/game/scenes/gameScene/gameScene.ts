@@ -9,14 +9,16 @@ import { ThreeScene } from "../../../utils/three/threeScene";
 import { MainScene } from "../mainScene";
 import { Hud } from "../../hud/hud";
 import { HitAccuracy } from "./hitAccuracy";
-import { eNoteHitGood, Note } from "../../notes/note";
 import { GameProgressBar } from "./gameProgressBar";
 import { GuitarHud } from "./guitarHud";
 import { InfoText } from "./infoText";
 import { AudioManager } from "../../../utils/audioManager/audioManager";
 import { Pad } from "../../pads/pad";
-import { gameSettings, getIsMobile } from "../../constants/config";
 import { MaskProgressBar } from "../../../utils/ui/maskProgressBar";
+import { eGameLogicEvents, eNoteHitGood, GameLogic, NoteData } from "../../gameface/gameLogic";
+import { Note } from "../../notes/note";
+import { getIsMobile } from "../../../utils/utils";
+import { gameSettings } from "../../constants/gameSettings";
 
 export class GameScene extends Phaser.Scene
 {
@@ -34,13 +36,15 @@ export class GameScene extends Phaser.Scene
     public ground: Ground;
 
     public topRightContainer!: Phaser.GameObjects.Container;
-
-    public score: number = 0;
-    public combo: number = 0;
-    public betValue = 10.0;
-    public money: number = 10.00;
-    public accumulatedMoney: number = 0.0;
+    
+    
     public prevHitSongNote?: SongNote;
+
+    public get betValue() { return Gameface.Instance.gameLogic.matchData.betValue; };
+    public get money() { return Gameface.Instance.gameLogic.money; };
+    public get score() { return Gameface.Instance.gameLogic.score; };
+    public get combo() { return Gameface.Instance.gameLogic.combo; };
+    public get accumulatedMoney() { return Gameface.Instance.gameLogic.accumulatedMoney; };
 
     public get soundPlayer() { return this._soundPlayer; }
     public get notes() { return this._notes; }
@@ -62,14 +66,6 @@ export class GameScene extends Phaser.Scene
 
     public padKeys: string[] = ["A", "S", "D", "F", "G"];
     public padColors: number[] = [0x00ff00, 0xff0000, 0xffff00, 0x0094FF, 0xFF8A3D];
-
-    public scoreMap = new Map<eNoteHitGood, number>([
-        [eNoteHitGood.HIT_PERFECT, 100],
-        [eNoteHitGood.HIT_GOOD, 80],
-        [eNoteHitGood.HIT_OK, 50],
-        [eNoteHitGood.HIT_BAD, 10],
-        [eNoteHitGood.HIT_NOT_ON_TIME, 0],
-    ]);
 
     constructor()
     {
@@ -157,6 +153,25 @@ export class GameScene extends Phaser.Scene
 
         this.hitAccuracy.create(this);
         this.infoText.create(this);
+
+        const gameLogic = Gameface.Instance.gameLogic;
+        gameLogic.events.on(eGameLogicEvents.EVENT_NOTE_HIT, (noteData: NoteData, hitType: eNoteHitGood) => {
+
+            const note = this.notes.getNoteByNoteData(noteData);
+
+            if(!note)
+            {
+                throw "GameScene: note not found wtf";
+            }
+
+            this.onNoteHit(note, hitType, false);
+        })
+
+        //GameScene.Instance.onNoteHit(note, hitType, false);
+                        
+                        //if(Gameface.Instance.sceneManager.hasSceneStarted(EditorScene)) return
+                        
+                        //this.hitNote(note);
     }
 
     private createBackground()
@@ -213,6 +228,10 @@ export class GameScene extends Phaser.Scene
 
     public startSong(song: Song)
     {
+        const gameLogic = Gameface.Instance.gameLogic;
+
+        gameLogic.song = song;
+        gameLogic.createNotes();
         GameScene.Instance.soundPlayer.startSong(song);
     }
 
@@ -236,6 +255,18 @@ export class GameScene extends Phaser.Scene
         //ThreeScene.Instance.third.camera.position.x += 0.01
         //ThreeScene.Instance.third.camera.lookAt(0, 0, 3)
 
+        try {
+            this.updateGame(delta);
+        } catch (error) {
+            Gameface.Instance.onSongError(error);
+            throw error;
+        }
+    }
+
+    private updateGame(delta: number)
+    {
+        Gameface.Instance.gameLogic.songTime = this.soundPlayer.getCurrentSoundPosition();
+
         this.soundPlayer.update(delta);
         this.ground.update();
         this.notes.update(delta);
@@ -244,18 +275,6 @@ export class GameScene extends Phaser.Scene
         this.infoText.update(delta);
         //this.gameProgressBar.update(delta);
         this._guitarHud.update(delta);
-
-        /*
-        const padDragging = this.pads.getPadDragging();
-        if(padDragging)
-        {
-            const start = padDragging.startedDragAtTime;
-            const time = this.soundPlayer.getCurrentSoundPosition();
-
-            //console.log("start", start);
-            //console.log("time", time);
-        }
-        */
     }
 
     public onNoteHit(note: Note, hitType: eNoteHitGood, isEndDrag: boolean)
@@ -263,6 +282,8 @@ export class GameScene extends Phaser.Scene
         if(gameSettings.playHitSound)
             AudioManager.playAudioPhaserWithVolume("osu_hitsound", 0.1);
         
+        console.log("isEndDrag: ", isEndDrag)
+
         if(isEndDrag)
         {
             if(hitType == eNoteHitGood.HIT_NOT_ON_TIME)
@@ -272,49 +293,23 @@ export class GameScene extends Phaser.Scene
             }
         }
 
-            
-        if(this.prevHitSongNote != note.songNote)
-        {
-            const notesToReward = gameSettings.comboAward;
-
-            this.prevHitSongNote = note.songNote;
-            this.combo++;
-
-            var betValue = this.betValue;
-            var maxGanho = betValue * 10;
-
-            var notas = this.soundPlayer.song!.notes.length;
-
-            var porNota = maxGanho / notas;
-
-            this.accumulatedMoney += porNota;
-
-            const nextReward = (Math.floor(this.combo/ notesToReward) * notesToReward) + notesToReward;
-
-            GameScene.Instance.hitAccuracy.setComboText(`${GameScene.Instance.combo} / ${nextReward}`);
-
-            if(this.combo % notesToReward == 0 && this.combo != 0)
-            {
-                this.money += this.accumulatedMoney;
-                this.accumulatedMoney = 0;
-
-                this.infoText.showRandomHitMessage();
-            }
-        }
-
         GameScene.Instance.hitAccuracy.setHitType(hitType);
 
-        const addScore = this.scoreMap.get(hitType);
-        if(addScore) this.score += addScore;
+        const notesToReward = gameSettings.comboAward;
+        const nextReward = (Math.floor(this.combo/ notesToReward) * notesToReward) + notesToReward;
+
+        GameScene.Instance.hitAccuracy.setComboText(`${GameScene.Instance.combo} / ${nextReward}`);
     }
 
     public breakCombo()
     {
-        this.combo = 0;
+        console.log("whos calling me")
+
+        //this.combo = 0;
         GameScene.Instance.hitAccuracy.setComboText(`0`);
 
-        this.accumulatedMoney = 0;
-        this.money -= 1;
+        //this.accumulatedMoney = 0;
+        //this.money -= 1;
         this.infoText.showRandomMissMessage();
         this.guitarHud.moneyText.shake();
     }

@@ -36,6 +36,11 @@ export const isMobile = {
     }
 };
 
+export const isNode = () =>
+    typeof process !== 'undefined' &&
+    !!process.versions &&
+    !!process.versions.node;
+
 export function msToTime(duration: number)
 {
     //var milliseconds = Math.floor((duration % 1000) / 100);
@@ -78,4 +83,37 @@ export function msToMinutes(duration: number)
  */
 export function clamp(number: number, min: number, max: number) {
     return Math.min(Math.max(number, min), max);
+};
+
+export function getQueryParamsFromString(str: string)
+{
+    const urlParams = new URLSearchParams(str);
+    const queryParams: { [key: string]: string } = {};
+
+    for (const [key, value] of urlParams.entries()) {
+        queryParams[key] = value;
+    }
+
+    return queryParams;
+}
+
+export function getQueryParams()
+{
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const queryParams: { [key: string]: string } = {};
+
+    for (const [key, value] of urlParams.entries()) {
+        queryParams[key] = value;
+    }
+
+    return queryParams;
+}
+
+export const getIsMobile = () => {
+    try {
+        if(location.href.includes("#mobile")) return true;
+        return isMobile.any() != null;
+    } catch (error) {}
+    return false;
 };

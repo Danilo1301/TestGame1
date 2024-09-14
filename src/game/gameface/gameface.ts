@@ -10,7 +10,15 @@ import { AudioManager } from "../../utils/audioManager/audioManager";
 import { EditorScene } from "../scenes/editor/editorScene";
 import { GameScene } from "../scenes/gameScene/gameScene";
 import { PreloadScene } from "../scenes/preloadScene";
-import { getIsMobile } from "../constants/config";
+import { getIsMobile, getQueryParams, getQueryParamsFromString } from "../../utils/utils";
+import CryptoJS from 'crypto-js' 
+import { Network } from "../network/network";
+import { IPacketData_DataToStartGame, IPacketData_Event, IPacketData_MatchStatusChange, PACKET_TYPE } from "../network/packet";
+import { eGameEventType } from "../network/eGameEventType";
+import { eMatchStatus, MatchData } from "./matchData";
+import { ENCRYPTION_SECRET_KEY } from "../../server/keys";
+import { GameLogic } from "./gameLogic";
+import { SongManager } from "../songManager";
 
 export class Gameface extends BaseObject
 {
@@ -21,11 +29,17 @@ export class Gameface extends BaseObject
     public get phaser() { return this._phaser!; }
     public get sceneManager() { return this._sceneManager; }
     public get input() { return this._input; }
+    public get network() { return this._network; }
+    public get gameLogic() { return this._gameLogic; }
+    public get songManager() { return this._songManager; }
 
     private _phaser?: Phaser.Game;
     private _sceneManager: SceneManager;
     private _input: Input;
-    
+    private _network: Network;
+    private _gameLogic: GameLogic;
+    private _songManager: SongManager;
+
     constructor()
     {
         super();
@@ -34,6 +48,9 @@ export class Gameface extends BaseObject
 
         this._sceneManager = new SceneManager(this);
         this._input = new Input();
+        this._network = new Network();
+        this._gameLogic = new GameLogic();
+        this._songManager = new SongManager();
     }
 
     public async start()
@@ -53,6 +70,23 @@ export class Gameface extends BaseObject
 
         this.input.init(MainScene.Instance);
 
+        /*
+        try {
+            await this.processGameParams();
+
+            this.log("Loading songs...");
+
+            await this.songManager.loadSong("song1");
+        } catch (error) {
+            console.error(error);
+
+            this.onSongError(error);
+        }
+        
+            */
+
+
+        
         AssetLoad.addAssets();
         await AssetLoad.load();
 
@@ -62,6 +96,19 @@ export class Gameface extends BaseObject
 
         if(getIsMobile()) this.enterFullscreen();
 
+        const gameLogic = this.gameLogic;
+        const matchData = gameLogic.matchData;
+        const songId = this.gameLogic.matchData.songId;
+
+        const song = this.songManager.getSong("song1");
+
+        Gameface.Instance.sceneManager.startScene(GameScene);
+        GameScene.Instance.startSong(song);
+
+        this.onSongStart();
+        
+
+        /*
         const openEditor = false;
 
         if(openEditor)
@@ -70,6 +117,102 @@ export class Gameface extends BaseObject
         } else {
             this.sceneManager.startScene(SongSelectionScene);
         }
+        */
+    }
+
+    public async beginLoad1()
+    {
+        await this.processGameParams();
+
+        this.log("Loading songs...");
+
+        await this.songManager.loadSong("song1");
+
+        this.network.send<IPacketData_DataToStartGame>(PACKET_TYPE.PACKET_MATCH_DATA_TO_START_GAME, {
+            matchData: this.gameLogic.matchData
+        })
+
+        await this.network.waitForPacket(PACKET_TYPE.PACKET_MATCH_CONFIRM_START_GAME);
+
+        console.log("confirmed")
+    }
+
+    private async processGameParams()
+    {
+        const q = location.href.split("/play/")[1];
+        const paramsText = this.decrypt(q);
+
+        const params = getQueryParamsFromString(paramsText);
+
+        console.log(params)
+
+        const matchId = params.matchId;
+        const songId = params.songId;
+        const userId = params.userId;
+        const betValue = parseInt(params.betValue);
+
+        const gameLogic = Gameface.Instance.gameLogic;
+        const matchData = gameLogic.matchData;
+        
+        matchData.matchId = matchId;
+        matchData.songId = songId;
+        matchData.userId = userId;
+        matchData.betValue = betValue;
+
+        gameLogic.money = matchData.betValue;
+    }
+    
+
+    public onSongStart()
+    {
+        this.gameLogic.matchData.status = eMatchStatus.STARTED;
+        this.sendMatchStatusChange();
+    }
+
+    public onSongEnd()
+    {
+        this.gameLogic.matchData.status = eMatchStatus.FINISHED;
+        this.sendMatchStatusChange();
+    }
+
+    public onSongError(error: any)
+    {
+        this.gameLogic.matchData.status = eMatchStatus.ERROR;
+        this.sendMatchStatusChange();
+    }
+
+    public sendMatchStatusChange()
+    {
+        this.network.send<IPacketData_MatchStatusChange>(PACKET_TYPE.PACKET_MATCH_STATUS_CHANGE, {
+            newStatus: this.gameLogic.matchData.status
+        })
+    }
+
+    public crashGame()
+    {
+        GameScene.Instance.soundPlayer.crashGame()
+    }
+
+    private decrypt(encryptedData: string) {
+
+        const key = CryptoJS.enc.Utf8.parse(ENCRYPTION_SECRET_KEY);
+        const iv = CryptoJS.enc.Utf8.parse(ENCRYPTION_SECRET_KEY);
+
+        const encryptedBytes = CryptoJS.enc.Hex.parse(encryptedData);
+
+        const encrypted = CryptoJS.lib.CipherParams.create({
+            ciphertext: encryptedBytes,
+        });
+
+        const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        });
+
+        const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+
+        return decryptedText;
     }
 
     private async waitForPreloadScene()

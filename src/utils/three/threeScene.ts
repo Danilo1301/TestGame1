@@ -3,9 +3,8 @@ import { ExtendedObject3D, Scene3D } from '@enable3d/phaser-extension'
 import * as THREE from 'three';
 import { Gameface } from '../../game/gameface/gameface';
 import { Phaser3DObject } from './phaser3dObject';
-
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { getIsMobile } from '../../game/constants/config';
+import { getIsMobile } from '../utils';
 
 export class ThreeScene extends Scene3D
 {

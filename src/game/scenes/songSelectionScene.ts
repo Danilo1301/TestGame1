@@ -1,7 +1,7 @@
 import { Debug } from "../../utils/debug/debug";
 import { Button } from "../../utils/ui/button";
 import { Options } from "../../utils/ui/options";
-import { Song, songs } from "../constants/songs";
+import { Song } from "../constants/songs";
 import { Gameface } from "../gameface/gameface";
 import { AudioTestScene } from "./audioTestScene";
 import { EditorScene } from "./editor/editorScene";
@@ -20,6 +20,8 @@ export class SongSelectionScene extends Phaser.Scene
     {
         let y = 80;
         let x = 300;
+
+        const songs = Gameface.Instance.songManager.getSongs();
 
         for(const song of songs)
         {
