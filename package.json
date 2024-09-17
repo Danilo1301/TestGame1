@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/server/index.ts",
+    "prod": "node public/server/index.js",
     "server": "nodemon src/server/index.ts",
     "server_ignore": "nodemon src/server/index.ts --ignore ./public --ignore ./src",
     "client": "webpack --config webpack/webpack.config.js --watch",
