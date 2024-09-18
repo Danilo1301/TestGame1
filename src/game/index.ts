@@ -29,12 +29,13 @@ window.game.hardMode = () => {
     alert("Modo hard ativado!");
 }
 
-const w: any = window;
-/*
-w["gameface"] = gameface;
-w["Debug"] = Debug;
-w["GameScene"] = GameScene;
-w["ThreeScene"] = ThreeScene;
-w["EditorScene"] = EditorScene;
-w["SoundPlayer"] = SoundPlayer;
-*/
+if(gameSettings.exposeVars)
+{
+    const w: any = window;
+    w["gameface"] = gameface;
+    w["GameScene"] = GameScene;
+    w["Debug"] = Debug;
+    w["ThreeScene"] = ThreeScene;
+    w["EditorScene"] = EditorScene;
+    w["SoundPlayer"] = SoundPlayer;
+}

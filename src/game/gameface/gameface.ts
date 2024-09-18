@@ -20,6 +20,7 @@ import { ENCRYPTION_SECRET_KEY } from "../../server/keys";
 import { GameLogic } from "./gameLogic";
 import { SongManager } from "../songManager";
 import { LoadScene } from "../scenes/loadScene";
+import { gameSettings } from "../constants/gameSettings";
 
 export class Gameface extends BaseObject
 {
@@ -182,6 +183,7 @@ export class Gameface extends BaseObject
     {
         this.gameLogic.matchData.status = eMatchStatus.FINISHED;
         this.sendMatchStatusChange("song ended");
+        this.redirect();
     }
 
     public onSongError(error: any)
@@ -210,8 +212,7 @@ export class Gameface extends BaseObject
 
     public redirect()
     {
-        const url = "https://guitarrinha.com/play"
-        location.href = url;
+        location.href = gameSettings.redirectToUrl;
     }
 
     public crashGame()

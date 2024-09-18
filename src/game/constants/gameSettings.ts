@@ -5,5 +5,7 @@ export const gameSettings = {
     comboAward: 20,
     showFPS: false,
     noteTimeToAchieve: 1000,
-    currency: "GC$"
+    currency: "GC$",
+    redirectToUrl: "https://guitarrinha.com/play",
+    exposeVars: true
 }
