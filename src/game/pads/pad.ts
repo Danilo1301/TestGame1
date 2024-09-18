@@ -153,8 +153,6 @@ export class Pad extends BaseObject
 
     public stopDrag()
     {
-        console.warn("pad.stopDrag");
-
         const note = this.draggingNote;
 
         if(!note) return;

@@ -1,0 +1,5 @@
+[-] Colocar nome do som (hardcoded)
+[X] Mudar pra CG$
+[ ] Redirecionar para site de volta
+[X] Tela de load
+[ ] Possivel bug: se alguém entrar com uma url inválida e sair da página, o betValue é atualizado para 0

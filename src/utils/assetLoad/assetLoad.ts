@@ -154,6 +154,7 @@ export class AssetLoad
         await scene.startLoadingAssets();
 
         Gameface.Instance.sceneManager.removeScene(LoadScene);
+        LoadScene.Instance = undefined;
 
         Debug.log("AssetLoad", "Assets loaded!");
     }

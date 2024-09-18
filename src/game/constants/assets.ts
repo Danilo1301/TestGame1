@@ -29,6 +29,8 @@ export const imageAssets: AssetItem[] = [
     {key: "progress_bar_bg", path: "progress_bar_bg.png"},
     {key: "progress_bar_bg2", path: "progress_bar_bg2.png"},
 
+    {key: "play_button", path: "play_button.png"},
+
     {key: "song1_image", path: "songs/song1.png"} //test
 ];
 

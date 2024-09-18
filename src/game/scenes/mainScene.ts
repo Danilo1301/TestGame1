@@ -19,6 +19,8 @@ export class MainScene extends Phaser.Scene
     public fpsText!: Phaser.GameObjects.Text;
     public testText!: Phaser.GameObjects.Text;
 
+    public loadBackground?: Phaser.GameObjects.Image;
+
     public onStart?: Function;
 
     constructor()
@@ -67,6 +69,28 @@ export class MainScene extends Phaser.Scene
             Gameface.Instance.toggleFullscreen();
         };
         Hud.addToHudLayer(button.container);
+
+        button.container.setVisible(false);
+
+        const gameSize = Gameface.Instance.getGameSize();
+
+        const image = this.add.image(gameSize.x/2, gameSize.y/2, "background_load");
+        this.loadBackground = image;
+        if(getIsMobile())
+        {
+            image.setScale(1.5);
+        }
+    }
+
+    public toggleShowFPS()
+    {
+        gameSettings.showFPS = !gameSettings.showFPS;
+        this.setFPSVisible(gameSettings.showFPS);
+    }
+
+    public setFPSVisible(visible: boolean)
+    {
+        this.fpsText.setVisible(visible);
     }
 
     public update(time: number, delta: number)
@@ -88,9 +112,11 @@ export class MainScene extends Phaser.Scene
     public createPlayButton()
     {
         const gameSize = Gameface.Instance.getGameSize();
-        const button = new Button(this, "Play", gameSize.x/2, gameSize.y/2, 200, 50, "button");
+        const button = new Button(this, "", gameSize.x/2, gameSize.y/2, 450, 70, "play_button");
         button.onClick = () => {  
             button.destroy();
+            this.loadBackground?.destroy();
+            this.loadBackground = undefined;
             this.onStart?.();
         };
     }

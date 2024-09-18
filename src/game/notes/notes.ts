@@ -9,8 +9,6 @@ import { Note } from "./note";
 
 export class Notes extends BaseObject
 {
-    public static noteTimeToAchieve = gameSettings.noteTimeToAchieve;
-
     public delta: number = 0;
 
     public get notes() { return this._notes; };
@@ -99,7 +97,7 @@ export class Notes extends BaseObject
     {
         const delta = this.delta;
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = Notes.noteTimeToAchieve;
+        const timeToAchieve = gameSettings.noteTimeToAchieve;
 
         const amount = distanceToMove / timeToAchieve * delta;
 
@@ -109,7 +107,7 @@ export class Notes extends BaseObject
     public getDistanceFromMs(ms: number)
     {
         const distanceToMove = this.getSpawnNoteDistance();
-        const timeToAchieve = Notes.noteTimeToAchieve;
+        const timeToAchieve = gameSettings.noteTimeToAchieve;
 
         const mettersPerMs = distanceToMove/timeToAchieve;
 

@@ -13,6 +13,7 @@ export class PreloadScene extends Phaser.Scene
     public preload()
     {
         this.load.image("test", "/assets/test.png");
+        this.load.image("background_load", "/assets/background/background_load.png");
     }
 
     public async create()

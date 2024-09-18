@@ -77,7 +77,7 @@ export class SongManager extends BaseObject {
             })
             .then((json: Song) => {
                 // Imprime os dados JSON recebidos no console
-                console.log('Data received:', json);
+                //console.log('Data received:', json);
                 resolve(json);
             })
             .catch(error => {

@@ -11,7 +11,7 @@ interface LoadAsset {
 
 export class LoadScene extends Phaser.Scene
 {
-    public static Instance: LoadScene;
+    public static Instance?: LoadScene;
     
     private _loadAssets: LoadAsset[] = [];
 
@@ -37,15 +37,15 @@ export class LoadScene extends Phaser.Scene
 
             asset.loadState = LoadState.LOADED;
 
-            console.log("filecomplete", asset);
+            console.log("filecomplete", asset.path);
 
             self.printLoadState();
         });
 
         const gamesize = Gameface.Instance.getGameSize();
 
-        const bg = this.add.rectangle(0, 0, gamesize.x, gamesize.y, 0x000000);
-        bg.setOrigin(0, 0);
+        //const bg = this.add.rectangle(0, 0, gamesize.x, gamesize.y, 0x000000);
+        //bg.setOrigin(0, 0);
 
         const progressBar = new ProgressBar(this, gamesize.x - 50, 30);
         progressBar.setProgress(0);

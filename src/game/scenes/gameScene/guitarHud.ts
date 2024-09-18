@@ -9,6 +9,7 @@ import { Gameface } from "../../gameface/gameface";
 import { MoneyText } from "./moneyText";
 import { MaskProgressBar } from "../../../utils/ui/maskProgressBar";
 import { clamp, getIsMobile, msToMinutes, msToTime } from "../../../utils/utils";
+import { gameSettings } from "../../constants/gameSettings";
 
 export class GuitarHud extends BaseObject
 {
@@ -20,6 +21,8 @@ export class GuitarHud extends BaseObject
     public songProgressBar!: MaskProgressBar;
     public accProgressBar!: MaskProgressBar;
     
+    public songTitleText!: Phaser.GameObjects.Text;
+    public songAuthorText!: Phaser.GameObjects.Text;
 
     //public userGuitars: UserGuitar[] = [];
 
@@ -68,7 +71,7 @@ export class GuitarHud extends BaseObject
 
         //
 
-        const songTitleText = scene.add.text(-340, 70, 'Song Title');
+        const songTitleText = scene.add.text(-340, 70, "");
         songTitleText.setFontFamily('Arial');
         songTitleText.setFontStyle("bold");
         songTitleText.setFontSize(24);
@@ -76,6 +79,7 @@ export class GuitarHud extends BaseObject
         songTitleText.setOrigin(0, 0.5);
         songTitleText.setStroke('#000000', 4);
         container.add(songTitleText);
+        this.songTitleText = songTitleText;
 
         const songAuthor = scene.add.text(-340, 70 + 30, 'Author name');
         songAuthor.setFontFamily('Arial');
@@ -85,6 +89,7 @@ export class GuitarHud extends BaseObject
         songAuthor.setOrigin(0, 0.5);
         songAuthor.setStroke('#000000', 4);
         container.add(songAuthor);
+        this.songAuthorText = songAuthor;
 
         //
 
@@ -192,6 +197,15 @@ export class GuitarHud extends BaseObject
 
     public update(delta: number)
     {
+        const song = GameScene.Instance.soundPlayer.song;
+
+        if(song)
+        {
+            this.songTitleText.setText(`Sweet Child O' Mine`);
+            this.songAuthorText.setText(`Guns N' Roses`);
+        }
+
+
         // -------
 
         let maxTime = 1;
@@ -228,8 +242,8 @@ export class GuitarHud extends BaseObject
         const accumulatedMoney = GameScene.Instance.accumulatedMoney;
         const money = GameScene.Instance.money;
 
-        this.moneyText.text.setText(`R$ ${money.toFixed(2)}`);
-        this.moneyText.accumulatedMoneyText.setText(`+ R$ ${accumulatedMoney.toFixed(2)}`);
+        this.moneyText.text.setText(`${gameSettings.currency} ${money.toFixed(2)}`);
+        this.moneyText.accumulatedMoneyText.setText(`+ ${gameSettings.currency} ${accumulatedMoney.toFixed(2)}`);
         this.moneyText.update(delta);
 
         // --------

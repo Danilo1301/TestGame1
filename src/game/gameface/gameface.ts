@@ -19,6 +19,7 @@ import { eMatchStatus, MatchData } from "./matchData";
 import { ENCRYPTION_SECRET_KEY } from "../../server/keys";
 import { GameLogic } from "./gameLogic";
 import { SongManager } from "../songManager";
+import { LoadScene } from "../scenes/loadScene";
 
 export class Gameface extends BaseObject
 {
@@ -94,6 +95,8 @@ export class Gameface extends BaseObject
 
         MainScene.Instance.createPlayButton();
         
+        console.log(`\n\n\n\n%cGuitar Game\x1b[0m\nVocê encontrará algumas opções em window.game\n\n\n\n`, 'background: #222; color: #bada55; font-size: 24px;');
+
         await this.fuckingWaitForFirstClick();
 
         if(getIsMobile()) this.enterFullscreen();
@@ -130,6 +133,10 @@ export class Gameface extends BaseObject
 
         await this.songManager.loadSong("song1");
 
+        const song = this.songManager.getSong("song1");
+
+        console.log(song.name)
+
         this.network.send<IPacketData_DataToStartGame>(PACKET_TYPE.PACKET_MATCH_DATA_TO_START_GAME, {
             matchData: this.gameLogic.matchData
         })
@@ -146,7 +153,7 @@ export class Gameface extends BaseObject
 
         const params = getQueryParamsFromString(paramsText);
 
-        console.log(params)
+        //console.log(params)
 
         const matchId = params.matchId;
         const songId = params.songId;
@@ -190,6 +197,7 @@ export class Gameface extends BaseObject
         }
 
         this.sendMatchStatusChange("song error: " + message);
+        this.redirect();
     }
 
     public sendMatchStatusChange(message: string)
@@ -198,6 +206,12 @@ export class Gameface extends BaseObject
             newStatus: this.gameLogic.matchData.status,
             message: message
         })
+    }
+
+    public redirect()
+    {
+        const url = "https://guitarrinha.com/play"
+        location.href = url;
     }
 
     public crashGame()
@@ -279,6 +293,7 @@ export class Gameface extends BaseObject
         if(GameScene.Instance) GameScene.Instance.scene.bringToTop();
         if(EditorScene.Instance) EditorScene.Instance.scene.bringToTop();
         if(MainScene.Instance) MainScene.Instance.scene.bringToTop();
+        if(LoadScene.Instance) LoadScene.Instance.scene.bringToTop();
     }
 
     public async fuckingWaitForFirstClick()

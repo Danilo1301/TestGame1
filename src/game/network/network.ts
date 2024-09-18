@@ -46,12 +46,12 @@ export class Network extends BaseObject
             data: data
         }
         this._socket.emit('p', packet);
-        this.log(`sent packet '${packet.type}'`, packet);
+        this.log(`sent packet '${packet.type}'`);
     }
 
     public onReceivePacket(packet: IPacket)
     {
-        this.log(`reiceved packet ${packet.type}`, packet);
+        this.log(`reiceved packet ${packet.type}`);
 
         this._packetListener.emitReceivedPacketEvent(packet);
     }
