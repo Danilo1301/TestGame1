@@ -20,6 +20,7 @@ export class MainScene extends Phaser.Scene
     public testText!: Phaser.GameObjects.Text;
 
     public loadBackground?: Phaser.GameObjects.Image;
+    public howToPlayImage?: Phaser.GameObjects.Image;
 
     public onStart?: Function;
 
@@ -73,12 +74,22 @@ export class MainScene extends Phaser.Scene
         button.container.setVisible(false);
 
         const gameSize = Gameface.Instance.getGameSize();
-
+        
         const image = this.add.image(gameSize.x/2, gameSize.y/2, "background_load");
         this.loadBackground = image;
         if(getIsMobile())
         {
             image.setScale(1.5);
+        }
+
+        const howToPlay = this.add.image(gameSize.x/2, gameSize.y/2, "how_to_play");
+        this.howToPlayImage = howToPlay;
+        
+        if(getIsMobile())
+        {
+            howToPlay.setScale(0.8);
+        } else {
+            howToPlay.setScale(0.6);
         }
     }
 
@@ -112,11 +123,17 @@ export class MainScene extends Phaser.Scene
     public createPlayButton()
     {
         const gameSize = Gameface.Instance.getGameSize();
-        const button = new Button(this, "", gameSize.x/2, gameSize.y/2, 450, 70, "play_button");
+        const button = new Button(this, "", gameSize.x/2, gameSize.y - 200, 450, 70, "play_button");
+        if(!getIsMobile())
+        {
+            button.container.setPosition(button.container.x, gameSize.y - 50)
+        }
         button.onClick = () => {  
             button.destroy();
             this.loadBackground?.destroy();
             this.loadBackground = undefined;
+            this.howToPlayImage?.destroy();
+            this.howToPlayImage = undefined;
             this.onStart?.();
         };
     }
