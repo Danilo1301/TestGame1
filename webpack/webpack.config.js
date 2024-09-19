@@ -1,5 +1,5 @@
 const path = require('path');
-var WebpackObfuscator = require('webpack-obfuscator');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
     entry: './src/game/index.ts',
@@ -37,6 +37,9 @@ module.exports = {
             */
         ],
     },
+    plugins:[
+        new Dotenv()
+    ],
     devtool: 'source-map',
     mode: 'development'
 }
