@@ -1,7 +1,6 @@
 node_modules/
 package-lock.json
 .env
-keys.ts
 public/server
 public/utils
 public/game
