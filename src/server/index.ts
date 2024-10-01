@@ -14,10 +14,10 @@ import {
 } from "../game/network/packet";
 import { eMatchStatus, MatchData } from "../game/gameface/matchData";
 import axios from "axios";
-import { API_KEY } from "./keys";
 import { GameLogic } from "../game/gameface/gameLogic";
 import { SongManager } from "../game/songManager";
 import { Debug } from "../utils/debug/debug";
+import { API_KEY, PORT, SERVER_PATH, SERVER_URL } from "./keys";
 
 config({ path: resolve(__dirname, "../../.env") });
 
@@ -26,7 +26,7 @@ Debug.useColor = false;
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
 const io: socketio.Server = new socketio.Server();
-const port = 3000;
+const port = Number(PORT);
 
 interface PlayerData {
   gameLogic: GameLogic;
@@ -180,8 +180,7 @@ const updateMatchStatus = async (playerData: PlayerData, message: string) => {
     apiKey: API_KEY,
   };
 
-  const serverUrl = "https://abstractor.serveo.net";
-  const url = serverUrl + "/match/update";
+  const url = `${SERVER_URL}${SERVER_PATH}`;
 
   console.log("updateMatch", url, data);
 
