@@ -11,6 +11,7 @@ export interface BPMChange {
 
 export interface Song {
     name: string
+    author: string
     sound: string
     offset: number
     bpms: BPMChange[]

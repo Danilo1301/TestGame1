@@ -7,6 +7,7 @@ import { atlasAssets, audioAssets, imageAssets } from "../../game/constants/asse
 import { AudioManager } from "../audioManager/audioManager";
 
 export enum LoadState {
+    NOT_ADDED,
     NOT_LOADED,
     LOADING,
     LOADED
@@ -35,12 +36,12 @@ export class AssetLoad
 
     public static addImage(key: string, path: string)
     {
-        console.log(`Add asset to load: ${key} (${path})`);
+        console.log(`[AssetLoad] Add asset to load: ${key} (${path})`);
 
         const asset: Asset = {
             key: key,
             path: path,
-            loadState: LoadState.NOT_LOADED,
+            loadState: LoadState.NOT_ADDED,
             type: AssetType.IMAGE
         }
 
@@ -54,7 +55,7 @@ export class AssetLoad
         const asset: Asset = {
             key: key,
             path: path,
-            loadState: LoadState.NOT_LOADED,
+            loadState: LoadState.NOT_ADDED,
             type: AssetType.AUDIO
         }
 
@@ -68,7 +69,7 @@ export class AssetLoad
         const asset: Asset = {
             key: key,
             path: path,
-            loadState: LoadState.NOT_LOADED,
+            loadState: LoadState.NOT_ADDED,
             type: AssetType.ATLAS
         }
 
@@ -82,7 +83,7 @@ export class AssetLoad
         const asset: Asset = {
             key: key,
             path: "",
-            loadState: LoadState.NOT_LOADED,
+            loadState: LoadState.NOT_ADDED,
             type: loadBefore ? AssetType.TASK_BEFORE_LOAD : AssetType.TASK_AFTER_LOAD,
             fn: fn
         }
@@ -112,11 +113,13 @@ export class AssetLoad
 
                 for(const song of Gameface.Instance.songManager.getSongs())
                 {
-                    const key = song.sound;
+                    const key = song.sound; //song1
                     const path = `songs/${song.sound}.mp3`;
         
-                    this.addAudio(key, path);
+                    //this.addAudio(key, path); //doesnt work
                     AudioManager.addAudio(key, path);
+
+                    //this.addImage(`${song.sound}_image`, `songs/${song.sound}.png`); //doesnt work
                 }
 
                 resolve();

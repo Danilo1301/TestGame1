@@ -13,6 +13,8 @@ import { gameSettings } from "../../constants/gameSettings";
 
 export class GuitarHud extends BaseObject
 {
+    public container!: Phaser.GameObjects.Container;
+
     public moneyText!: MoneyText;
     public songDurationText!: Phaser.GameObjects.Text;
     public accuracyText!: Phaser.GameObjects.Text;
@@ -34,6 +36,7 @@ export class GuitarHud extends BaseObject
         const margin = 15;
 
         const container = scene.add.container();
+        this.container = container;
         Hud.addToHudLayer(container);
 
         const image = scene.add.image(-margin, margin, "hud/bg1");
@@ -61,13 +64,6 @@ export class GuitarHud extends BaseObject
         moneyText.container.setPosition(-110, 265);
         container.add(moneyText.container);
         this.moneyText = moneyText;
-
-        //song image
-
-        const songImage = scene.add.image(-410, 110, "song1_image");
-        songImage.setDisplaySize(110, 110);
-        container.add(songImage);
-        //this.songImage = songImage;
 
         //
 
@@ -195,17 +191,29 @@ export class GuitarHud extends BaseObject
         */
     }
 
-    public update(delta: number)
+    public createSongDetails()
     {
         const song = GameScene.Instance.soundPlayer.song;
 
-        if(song)
-        {
-            this.songTitleText.setText(`Sweet Child O' Mine`);
-            this.songAuthorText.setText(`Guns N' Roses`);
-        }
+        if(!song) throw "Song is undefined";
+        
+        this.log("create song details");
+        console.log(song.sound + "_image")
 
+        this.songTitleText.setText(song.name);
+        this.songAuthorText.setText(song.author);
 
+        //song image
+        const scene = MainScene.Instance;
+
+        const songImage = scene.add.image(-410, 110, song.sound + "_image");
+        songImage.setDisplaySize(110, 110);
+        this.container.add(songImage);
+        //this.songImage = songImage;
+    }
+
+    public update(delta: number)
+    {
         // -------
 
         let maxTime = 1;

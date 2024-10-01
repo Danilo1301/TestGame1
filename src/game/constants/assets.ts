@@ -31,7 +31,8 @@ export const imageAssets: AssetItem[] = [
 
     {key: "play_button", path: "play_button.png"},
 
-    {key: "song1_image", path: "songs/song1.png"} //test
+    {key: "song1_image", path: "songs/song1.png"},
+    {key: "song2_image", path: "songs/song2.png"}
 ];
 
 export const audioAssets: AssetItem[] = [

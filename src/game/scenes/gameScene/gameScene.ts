@@ -250,6 +250,8 @@ export class GameScene extends Phaser.Scene
         gameLogic.song = song;
         gameLogic.createNotes();
         GameScene.Instance.soundPlayer.startSong(song);
+
+        this.guitarHud.createSongDetails();
     }
 
     public startMultiplayerSong(song: Song)
