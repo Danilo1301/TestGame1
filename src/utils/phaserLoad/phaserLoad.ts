@@ -22,9 +22,13 @@ export class PhaserLoad {
     public static async loadAsync()
     {
         return new Promise<Phaser.Game>((resolve) => {
-            this.load((phaser) => {
-                resolve(phaser);
-            });
+            
+            setTimeout(() => {
+                this.load((phaser) => {
+                    resolve(phaser);
+                }); 
+            }, 0);
+            
         });
     }
 

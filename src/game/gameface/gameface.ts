@@ -69,6 +69,8 @@ export class Gameface extends BaseObject
 
         await this.waitForPreloadScene();
 
+        Gameface.setLoadingSpinnerVisible(false);
+
         this.sceneManager.startScene(MainScene);
         this.sceneManager.startScene(ThreeScene);
 
@@ -98,15 +100,19 @@ export class Gameface extends BaseObject
         
         console.log(`\n\n\n\n%cGuitar Game\x1b[0m\nVocê encontrará algumas opções em window.game\n\n\n\n`, 'background: #222; color: #bada55; font-size: 24px;');
 
-        await this.fuckingWaitForFirstClick();
-
-        if(getIsMobile()) this.enterFullscreen();
-
         const gameLogic = this.gameLogic;
         const matchData = gameLogic.matchData;
         const songId = this.gameLogic.matchData.songId;
 
-        const song = this.songManager.getSong("song1");
+        const song = this.songManager.getSong("song" + (parseInt(songId) + 1));
+
+        console.log(`User ID: ${matchData.userId}`);
+        console.log(`Song: ${song.name}`);
+        console.log(`Bet: ${matchData.betValue}`);
+
+        await this.fuckingWaitForFirstClick();
+
+        if(getIsMobile()) this.enterFullscreen();
 
         Gameface.Instance.sceneManager.startScene(GameScene);
         GameScene.Instance.startSong(song);
@@ -132,9 +138,13 @@ export class Gameface extends BaseObject
 
         this.log("Loading songs...");
 
-        await this.songManager.loadSong("song1");
+        const gameLogic = Gameface.Instance.gameLogic;
+        const matchData = gameLogic.matchData;
+        const songId = "song" + (parseInt(matchData.songId) + 1);
 
-        const song = this.songManager.getSong("song1");
+        await this.songManager.loadSong(songId);
+
+        const song = this.songManager.getSong(songId);
 
         console.log(song.name)
 
@@ -150,8 +160,21 @@ export class Gameface extends BaseObject
     private async processGameParams()
     {
         const q = location.href.split("/play/")[1];
-        const paramsText = this.decrypt(q);
 
+        let paramsText: string = "";
+        try {
+            paramsText = this.decrypt(q);
+        } catch (error) {
+            alert("Invalid URL");
+            throw "Invalid URL";
+        }
+
+        //matchId=22&betValue=20&songId=0&userId=1
+        //bed9a8b55460f864acf684d8f5d83d388781799a81549d830ba348cab25748475674122c2abc04f1c658aa79e1443fbe
+
+        //matchId=22&betValue=20&songId=1&userId=1
+        //bed9a8b55460f864acf684d8f5d83d38a124c5aa5faa2e03a3831a893bc5b86b4eb7be00e1aa41a1c4918d6ebb94a85a
+        
         const params = getQueryParamsFromString(paramsText);
 
         //console.log(params)
@@ -212,6 +235,8 @@ export class Gameface extends BaseObject
 
     public redirect()
     {
+        Gameface.setLoadingSpinnerVisible(true);
+
         location.href = gameSettings.redirectToUrl;
     }
 
@@ -240,6 +265,24 @@ export class Gameface extends BaseObject
         const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
 
         return decryptedText;
+    }
+
+    private encrypt(data: string) {
+
+        const key = CryptoJS.enc.Utf8.parse(ENCRYPTION_SECRET_KEY);
+        const iv = CryptoJS.enc.Utf8.parse(ENCRYPTION_SECRET_KEY);
+    
+        // Criptografar o dado usando AES com CBC e PKCS7
+        const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(data), key, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        });
+    
+        // Converter o resultado para hexadecimal
+        const encryptedHex = encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+    
+        return encryptedHex;
     }
 
     private async waitForPreloadScene()
@@ -316,5 +359,15 @@ export class Gameface extends BaseObject
         const scale = this.phaser.scale;
         const gameSize = new Phaser.Math.Vector2(scale.width, scale.height);
         return gameSize;
+    }
+
+    public static setLoadingSpinnerVisible(visible: boolean)
+    {
+        if(visible)
+        {
+            $("#loading").show();
+        } else {
+            $("#loading").hide();
+        }
     }
 }

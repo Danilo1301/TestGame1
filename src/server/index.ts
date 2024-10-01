@@ -101,8 +101,9 @@ const setupSocketServer = () => {
         playerData.gameLogic.matchData = data.matchData;
         playerData.gameLogic.money = data.matchData.betValue;
 
+        
         //const songId = data.matchData.songId;
-        const songId = "song1";
+        const songId = "song" + (parseInt(data.matchData.songId) + 1);
 
         await songManager.loadSong(songId);
         playerData.gameLogic.song = songManager.getSong(songId);
@@ -159,6 +160,7 @@ const setupSocketServer = () => {
 
 const loadSongs = async () => {
   await songManager.loadSong("song1");
+  await songManager.loadSong("song2");
 };
 
 main();
