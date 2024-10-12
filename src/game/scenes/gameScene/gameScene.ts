@@ -170,7 +170,7 @@ export class GameScene extends Phaser.Scene
 
         this.ground.create();
 
-        this.createBackground();
+        //this.createBackground();
 
         this.createPads();
 

@@ -125,9 +125,12 @@ export class Gameface extends BaseObject {
   }
 
   public async beginLoad1() {
+
+    console.log("process game params...");
+
     await this.processGameParams();
 
-    this.log("Loading songs...");
+    console.log("Loading songs in SongManager...");
 
     const gameLogic = Gameface.Instance.gameLogic;
     const matchData = gameLogic.matchData;
@@ -154,8 +157,14 @@ export class Gameface extends BaseObject {
   }
 
   private async processGameParams() {
+
     const q = location.href.split("/play/")[1];
+
+    console.log(`q = ${q}`);
+
     const paramsText = this.decrypt(q);
+
+    console.log(`params decrypted`);
 
     //matchId=22&betValue=20&songId=0&userId=1
     //bed9a8b55460f864acf684d8f5d83d388781799a81549d830ba348cab25748475674122c2abc04f1c658aa79e1443fbe
@@ -164,6 +173,8 @@ export class Gameface extends BaseObject {
     //bed9a8b55460f864acf684d8f5d83d38a124c5aa5faa2e03a3831a893bc5b86b4eb7be00e1aa41a1c4918d6ebb94a85a
     
     const params = getQueryParamsFromString(paramsText);
+
+    console.log(`got query params`);
 
     //console.log(params)
 
@@ -181,6 +192,8 @@ export class Gameface extends BaseObject {
     matchData.betValue = betValue;
 
     gameLogic.money = matchData.betValue;
+
+    console.log(`params processed!`);
   }
 
   public onSongStart() {

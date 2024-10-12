@@ -36,9 +36,10 @@ export const imageAssets: AssetItem[] = [
 ];
 
 export const audioAssets: AssetItem[] = [
-    {key: "bpm", path: "bpm.ogg"},
-    {key: "osu_hitsound", path: "osu_hitsound.ogg"}
+
 ];
+// {key: "bpm", path: "bpm.mp3"},
+// {key: "osu_hitsound", path: "osu_hitsound.mp3"}
 
 export const atlasAssets: AssetItem[] = [
     {key: "pad_sheet", path: "pad/sheet"},

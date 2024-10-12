@@ -30,6 +30,7 @@ export class LoadScene extends Phaser.Scene
         const load = this.load;
 
         load.setPath(AssetLoad.getAssetsUrl());
+
         load.on('filecomplete', function(key: string, type: any, data: any) {
             const asset = AssetLoad.getAssetByKey(key);
 
@@ -127,7 +128,11 @@ export class LoadScene extends Phaser.Scene
                 loadAsset.asset.loadState = LoadState.LOADING;
 
                 if(loadAsset.asset.type == AssetType.IMAGE) load.image(key, path);
-                if(loadAsset.asset.type == AssetType.AUDIO) load.audio(key, path);
+                if(loadAsset.asset.type == AssetType.AUDIO)
+                {
+                    console.warn("Áudio não é suportado no IOS AINDA");
+                    //load.audio(key, path, { noCache: true });
+                }
                 if(loadAsset.asset.type == AssetType.ATLAS) load.atlas(key, `${path}.png`, `${path}.json`);
             }
 

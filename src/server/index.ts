@@ -36,6 +36,12 @@ const songManager = new SongManager();
 const players = new Map<string, PlayerData>();
 
 const main = async () => {
+  if(!API_KEY) throw `API_KEY is not defined`;
+  if(!SERVER_URL) throw `SERVER_URL is not defined`;
+  if(!SERVER_PATH) throw `SERVER_PATH is not defined`;
+
+  console.log(`Server URL: ${SERVER_URL}${SERVER_PATH}`);
+
   setupExpressServer();
   setupSocketServer();
 
@@ -53,14 +59,32 @@ const setupExpressServer = () => {
     next();
   });
 
-  // app.get("/", function (req, res, next) {
-  //   res.redirect(
-  //     "/play/bed9a8b55460f864acf684d8f5d83d385b2d04c2d78f7f2ef5a5839a9de3b6335d20fa39353b1ffb0f43dfff657a01aa"
-  //   );
-  //   next();
-  // });
+  app.get("/test/1", function (req, res, next) {
+    //matchId=22&betValue=20&songId=0&userId=1
+    res.redirect(
+      "/play/bed9a8b55460f864acf684d8f5d83d388781799a81549d830ba348cab25748475674122c2abc04f1c658aa79e1443fbe"
+    );
+    next();
+  });
 
-  app.use(express.static(path.join(__dirname, "..", "..", "public")));
+  app.get("/test/2", function (req, res, next) {
+    //matchId=22&betValue=20&songId=1&userId=1
+    res.redirect(
+      "/play/bed9a8b55460f864acf684d8f5d83d38a124c5aa5faa2e03a3831a893bc5b86b4eb7be00e1aa41a1c4918d6ebb94a85a"
+    );
+    next();
+  });
+
+  // Definindo o diretório público e configurando cabeçalhos personalizados
+  app.use(express.static(path.join(__dirname, "..", "..", "public"), {
+    setHeaders: (res, path) => {
+
+      console.log(path);
+
+      res.setHeader('Accept-Ranges', 'bytes'); // Aceitar requisições parciais
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  }));
 
   app.get("/play/:q", function (req, res) {
     res.sendFile(path.join(__dirname, "..", "..", "public", "index.html"));

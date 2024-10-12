@@ -73,20 +73,50 @@ export class AudioManager
 
             for(const asset of this.assets.values())
             {
+                console.log(`Loading html audio ${asset.url}`);
+
                 const audio = new Audio(`/assets/${asset.url}`);
-                audio.preload = 'auto';
+                //audio.preload = 'auto';
 
                 asset.audio = audio;
 
-                audio.addEventListener('canplaythrough', () => {
+                const self = this;
+
+                function markAsLoaded()
+                {
+                    if(asset.loadState == LoadState.LOADED)
+                    {
+                        console.error("O audio já foi carregado, mas foi marcado como carregado novamente!");
+                        return;
+                    }
+
                     asset.loadState = LoadState.LOADED;
 
-                    notLoaded = this.getNotLoadedCount();
+                    console.log(`Áudio HTML '${asset.url}' carregado!`);
+
+                    notLoaded = self.getNotLoadedCount();
 
                     if(notLoaded == 0)
                     {
                         resolve();
                     }
+                }
+
+                audio.addEventListener('progress', () => {
+                    console.log('Carregando áudio:', audio.readyState); 
+
+                    markAsLoaded();
+                    
+                    if (audio.readyState >= 2)
+                    {
+                        console.log('Áudio pronto para reprodução: readyState = ' + audio.readyState);
+                        markAsLoaded();
+                    }
+                });
+
+                audio.addEventListener('canplaythrough', () => {
+                    console.log('Áudio pronto para reprodução: canplaythrough');
+                    markAsLoaded();
                 }, false);
             }
         });

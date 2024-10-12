@@ -105,8 +105,12 @@ export class AssetLoad
         });
 
         this.addTask(`load_songs`, true, async () => {
+            console.log("load_songs called...");
+
             return new Promise<void>(async (resolve) => {
-                
+
+                console.log("beginLoad1");
+
                 await Gameface.Instance.beginLoad1();
 
                 console.log("loading songs");
@@ -138,7 +142,7 @@ export class AssetLoad
     
         for(const asset of audioAssets)
         {
-            this.addAudio(asset.key, asset.path);
+            //this.addAudio(asset.key, asset.path);
             AudioManager.addAudio(asset.key, asset.path);
         }
     }
