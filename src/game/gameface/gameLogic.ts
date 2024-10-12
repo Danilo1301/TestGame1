@@ -315,7 +315,15 @@ export class GameLogic extends BaseObject {
         this.events.emit(eGameLogicEvents.EVENT_BREAK_COMBO);
         this.combo = 0;
         this.accumulatedMoney = 0;
-        this.money -= 1;
+
+        // remove money
+        var betValue = this.matchData.betValue;
+        var maxGanho = betValue * 10;
+        var notas = this.notes.length;
+        var porNota = maxGanho / notas;
+
+        this.money -= porNota;
+        //
     }
 
     public getHowGoodNoteIs(ms: number)
