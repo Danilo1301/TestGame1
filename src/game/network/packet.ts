@@ -6,7 +6,8 @@ export enum PACKET_TYPE {
     PACKET_MATCH_DATA_TO_START_GAME,
     PACKET_MATCH_CONFIRM_START_GAME,
     PACKET_PAD_DOWN_OR_UP,
-    PACKET_NOTE_MISS
+    PACKET_NOTE_MISS,
+    PACKET_FORCE_FINISH
 }
 
 export interface IPacketData {
@@ -36,4 +37,8 @@ export interface IPacketData_PadDownOrUp {
     down: boolean
     index: number
     time: number
+}
+
+export interface IPacketData_ForceFinish {
+    money: number
 }

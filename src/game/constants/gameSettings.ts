@@ -6,6 +6,6 @@ export const gameSettings = {
     showFPS: true,
     noteTimeToAchieve: 1000,
     currency: "GC$",
-    redirectToUrl: "https://guitarrinha.com/play",
+    redirectToUrl: process.env.CLIENT_REDIRECT_URL || "",
     exposeVars: true
 }

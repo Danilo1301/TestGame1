@@ -20,6 +20,7 @@ import { Network } from "../network/network";
 import {
   IPacketData_DataToStartGame,
   IPacketData_Event,
+  IPacketData_ForceFinish,
   IPacketData_MatchStatusChange,
   PACKET_TYPE,
 } from "../network/packet";
@@ -113,6 +114,7 @@ export class Gameface extends BaseObject {
     console.log(`Song: ${song.name}`);
     console.log(`User ID: ${matchData.userId}`);
     console.log(`Bet: ${matchData.betValue}`);
+    console.log(`Redirect URL: ${gameSettings.redirectToUrl}`);
 
     await this.fuckingWaitForFirstClick();
 
@@ -205,6 +207,16 @@ export class Gameface extends BaseObject {
     this.gameLogic.matchData.status = eMatchStatus.FINISHED;
     this.sendMatchStatusChange("song ended");
     this.redirect();
+  }
+
+  public sendFinishGameWithCustomMoney(money: number)
+  {
+    this.network.send<IPacketData_ForceFinish>(
+      PACKET_TYPE.PACKET_FORCE_FINISH,
+      {
+        money: money
+      }
+    );
   }
 
   public onSongError(error: any) {

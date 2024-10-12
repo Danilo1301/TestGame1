@@ -8,6 +8,7 @@ import {
   IPacket,
   IPacketData,
   IPacketData_DataToStartGame,
+  IPacketData_ForceFinish,
   IPacketData_MatchStatusChange,
   IPacketData_PadDownOrUp,
   PACKET_TYPE,
@@ -39,6 +40,7 @@ const main = async () => {
   if(!API_KEY) throw `API_KEY is not defined`;
   if(!SERVER_URL) throw `SERVER_URL is not defined`;
   if(!SERVER_PATH) throw `SERVER_PATH is not defined`;
+  console.log(`Redirect URL: ${process.env.CLIENT_REDIRECT_URL}`);
 
   console.log(`Server URL: ${SERVER_URL}${SERVER_PATH}`);
 
@@ -79,7 +81,7 @@ const setupExpressServer = () => {
   app.use(express.static(path.join(__dirname, "..", "..", "public"), {
     setHeaders: (res, path) => {
 
-      console.log(path);
+      //console.log(path);
 
       res.setHeader('Accept-Ranges', 'bytes'); // Aceitar requisições parciais
       res.setHeader('Access-Control-Allow-Origin', '*');
@@ -136,6 +138,18 @@ const setupSocketServer = () => {
         send(PACKET_TYPE.PACKET_MATCH_CONFIRM_START_GAME, {});
       }
 
+      if (packet.type == PACKET_TYPE.PACKET_FORCE_FINISH) {
+        const data = packet.data as IPacketData_ForceFinish;
+
+        console.log(data);
+
+        playerData.gameLogic.money = data.money;
+        playerData.gameLogic.matchData.status = eMatchStatus.FINISHED;
+        playerData.gameLogic.printBalanceInfo();
+
+        updateMatchStatus(playerData, "forced finish (custom amount of money)");
+      }
+
       if (packet.type == PACKET_TYPE.PACKET_MATCH_STATUS_CHANGE) {
         const data = packet.data as IPacketData_MatchStatusChange;
 
@@ -170,10 +184,19 @@ const setupSocketServer = () => {
     socket.on("disconnect", () => {
       console.log("socket disconnected");
 
+      let canUpdateMatchStatus = true;
+
+      if(playerData.gameLogic.matchData.status == eMatchStatus.FINISHED)
+      {
+        console.log("Player already finished game, dont update match status");
+        canUpdateMatchStatus = false;
+      }
+
       playerData.gameLogic.matchData.status = eMatchStatus.DISCONNECTED;
       playerData.gameLogic.printBalanceInfo();
 
-      updateMatchStatus(playerData, "player disconnected");
+      if(canUpdateMatchStatus)
+        updateMatchStatus(playerData, "player disconnected");
 
       players.delete(socket.id);
 
