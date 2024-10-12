@@ -108,6 +108,7 @@ const scoreMap = new Map<eNoteHitGood, number>([
 export class GameLogic extends BaseObject {
     public song?: Song;
 
+    public betValue: number = 0;
     public money: number = 0;
     public accumulatedMoney: number = 0;
     public combo: number = 0;

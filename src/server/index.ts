@@ -125,6 +125,7 @@ const setupSocketServer = () => {
         const data = packet.data as IPacketData_DataToStartGame;
 
         playerData.gameLogic.matchData = data.matchData;
+        playerData.gameLogic.betValue = data.matchData.betValue;
         playerData.gameLogic.money = data.matchData.betValue;
 
         
@@ -222,7 +223,8 @@ const updateMatchStatus = async (playerData: PlayerData, message: string) => {
     matchId: matchData.matchId,
     status: status,
     userId: matchData.userId,
-    betValue: gameLogic.money,
+    betValue: gameLogic.betValue,
+    money: gameLogic.money - gameLogic.betValue,
     message: message,
     apiKey: API_KEY,
   };
