@@ -217,6 +217,7 @@ export class Gameface extends BaseObject {
         money: money
       }
     );
+    this.redirect();
   }
 
   public onSongError(error: any) {
