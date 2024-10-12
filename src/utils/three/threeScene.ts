@@ -61,7 +61,7 @@ export class ThreeScene extends Scene3D
         }
 
      
-        this.third.renderer.setSize(200, 200, true);
+        //this.third.renderer.setSize(200, 200, true);
 
 
         camera.updateProjectionMatrix();
