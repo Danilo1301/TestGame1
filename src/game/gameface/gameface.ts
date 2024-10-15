@@ -115,7 +115,9 @@ export class Gameface extends BaseObject {
     console.log(`Song: ${song.name}`);
     console.log(`User ID: ${matchData.userId}`);
     console.log(`Bet: ${matchData.betValue}`);
+    console.log(`Duration: ${gameLogic.demoSongDuration || -1} seconds`);
     console.log(`Redirect URL: ${Network.REDIRECT_URL}`);
+    console.log(`demo: ${this.encrypt("demo=1&duration=30&betValue=2000&songId=0")}`);
 
     await this.fuckingWaitForFirstClick();
 
@@ -190,13 +192,24 @@ export class Gameface extends BaseObject {
 
     //console.log(params)
 
-    const matchId = params.matchId;
-    const songId = params.songId;
-    const userId = params.userId;
-    const betValue = parseInt(params.betValue) / 100;
+    let demo = params.demo;
+    let duration = parseInt(params.duration);
+
+    let matchId = params.matchId;
+    let songId = params.songId;
+    let userId = params.userId;
+    let betValue = parseInt(params.betValue) / 100;
 
     const gameLogic = Gameface.Instance.gameLogic;
     const matchData = gameLogic.matchData;
+
+    if(parseInt(demo) == 1)
+    {
+      matchId = "";
+      userId = "demo";
+
+      gameLogic.demoSongDuration = duration * 1000;
+    }
 
     matchData.matchId = matchId;
     matchData.songId = songId;

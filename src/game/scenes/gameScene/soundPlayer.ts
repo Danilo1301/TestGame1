@@ -129,6 +129,9 @@ export class SoundPlayer
 
         if(soundFinishTime < finishTime) finishTime = soundFinishTime;
 
+        if(Gameface.Instance.gameLogic.demoSongDuration != undefined)
+            return Gameface.Instance.gameLogic.demoSongDuration;
+
         return finishTime;
     }
     

@@ -121,6 +121,8 @@ export class GameLogic extends BaseObject {
 
     public songTime: number = 0;
 
+    public demoSongDuration?: number = undefined;
+
     public matchData: MatchData = {
         status: eMatchStatus.NONE,
         matchId: "",

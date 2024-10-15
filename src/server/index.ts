@@ -61,6 +61,14 @@ const setupExpressServer = () => {
     next();
   });
 
+  app.get("/demo", function (req, res, next) {
+    //demo=1&duration=30&betValue=2000&songId=0
+    res.redirect(
+      "/play/3811e9d73ac6eaa3f9ba212c96bf2c199512ca126e193325099e11777f1b65caa5b3f90eb43764bfc810041761f422ac"
+    );
+    next();
+  });
+
   app.get("/test/1", function (req, res, next) {
     //matchId=22&betValue=2000&songId=0&userId=1
     res.redirect(
@@ -123,6 +131,8 @@ const setupSocketServer = () => {
 
       if (packet.type == PACKET_TYPE.PACKET_MATCH_DATA_TO_START_GAME) {
         const data = packet.data as IPacketData_DataToStartGame;
+
+        console.log(data);
 
         playerData.gameLogic.matchData = data.matchData;
         playerData.gameLogic.money = data.matchData.betValue;
@@ -217,6 +227,12 @@ main();
 const updateMatchStatus = async (playerData: PlayerData, message: string) => {
   const gameLogic = playerData.gameLogic;
   const matchData = gameLogic.matchData;
+
+  if(matchData.userId == "demo")
+  {
+    console.log(`[MatchUpdate] Skip update: demo game`);
+    return;
+  }
 
   const status: string = matchData.status;
 

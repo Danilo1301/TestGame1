@@ -140,8 +140,6 @@ export class Pad extends BaseObject
 
     public startDrag(note: Note)
     {
-        console.warn("start drag")
-
         note.startBeeingDragged(this);
 
         this.draggingNote = note;
@@ -243,9 +241,7 @@ export class Pad extends BaseObject
 
         //award score
         if(this.draggingNote)
-        {
-            console.warn("implement this");
-            
+        {   
             /*
             const now = GameScene.Instance.soundPlayer.getCurrentSoundPosition();
             if(now - this._lastTimeAwardedScoreByDragging >= 500)
