@@ -11,6 +11,7 @@ import {
   IPacketData_ForceFinish,
   IPacketData_MatchStatusChange,
   IPacketData_PadDownOrUp,
+  IPacketData_StartGameData,
   PACKET_TYPE,
 } from "../game/network/packet";
 import { eMatchStatus, MatchData } from "../game/gameface/matchData";
@@ -18,7 +19,7 @@ import axios from "axios";
 import { GameLogic } from "../game/gameface/gameLogic";
 import { SongManager } from "../game/songManager";
 import { Debug } from "../utils/debug/debug";
-import { API_KEY, PORT, SERVER_PATH, SERVER_URL } from "./keys";
+import { API_KEY, CLIENT_REDIRECT_URL, PORT, SERVER_PATH, SERVER_URL } from "./keys";
 
 config({ path: resolve(__dirname, "../../.env") });
 
@@ -40,7 +41,6 @@ const main = async () => {
   if(!API_KEY) throw `API_KEY is not defined`;
   if(!SERVER_URL) throw `SERVER_URL is not defined`;
   if(!SERVER_PATH) throw `SERVER_PATH is not defined`;
-  console.log(`Redirect URL: ${process.env.CLIENT_REDIRECT_URL}`);
 
   console.log(`Server URL: ${SERVER_URL}${SERVER_PATH}`);
 
@@ -62,17 +62,17 @@ const setupExpressServer = () => {
   });
 
   app.get("/test/1", function (req, res, next) {
-    //matchId=22&betValue=20&songId=0&userId=1
+    //matchId=22&betValue=2000&songId=0&userId=1
     res.redirect(
-      "/play/bed9a8b55460f864acf684d8f5d83d388781799a81549d830ba348cab25748475674122c2abc04f1c658aa79e1443fbe"
+      "/play/bed9a8b55460f864acf684d8f5d83d383f3f55ca47f1ed27cd440fcf2d5494df0dd80c52c71888f9111d48681ca0370b"
     );
     next();
   });
 
   app.get("/test/2", function (req, res, next) {
-    //matchId=22&betValue=20&songId=1&userId=1
+    //matchId=22&betValue=2000&songId=1&userId=1
     res.redirect(
-      "/play/bed9a8b55460f864acf684d8f5d83d38a124c5aa5faa2e03a3831a893bc5b86b4eb7be00e1aa41a1c4918d6ebb94a85a"
+      "/play/bed9a8b55460f864acf684d8f5d83d383f3f55ca47f1ed27cd440fcf2d5494dff0a62107d120c0e50878667d65aec778"
     );
     next();
   });
@@ -125,7 +125,6 @@ const setupSocketServer = () => {
         const data = packet.data as IPacketData_DataToStartGame;
 
         playerData.gameLogic.matchData = data.matchData;
-        playerData.gameLogic.betValue = data.matchData.betValue;
         playerData.gameLogic.money = data.matchData.betValue;
 
         
@@ -136,7 +135,9 @@ const setupSocketServer = () => {
         playerData.gameLogic.song = songManager.getSong(songId);
         playerData.gameLogic.createAll();
 
-        send(PACKET_TYPE.PACKET_MATCH_CONFIRM_START_GAME, {});
+        send<IPacketData_StartGameData>(PACKET_TYPE.PACKET_MATCH_CONFIRM_START_GAME, {
+          redirectUrl: CLIENT_REDIRECT_URL || ""
+        });
       }
 
       if (packet.type == PACKET_TYPE.PACKET_FORCE_FINISH) {
@@ -219,19 +220,29 @@ const updateMatchStatus = async (playerData: PlayerData, message: string) => {
 
   const status: string = matchData.status;
 
+  console.log(`money: ${gameLogic.money}`);
+  console.log(`betValue: ${gameLogic.matchData.betValue}`);
+
+  let moneyEarned = gameLogic.getMoneyEarned();
+  console.log(`moneyEarned: ${moneyEarned}`);
+
+  moneyEarned *= 100;
+  moneyEarned = parseInt(moneyEarned.toFixed(0));
+
   const data = {
     matchId: matchData.matchId,
     status: status,
     userId: matchData.userId,
-    betValue: gameLogic.betValue,
-    money: gameLogic.money - gameLogic.betValue,
+    betValue: matchData.betValue * 100,
+    money: moneyEarned,
     message: message,
     apiKey: API_KEY,
   };
 
   const url = `${SERVER_URL}${SERVER_PATH}`;
 
-  console.log("updateMatch", url, data);
+  console.error(`[MatchUpdate]`, url);
+  console.log(data);
 
   try {
     const response = await axios.put(url, data, {
@@ -240,9 +251,9 @@ const updateMatchStatus = async (playerData: PlayerData, message: string) => {
         "Content-Type": "application/json",
       },
     });
-    console.log("Response:", response.data);
+    console.log("[MatchUpdate] Response:", response.data);
   } catch (error) {
     const code = (error as any).code;
-    console.error("Error code:", code);
+    console.error(`[ERROR - MatchUpdate] Error code:`, code);
   }
 };

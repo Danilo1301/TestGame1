@@ -42,3 +42,7 @@ export interface IPacketData_PadDownOrUp {
 export interface IPacketData_ForceFinish {
     money: number
 }
+
+export interface IPacketData_StartGameData {
+    redirectUrl: string
+}

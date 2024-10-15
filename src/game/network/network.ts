@@ -5,6 +5,8 @@ import { PacketListener } from "./packetListener";
 
 export class Network extends BaseObject
 {
+    public static REDIRECT_URL: string = "";
+
     public get socket() { return this._socket; }
 
     private _socket!: Socket;

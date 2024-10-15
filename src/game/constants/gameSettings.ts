@@ -6,6 +6,5 @@ export const gameSettings = {
     showFPS: true,
     noteTimeToAchieve: 1000,
     currency: "GC$",
-    redirectToUrl: process.env.CLIENT_REDIRECT_URL || "",
     exposeVars: true
 }

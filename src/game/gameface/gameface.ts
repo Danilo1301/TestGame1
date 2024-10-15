@@ -22,6 +22,7 @@ import {
   IPacketData_Event,
   IPacketData_ForceFinish,
   IPacketData_MatchStatusChange,
+  IPacketData_StartGameData,
   PACKET_TYPE,
 } from "../network/packet";
 import { eGameEventType } from "../network/eGameEventType";
@@ -114,7 +115,7 @@ export class Gameface extends BaseObject {
     console.log(`Song: ${song.name}`);
     console.log(`User ID: ${matchData.userId}`);
     console.log(`Bet: ${matchData.betValue}`);
-    console.log(`Redirect URL: ${gameSettings.redirectToUrl}`);
+    console.log(`Redirect URL: ${Network.REDIRECT_URL}`);
 
     await this.fuckingWaitForFirstClick();
 
@@ -151,11 +152,13 @@ export class Gameface extends BaseObject {
       }
     );
 
-    await this.network.waitForPacket(
+    const packet = await this.network.waitForPacket<IPacketData_StartGameData>(
       PACKET_TYPE.PACKET_MATCH_CONFIRM_START_GAME
     );
 
-    console.log("confirmed");
+    console.log("confirmed", packet);
+
+    Network.REDIRECT_URL = packet.redirectUrl;
   }
 
   private async processGameParams() {
@@ -164,7 +167,14 @@ export class Gameface extends BaseObject {
 
     console.log(`q = ${q}`);
 
-    const paramsText = this.decrypt(q);
+    let paramsText: string = "";
+    
+    try {
+      paramsText = this.decrypt(q);
+    } catch (error) {
+      console.log(error);
+      alert(`Coloque uma URL válida!`);
+    }
 
     console.log(`params decrypted`);
 
@@ -183,7 +193,7 @@ export class Gameface extends BaseObject {
     const matchId = params.matchId;
     const songId = params.songId;
     const userId = params.userId;
-    const betValue = parseInt(params.betValue);
+    const betValue = parseInt(params.betValue) / 100;
 
     const gameLogic = Gameface.Instance.gameLogic;
     const matchData = gameLogic.matchData;
@@ -206,7 +216,7 @@ export class Gameface extends BaseObject {
   public onSongEnd() {
     this.gameLogic.matchData.status = eMatchStatus.FINISHED;
     this.sendMatchStatusChange("song ended");
-    this.redirect();
+    this.redirect(true);
   }
 
   public sendFinishGameWithCustomMoney(money: number)
@@ -217,7 +227,8 @@ export class Gameface extends BaseObject {
         money: money
       }
     );
-    this.redirect();
+    this.gameLogic.money = money;
+    this.crashGame();
   }
 
   public onSongError(error: any) {
@@ -232,7 +243,7 @@ export class Gameface extends BaseObject {
     }
 
     this.sendMatchStatusChange("song error: " + message);
-    this.redirect();
+    this.redirect(true);
   }
 
   public sendMatchStatusChange(message: string) {
@@ -245,9 +256,24 @@ export class Gameface extends BaseObject {
     );
   }
 
-  public redirect() {
+  public redirect(toResults: boolean) {
     Gameface.setLoadingSpinnerVisible(true);
-    location.href = gameSettings.redirectToUrl;
+
+    // if(!toResults)
+    // {
+    //   location.href = Network.REDIRECT_URL + `/play`;
+    //   return;
+    // }
+
+    const gameLogic = this.gameLogic;
+
+    const pontos = gameLogic.score;
+    const accuracy = (gameLogic.getAccuracy() * 100).toFixed(0);
+
+    let earned = gameLogic.getMoneyEarned();
+    earned = parseFloat(earned.toFixed(2));
+
+    location.href = Network.REDIRECT_URL + `/result?pontos=${pontos}&accuracy=${accuracy}&totalEarned=${earned}`;
   }
 
   public crashGame() {
@@ -274,6 +300,21 @@ export class Gameface extends BaseObject {
 
     return decryptedText;
   }
+
+  public encrypt(data: string) {
+    const key = CryptoJS.enc.Utf8.parse(process.env.ENCRYPTION_SECRET_KEY!);
+    const iv = CryptoJS.enc.Utf8.parse(process.env.ENCRYPTION_SECRET_KEY!);
+
+    const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(data), key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    // Retorna o texto criptografado em formato hexadecimal
+    return encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+  }
+
 
   private async waitForPreloadScene() {
     return new Promise<void>((resolve) => {

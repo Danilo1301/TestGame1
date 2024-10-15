@@ -1,6 +1,7 @@
 import { BaseObject } from "../../utils/baseObject";
 import { EventHandler } from "../../utils/eventHandler";
 import { Interval, isNumberBetweenInverval } from "../../utils/interval";
+import { clamp } from "../../utils/utils";
 import { gameSettings } from "../constants/gameSettings";
 import { Song, SongNote } from "../constants/songs";
 import { eMatchStatus, MatchData } from "./matchData";
@@ -108,7 +109,6 @@ const scoreMap = new Map<eNoteHitGood, number>([
 export class GameLogic extends BaseObject {
     public song?: Song;
 
-    public betValue: number = 0;
     public money: number = 0;
     public accumulatedMoney: number = 0;
     public combo: number = 0;
@@ -377,5 +377,33 @@ export class GameLogic extends BaseObject {
     public printBalanceInfo()
     {
         this.log(`balance: ${this.money} (+${this.accumulatedMoney})`)
+    }
+
+    public getNotesHitted()
+    {
+        return this.notes.filter(note => note.hitted);
+    }
+
+    public getNotesMissed()
+    {
+        return this.notes.filter(note => note.missed);
+    }
+
+    public getAccuracy()
+    {
+        const hittedNotes = this.getNotesHitted().length;
+        const missedNotes = this.getNotesMissed().length;
+
+        const totalNotes = hittedNotes + missedNotes;
+
+        let hitRatio = clamp(missedNotes / totalNotes, 0, 1);
+        if(Number.isNaN(hitRatio)) hitRatio = 0;
+
+        return hitRatio;
+    }
+
+    public getMoneyEarned()
+    {
+        return this.money - this.matchData.betValue;
     }
 }
