@@ -20,6 +20,7 @@ import { GameLogic } from "../game/gameface/gameLogic";
 import { SongManager } from "../game/songManager";
 import { Debug } from "../utils/debug/debug";
 import { API_KEY, CLIENT_REDIRECT_URL, PORT, SERVER_PATH, SERVER_URL } from "./keys";
+import { encrypt } from "../utils/encrypt";
 
 config({ path: resolve(__dirname, "../../.env") });
 
@@ -63,8 +64,11 @@ const setupExpressServer = () => {
 
   app.get("/demo", function (req, res, next) {
     //demo=1&duration=30&betValue=2000&songId=0
+
+    const params = "demo=1&duration=50&betValue=2000&songId=0";
+
     res.redirect(
-      "/play/3811e9d73ac6eaa3f9ba212c96bf2c199512ca126e193325099e11777f1b65caa5b3f90eb43764bfc810041761f422ac"
+      "/play/" + encrypt(params)
     );
     next();
   });

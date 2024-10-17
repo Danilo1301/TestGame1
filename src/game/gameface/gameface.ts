@@ -31,6 +31,7 @@ import { GameLogic } from "./gameLogic";
 import { SongManager } from "../songManager";
 import { LoadScene } from "../scenes/loadScene";
 import { gameSettings } from "../constants/gameSettings";
+import { decrypt } from "../../utils/encrypt";
 
 export class Gameface extends BaseObject {
   public static Instance: Gameface;
@@ -117,7 +118,6 @@ export class Gameface extends BaseObject {
     console.log(`Bet: ${matchData.betValue}`);
     console.log(`Duration: ${gameLogic.demoSongDuration || -1} seconds`);
     console.log(`Redirect URL: ${Network.REDIRECT_URL}`);
-    console.log(`demo: ${this.encrypt("demo=1&duration=30&betValue=2000&songId=0")}`);
 
     await this.fuckingWaitForFirstClick();
 
@@ -172,7 +172,7 @@ export class Gameface extends BaseObject {
     let paramsText: string = "";
     
     try {
-      paramsText = this.decrypt(q);
+      paramsText = decrypt(q);
     } catch (error) {
       console.log(error);
       alert(`Coloque uma URL válida!`);
@@ -292,42 +292,6 @@ export class Gameface extends BaseObject {
   public crashGame() {
     GameScene.Instance.soundPlayer.crashGame();
   }
-
-  private decrypt(encryptedData: string) {
-    const key = CryptoJS.enc.Utf8.parse(process.env.ENCRYPTION_SECRET_KEY!);
-    const iv = CryptoJS.enc.Utf8.parse(process.env.ENCRYPTION_SECRET_KEY!);
-
-    const encryptedBytes = CryptoJS.enc.Hex.parse(encryptedData);
-
-    const encrypted = CryptoJS.lib.CipherParams.create({
-      ciphertext: encryptedBytes,
-    });
-
-    const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-
-    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-
-    return decryptedText;
-  }
-
-  public encrypt(data: string) {
-    const key = CryptoJS.enc.Utf8.parse(process.env.ENCRYPTION_SECRET_KEY!);
-    const iv = CryptoJS.enc.Utf8.parse(process.env.ENCRYPTION_SECRET_KEY!);
-
-    const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(data), key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-
-    // Retorna o texto criptografado em formato hexadecimal
-    return encrypted.ciphertext.toString(CryptoJS.enc.Hex);
-  }
-
 
   private async waitForPreloadScene() {
     return new Promise<void>((resolve) => {

@@ -324,7 +324,9 @@ export class GameLogic extends BaseObject {
         var notas = this.notes.length;
         var porNota = maxGanho / notas;
 
-        this.money -= porNota;
+        this.money -= porNota * 3; // multiplicado por x2, a cada erro
+
+        if(this.money < 0) this.money = 0;
         //
     }
 
@@ -398,7 +400,7 @@ export class GameLogic extends BaseObject {
 
         const totalNotes = hittedNotes + missedNotes;
 
-        let hitRatio = clamp(missedNotes / totalNotes, 0, 1);
+        let hitRatio = clamp(hittedNotes / totalNotes, 0, 1);
         if(Number.isNaN(hitRatio)) hitRatio = 0;
 
         return hitRatio;
