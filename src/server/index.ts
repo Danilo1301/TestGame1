@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import socketio from "socket.io";
 import path from "path";
+import cors from "cors";
 import { resolve } from "path";
 import { config } from "dotenv";
 import {
@@ -55,7 +56,31 @@ const main = async () => {
   await loadSongs();
 };
 
-const setupExpressServer = () => {
+const setupExpressServer = () =>
+{
+  const allowedOrigins = [
+    'https://abstractor-1pgz.onrender.com',
+    'https://guitarrinha.com',
+    'https://guitarmoneys.com'
+  ];
+
+  app.use(cors({
+    origin: function (origin, callback) {
+
+      if(!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (!allowedOrigins.includes(origin)) {
+        callback(new Error('Not allowed by CORS'));
+        return;
+      }
+      
+      callback(null, true);
+    }
+  }));
+  
   app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -63,8 +88,6 @@ const setupExpressServer = () => {
   });
 
   app.get("/demo", function (req, res, next) {
-    //demo=1&duration=30&betValue=2000&songId=0
-
     const params = "demo=1&duration=50&betValue=2000&songId=0";
 
     res.redirect(
