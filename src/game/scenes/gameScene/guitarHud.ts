@@ -123,10 +123,10 @@ export class GuitarHud extends BaseObject
             accSize -= 450;
         }
 
-        const accBarBg = scene.add.image(accPosition.x, accPosition.y, "progress_bar_bg");
-        accBarBg.setAngle(-90);
-        accBarBg.setDisplaySize(accSize + 4, 30 + 4);
-        Hud.addToHudLayer(accBarBg);
+        // const accBarBg = scene.add.image(accPosition.x, accPosition.y, "progress_bar_bg");
+        // accBarBg.setAngle(-90);
+        // accBarBg.setDisplaySize(accSize + 4, 30 + 4);
+        // Hud.addToHudLayer(accBarBg);
         
         const accProgressBar = new MaskProgressBar(scene, accSize, 30, "progress_bar", true);
         accProgressBar.container.setPosition(accPosition.x, accPosition.y);

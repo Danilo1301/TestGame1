@@ -1,9 +1,11 @@
 import { BaseObject } from "../../../utils/baseObject";
 import { Graph } from "../../../utils/graph";
 import { getIsMobile } from "../../../utils/utils";
+import { gameSettings } from "../../constants/gameSettings";
 import { Gameface } from "../../gameface/gameface";
 import { eNoteHitGood } from "../../gameface/gameLogic";
 import { Hud } from "../../hud/hud";
+import { GameScene } from "./gameScene";
 
 interface AccuracyInfo {
     text: string
@@ -13,6 +15,7 @@ interface AccuracyInfo {
 export class HitAccuracy extends BaseObject
 {
     public text!: Phaser.GameObjects.Text;
+    public moneyText!: Phaser.GameObjects.Text;
     public comboText!: Phaser.GameObjects.Text;
     public scaleGraph: Graph = new Graph();
     public visibleTime: number = 0;
@@ -57,6 +60,14 @@ export class HitAccuracy extends BaseObject
         container.add(text);
         this.text = text;
 
+        const moneyText = scene.add.text(0, 0, 'MONEY_TEXT').setFontFamily('Arial');
+        moneyText.setFontSize(40);
+        moneyText.setColor("#0EFF6E");
+        moneyText.setOrigin(0.5);
+        moneyText.setStroke('#000000', 8);
+        container.add(moneyText);
+        this.moneyText = moneyText;
+
         const comboText = scene.add.text(0, 50, 'SCORE').setFontFamily('Arial');
         comboText.setFontSize(40);
         comboText.setColor('#ffffff');
@@ -78,8 +89,16 @@ export class HitAccuracy extends BaseObject
             if(this.visibleTime < 0) this.visibleTime = 0;
         }
 
-        this.text.setScale(this.scaleGraph.getValue());
-        this.text.setVisible(this.visibleTime > 0);
+        //this.text.setScale(this.scaleGraph.getValue());
+        //this.text.setVisible(this.visibleTime > 0);
+        this.text.setVisible(false);
+
+        const accumulatedMoney = GameScene.Instance.accumulatedMoney;
+
+        
+        this.moneyText.setScale(this.scaleGraph.getValue());
+        this.moneyText.setVisible(this.visibleTime > 0);
+        this.moneyText.setText(`+ ${gameSettings.currency} ${accumulatedMoney.toFixed(2)}`);
         
         this.comboText.setScale(this.scaleGraph.getValue());
         this.comboText.setVisible(this.comboVisible);

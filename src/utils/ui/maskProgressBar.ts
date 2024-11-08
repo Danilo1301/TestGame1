@@ -8,7 +8,7 @@ import { Button } from "./button";
 export class MaskProgressBar
 {
     public container: Phaser.GameObjects.Container;
-    public shape: Phaser.GameObjects.Image;
+    //public shape: Phaser.GameObjects.Image;
 
     public maskOffsetX: number = 25; // offset of the part that is usually round in the mask
     
@@ -28,25 +28,23 @@ export class MaskProgressBar
 
         const margin = 3;
 
-        const background = scene.add.image(0, 0, texture);
-        background.setDisplaySize(width, height);
-        container.add(background);
+        // const background = scene.add.image(0, 0, texture);
+        // background.setDisplaySize(width, height);
+        // container.add(background);
 
-        const shape = scene.add.image(0, 0, "progress_bar_mask").setVisible(false);
-        shape.setAlpha(1);
-        shape.setDisplaySize(width, height);
+        // const shape = scene.add.image(0, 0, "progress_bar_mask").setVisible(false);
+        // shape.setAlpha(1);
+        // shape.setDisplaySize(width, height);
         
-        //container.add(shape);  // cant add shape to container
-        this.shape = shape;
+        //this.shape = shape;
 
-        var mask = scene.add.bitmapMask(shape);
-
-        background.setMask(mask);
+        //var mask = scene.add.bitmapMask(shape);
+        //background.setMask(mask);
 
         if(vertical)
         {
-            background.setAngle(-90);
-            shape.setAngle(-90);
+            //background.setAngle(-90);
+            //shape.setAngle(-90);
         }
     }
 
@@ -69,7 +67,7 @@ export class MaskProgressBar
             position.y -= this._progress * this._width;
         }
 
-        this.shape.setPosition(position.x, position.y);
+        //this.shape.setPosition(position.x, position.y);
 
         //this.mask.setPosition(this._progress * this._width - this.maskOffsetX, 0);
     }

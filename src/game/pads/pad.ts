@@ -129,7 +129,7 @@ export class Pad extends BaseObject
 
     public hitNote(note: Note)
     {
-        this.padHitText.show();
+        //this.padHitText.show();
 
         if(note.songNote.dragTime > 0)
         {

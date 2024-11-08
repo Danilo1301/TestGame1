@@ -275221,6 +275221,7 @@ const matchData_1 = __webpack_require__(/*! ./matchData */ "./src/game/gameface/
 const gameLogic_1 = __webpack_require__(/*! ./gameLogic */ "./src/game/gameface/gameLogic.ts");
 const songManager_1 = __webpack_require__(/*! ../songManager */ "./src/game/songManager.ts");
 const loadScene_1 = __webpack_require__(/*! ../scenes/loadScene */ "./src/game/scenes/loadScene.ts");
+const gameSettings_1 = __webpack_require__(/*! ../constants/gameSettings */ "./src/game/constants/gameSettings.ts");
 const encrypt_1 = __webpack_require__(/*! ../../utils/encrypt */ "./src/utils/encrypt.ts");
 class Gameface extends baseObject_1.BaseObject {
     get phaser() {
@@ -275316,10 +275317,8 @@ class Gameface extends baseObject_1.BaseObject {
                 alert(`Coloque uma URL válida!`);
             }
             console.log(`params decrypted`);
-            //matchId=22&betValue=20&songId=0&userId=1
-            //bed9a8b55460f864acf684d8f5d83d388781799a81549d830ba348cab25748475674122c2abc04f1c658aa79e1443fbe
-            //matchId=22&betValue=20&songId=1&userId=1
-            //bed9a8b55460f864acf684d8f5d83d38a124c5aa5faa2e03a3831a893bc5b86b4eb7be00e1aa41a1c4918d6ebb94a85a
+            const encryptTest = "matchId=22&betValue=2000&songId=2&userId=1&i=1";
+            //console.log(encryptTest, encrypt(encryptTest));
             const params = (0, utils_1.getQueryParamsFromString)(paramsText);
             console.log(`got query params`);
             //console.log(params)
@@ -275328,7 +275327,11 @@ class Gameface extends baseObject_1.BaseObject {
             let matchId = params.matchId;
             let songId = params.songId;
             let userId = params.userId;
+            let i = params.userId;
             let betValue = parseInt(params.betValue) / 100;
+            if (i != undefined) {
+                gameSettings_1.gameSettings.noteTimeToAchieve = 1700;
+            }
             const gameLogic = Gameface.Instance.gameLogic;
             const matchData = gameLogic.matchData;
             if (parseInt(demo) == 1) {
@@ -275632,9 +275635,9 @@ window.game.hardMode = () => {
 window.game.jumpToEnd = () => {
     gameScene_1.GameScene.Instance.soundPlayer.audio.currentTime = (gameScene_1.GameScene.Instance.soundPlayer.getFinishTime() / 1000) - 2;
 };
-window.game.forceFinish = (money) => {
-    gameface.sendFinishGameWithCustomMoney(money);
-};
+// window.game.forceFinish = (money: number) => {
+//     gameface.sendFinishGameWithCustomMoney(money);
+// }
 if (gameSettings_1.gameSettings.exposeVars) {
     const w = window;
     w["gameface"] = gameface;
@@ -276284,7 +276287,7 @@ class Pad extends baseObject_1.BaseObject {
         gameScene_1.GameScene.Instance.events.emit("pad_down", this);
     }
     hitNote(note) {
-        this.padHitText.show();
+        //this.padHitText.show();
         if (note.songNote.dragTime > 0) {
             //moved to gamelogic
             //this.startDrag(note);
@@ -277862,10 +277865,10 @@ class GuitarHud extends baseObject_1.BaseObject {
             accPosition.set(35, gameSize.y / 2 - 250);
             accSize -= 450;
         }
-        const accBarBg = scene.add.image(accPosition.x, accPosition.y, "progress_bar_bg");
-        accBarBg.setAngle(-90);
-        accBarBg.setDisplaySize(accSize + 4, 30 + 4);
-        hud_1.Hud.addToHudLayer(accBarBg);
+        // const accBarBg = scene.add.image(accPosition.x, accPosition.y, "progress_bar_bg");
+        // accBarBg.setAngle(-90);
+        // accBarBg.setDisplaySize(accSize + 4, 30 + 4);
+        // Hud.addToHudLayer(accBarBg);
         const accProgressBar = new maskProgressBar_1.MaskProgressBar(scene, accSize, 30, "progress_bar", true);
         accProgressBar.container.setPosition(accPosition.x, accPosition.y);
         hud_1.Hud.addToHudLayer(accProgressBar.container);
@@ -277987,9 +277990,11 @@ exports.HitAccuracy = void 0;
 const baseObject_1 = __webpack_require__(/*! ../../../utils/baseObject */ "./src/utils/baseObject.ts");
 const graph_1 = __webpack_require__(/*! ../../../utils/graph */ "./src/utils/graph.ts");
 const utils_1 = __webpack_require__(/*! ../../../utils/utils */ "./src/utils/utils.ts");
+const gameSettings_1 = __webpack_require__(/*! ../../constants/gameSettings */ "./src/game/constants/gameSettings.ts");
 const gameface_1 = __webpack_require__(/*! ../../gameface/gameface */ "./src/game/gameface/gameface.ts");
 const gameLogic_1 = __webpack_require__(/*! ../../gameface/gameLogic */ "./src/game/gameface/gameLogic.ts");
 const hud_1 = __webpack_require__(/*! ../../hud/hud */ "./src/game/hud/hud.ts");
+const gameScene_1 = __webpack_require__(/*! ./gameScene */ "./src/game/scenes/gameScene/gameScene.ts");
 class HitAccuracy extends baseObject_1.BaseObject {
     constructor() {
         super();
@@ -278024,6 +278029,13 @@ class HitAccuracy extends baseObject_1.BaseObject {
         text.setStroke('#000000', 8);
         container.add(text);
         this.text = text;
+        const moneyText = scene.add.text(0, 0, 'MONEY_TEXT').setFontFamily('Arial');
+        moneyText.setFontSize(40);
+        moneyText.setColor("#0EFF6E");
+        moneyText.setOrigin(0.5);
+        moneyText.setStroke('#000000', 8);
+        container.add(moneyText);
+        this.moneyText = moneyText;
         const comboText = scene.add.text(0, 50, 'SCORE').setFontFamily('Arial');
         comboText.setFontSize(40);
         comboText.setColor('#ffffff');
@@ -278040,8 +278052,13 @@ class HitAccuracy extends baseObject_1.BaseObject {
             if (this.visibleTime < 0)
                 this.visibleTime = 0;
         }
-        this.text.setScale(this.scaleGraph.getValue());
-        this.text.setVisible(this.visibleTime > 0);
+        //this.text.setScale(this.scaleGraph.getValue());
+        //this.text.setVisible(this.visibleTime > 0);
+        this.text.setVisible(false);
+        const accumulatedMoney = gameScene_1.GameScene.Instance.accumulatedMoney;
+        this.moneyText.setScale(this.scaleGraph.getValue());
+        this.moneyText.setVisible(this.visibleTime > 0);
+        this.moneyText.setText(`+ ${gameSettings_1.gameSettings.currency} ${accumulatedMoney.toFixed(2)}`);
         this.comboText.setScale(this.scaleGraph.getValue());
         this.comboText.setVisible(this.comboVisible);
     }
@@ -278299,7 +278316,7 @@ class SoundPlayer {
         this._startedTime = performance.now();
         this._running = true;
         this._audio = audioManager_1.AudioManager.playAudio(song.sound);
-        this._audio.volume = 0.05;
+        this._audio.volume = 0.1;
         //this._audio.pause();
         //this._audio.play();
         this.recreateNotes();
@@ -279930,6 +279947,7 @@ exports.MaskProgressBar = void 0;
 */
 class MaskProgressBar {
     constructor(scene, width, height, texture, vertical = false) {
+        //public shape: Phaser.GameObjects.Image;
         this.maskOffsetX = 25; // offset of the part that is usually round in the mask
         this._progress = 1.0;
         this._width = width;
@@ -279937,19 +279955,18 @@ class MaskProgressBar {
         const container = scene.add.container(0, 0);
         this.container = container;
         const margin = 3;
-        const background = scene.add.image(0, 0, texture);
-        background.setDisplaySize(width, height);
-        container.add(background);
-        const shape = scene.add.image(0, 0, "progress_bar_mask").setVisible(false);
-        shape.setAlpha(1);
-        shape.setDisplaySize(width, height);
-        //container.add(shape);  // cant add shape to container
-        this.shape = shape;
-        var mask = scene.add.bitmapMask(shape);
-        background.setMask(mask);
+        // const background = scene.add.image(0, 0, texture);
+        // background.setDisplaySize(width, height);
+        // container.add(background);
+        // const shape = scene.add.image(0, 0, "progress_bar_mask").setVisible(false);
+        // shape.setAlpha(1);
+        // shape.setDisplaySize(width, height);
+        //this.shape = shape;
+        //var mask = scene.add.bitmapMask(shape);
+        //background.setMask(mask);
         if (vertical) {
-            background.setAngle(-90);
-            shape.setAngle(-90);
+            //background.setAngle(-90);
+            //shape.setAngle(-90);
         }
     }
     setProgress(progress) {
@@ -279966,7 +279983,7 @@ class MaskProgressBar {
             position.y += this._width;
             position.y -= this._progress * this._width;
         }
-        this.shape.setPosition(position.x, position.y);
+        //this.shape.setPosition(position.x, position.y);
         //this.mask.setPosition(this._progress * this._width - this.maskOffsetX, 0);
     }
 }

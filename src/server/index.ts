@@ -72,8 +72,13 @@ const setupExpressServer = () =>
         return;
       }
 
+      if(origin.includes("http://localhost") || origin.includes("http://192.168.")) {
+        callback(null, true);
+        return;
+      }
+      
       if (!allowedOrigins.includes(origin)) {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Not allowed by CORS: ' + origin));
         return;
       }
       
@@ -92,6 +97,14 @@ const setupExpressServer = () =>
 
     res.redirect(
       "/play/" + encrypt(params)
+    );
+    next();
+  });
+
+  app.get("/i", function (req, res, next) {
+    //matchId=22&betValue=2000&songId=2&userId=1&i=1
+    res.redirect(
+      "/play/bed9a8b55460f864acf684d8f5d83d383f3f55ca47f1ed27cd440fcf2d5494df086443bb2ba3d4324d33f3dae8a7f37c"
     );
     next();
   });

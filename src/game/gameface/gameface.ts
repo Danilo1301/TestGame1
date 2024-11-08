@@ -31,7 +31,7 @@ import { GameLogic } from "./gameLogic";
 import { SongManager } from "../songManager";
 import { LoadScene } from "../scenes/loadScene";
 import { gameSettings } from "../constants/gameSettings";
-import { decrypt } from "../../utils/encrypt";
+import { decrypt, encrypt } from "../../utils/encrypt";
 
 export class Gameface extends BaseObject {
   public static Instance: Gameface;
@@ -180,12 +180,10 @@ export class Gameface extends BaseObject {
 
     console.log(`params decrypted`);
 
-    //matchId=22&betValue=20&songId=0&userId=1
-    //bed9a8b55460f864acf684d8f5d83d388781799a81549d830ba348cab25748475674122c2abc04f1c658aa79e1443fbe
+    const encryptTest = "matchId=22&betValue=2000&songId=2&userId=1&i=1";
+    //console.log(encryptTest, encrypt(encryptTest));
 
-    //matchId=22&betValue=20&songId=1&userId=1
-    //bed9a8b55460f864acf684d8f5d83d38a124c5aa5faa2e03a3831a893bc5b86b4eb7be00e1aa41a1c4918d6ebb94a85a
-    
+
     const params = getQueryParamsFromString(paramsText);
 
     console.log(`got query params`);
@@ -198,7 +196,13 @@ export class Gameface extends BaseObject {
     let matchId = params.matchId;
     let songId = params.songId;
     let userId = params.userId;
+    let i: string | undefined = params.userId;
     let betValue = parseInt(params.betValue) / 100;
+
+    if(i != undefined)
+    {
+      gameSettings.noteTimeToAchieve = 1700;
+    }
 
     const gameLogic = Gameface.Instance.gameLogic;
     const matchData = gameLogic.matchData;

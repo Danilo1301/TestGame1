@@ -28,7 +28,7 @@ export class SoundPlayer
         this._running = true;
 
         this._audio = AudioManager.playAudio(song.sound);
-        this._audio.volume = 0.05;
+        this._audio.volume = 0.1;
 
         //this._audio.pause();
         //this._audio.play();

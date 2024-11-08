@@ -31,9 +31,9 @@ window.game.hardMode = () => {
 window.game.jumpToEnd = () => {
     GameScene.Instance.soundPlayer.audio!.currentTime = (GameScene.Instance.soundPlayer.getFinishTime() / 1000) - 2;
 }
-window.game.forceFinish = (money: number) => {
-    gameface.sendFinishGameWithCustomMoney(money);
-}
+// window.game.forceFinish = (money: number) => {
+//     gameface.sendFinishGameWithCustomMoney(money);
+// }
 
 if(gameSettings.exposeVars)
 {
